@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,ICNet," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="ICNet是一个基于PSPNet的实时语义分割网络，是在准确率和推断速度上的取得一个折中方案。">
+<meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,ICNet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文-ICNet">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/01/08/语义分割论文-ICNet/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="ICNet是一个基于PSPNet的实时语义分割网络，是在准确率和推断速度上的取得一个折中方案。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/DGj6Dmaa1D.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/FLH47GJ6ih.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/FBGD1HiahE.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/CgHeHADK2I.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/HkcKGh5j5f.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/4HIaeE81Fd.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/Ke1bI1bEAC.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/6c54d29BE5.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/JI5KmA0B6B.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/m767Iik7KB.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/l4DA8k4Adl.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/5dLD0L7FcE.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/54Kd8ikK1g.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/E3G1jEGiHj.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/ifkHfHBEH5.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/6bAa3IDCCf.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/dBKHiJGdjB.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/m2mlmKDlAk.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/agACI0jE2m.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/BgJma5FA6L.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/H65cK1A6J7.png">
+<meta property="og:updated_time" content="2018-01-29T02:47:13.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文-ICNet">
+<meta name="twitter:description" content="ICNet是一个基于PSPNet的实时语义分割网络，是在准确率和推断速度上的取得一个折中方案。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180108/DGj6Dmaa1D.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/01/08/语义分割论文-ICNet/"/>
+
+
+
+
+
+  <title>语义分割论文-ICNet | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/01/08/语义分割论文-ICNet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文-ICNet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-08T21:06:46+08:00">
+                2018-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  ICNet是一个基于PSPNet的实时语义分割网络，是在准确率和推断速度上的取得一个折中方案。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="ICNet"><a href="#ICNet" class="headerlink" title="ICNet"></a>ICNet</h1><p>ICNet for Real-Time Semantic Segmentation on High-Resolution Images</p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1704.08545.pdf" target="_blank" rel="external">ICNet</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/hszhao/ICNet" target="_blank" rel="external">github-Caffe</a></li>
+<li><a href="https://github.com/hellochick/ICNet-tensorflow" target="_blank" rel="external">TensorFlow</a></li>
+</ul>
+<hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>ICNet是一个基于PSPNet的实时语义分割网络，设计目的是减少PSPNet推断时期的耗时，论文对PSPNet做了深入分析，在PSPNet的基础上引入级联特征融合模块，实现快速且高质量的分割模型。论文报告了在Cityscape上的表现。</p>
+<hr>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>现有的语义分割模型在Cityscape上的表现：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/DGj6Dmaa1D.png" alt="mark"></p>
+<p>可以看到，许多高质量的分割模型的推理速度远远达不到实时要求。本文的目的是在不牺牲过多分割质量的前提下提高模型推理速度，达到实时要求。本文是在PSPNet的基础上，找了一个accuracy和speed上的平衡点。</p>
+<p>论文的主要贡献在于：</p>
+<ul>
+<li>综合低分辨率图像的处理速度和高分辨率图像的推断质量，提出图像级联框架逐步细化分割预测</li>
+<li>本文提出的ICNet达到了5x以上的加速，并减少了5x倍以上的内存消耗</li>
+<li>ICNet可以在$1024×2048$分辨率下保持30fps运行</li>
+</ul>
+<hr>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>最近CNN表现出比传统方法强大的特征提取能力。</p>
+<ul>
+<li><p><strong>高质量的语义分割模型</strong>： 先驱工作FCN将FC层换为卷积层； DeepLab等使用空洞卷积(dilated convolution)；Encoder-Decoder结构融合高层的语义和底层的细节；也有使用CRF、MRF模拟空间关系；PSPNet采用空间上的金字塔池化结构。这些方法对于提高性能有效，但不能用于实时系统。</p>
+</li>
+<li><p><strong>快速的语义分割模型</strong>：SegNet放弃层信息来提速；ENet是一个轻量级网络，这些方法虽然快，但是性能差</p>
+</li>
+<li><p><strong>视频分割模型</strong>： 视频中包含大量冗余信息，可利用减少计算量。etc..</p>
+</li>
+</ul>
+<p>论文给出了一个快速的语义分割的层次结构，采用级联图像作为输入加速推理，构建一个实时分割系统。</p>
+<hr>
+<h2 id="Speed-Analysis"><a href="#Speed-Analysis" class="headerlink" title="Speed Analysis"></a>Speed Analysis</h2><p>ICNet是基于PSPNet的，我们先分析PSPNet，PSPNet的结构如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/FLH47GJ6ih.png" alt="mark"></p>
+<h3 id="实时预算-time-budget"><a href="#实时预算-time-budget" class="headerlink" title="实时预算(time budget)"></a>实时预算(time budget)</h3><p>先看看图像分辨率对PSPNet的性能影响，下图显示两个分辨率下时间成本：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/FBGD1HiahE.png" alt="mark"></p>
+<p>蓝色的分辨率为$1024×2048$；绿色的分辨率为$512×512$。</p>
+<p>上图显示了多个信息：</p>
+<ul>
+<li>不同分辨率下速度相差很大，呈平方趋势增加</li>
+<li>网络的宽度越大速度越慢。</li>
+<li><strong>核数量越多速度越慢</strong>。例如：虽然stage4和5的分辨率一致，但速度相差很大，因为5比4核数量多1倍</li>
+</ul>
+<h3 id="提速方向-Intuitive-Speedup"><a href="#提速方向-Intuitive-Speedup" class="headerlink" title="提速方向(Intuitive Speedup)"></a>提速方向(Intuitive Speedup)</h3><p><strong>输入降采样</strong>：<br>依据上面的分析，半分辨率的推断时间为全分辨率的1/4.测试不同分辨率下输入下的预测情况。一个简单的测试方法使用1/2,1/4的输入，将输出上采样回原来的大小。实验如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/CgHeHADK2I.png" alt="mark"></p>
+<p>如图所示的几个缺点。在缩放为.25的情况下，虽然推断时间大大简短，但是预测结果非常粗糙，丢失了很多小但重要的细节。缩放0.5相对来说好了很多，但依旧丢失了很多细节，并且最麻烦的是推理速度达不到实时要求了。</p>
+<p><strong>特征降采样</strong>：<br>输入能降采样，自然特征也可以降采样。这里以1:8,1:16,1:32的比例测试PSPNet50，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/HkcKGh5j5f.png" alt="mark"></p>
+<p>较小的特征图可以以牺牲准确度换取更快的推断，但考虑到使用1:32（132ms）依然达不到实时要求.</p>
+<p><strong>模型压缩</strong>：<br>减少网络的复杂度，有一个直接的方法就是修正每层的核数量，论文测试了一些有效的模型压缩策略。即使只保留四分之一的核，推断时间还是很长。并且准确率大大降低了。</p>
+<hr>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>总结一下前面速度分析的结果，一系列的优化方法：</p>
+<ul>
+<li><strong>输入分辨率</strong>：降低输入分辨率能都大幅度的加速，但同时会让预测非常模糊</li>
+<li><strong>降低下采样特征</strong>：降低下采样可以加速但同时会降低准确率</li>
+<li><strong>压缩模型</strong>：压缩训练好的模型，通过减轻模型达到加速效果，可惜实验效果不佳</li>
+</ul>
+<p>ICNet总结了上述几个问题，提出了一个综合性的方法：使用低分辨率加速捕捉语义，使用高分辨率获取细节，使用级联网络结合，在限制的时间内获得有效的结果。</p>
+<p>模型结构如下：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/4HIaeE81Fd.png" alt="mark"></p>
+<p>图片分为1,1/2,1/4这三个尺度分三路送到模型中(实际代码和这个描述不一致，见后面代码分析)，三个分支介绍如下：</p>
+<table>
+<thead>
+<tr>
+<th>分支</th>
+<th>过程</th>
+<th>耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低分辨率</td>
+<td>在中分辨率的1/16输出的基础上，再缩放到1/32.经过卷积后，然后使用几个dilated convolution扩展接受野但不缩小尺寸，最终以原图的1/32大小输出feature map。</td>
+<td>虽然层数较多，但是分辨率低，速度快，且与分支二共享一部分权重</td>
+</tr>
+<tr>
+<td>中分辨率</td>
+<td>以原图的1/2的分辨率作为输入，经过卷积后以1/8缩放，得到原图的1/16大小feature map，再将低分辨率分支的输出feature map通过CFF(cascade feature fusion)单元相融合得到最终输出。值得注意的是：<strong>低分辨率和中分辨率的卷积参数是共享的。</strong></td>
+<td>有17个卷积层，与分支一共享一部分权重，与分支一一起一共耗时6ms</td>
+</tr>
+<tr>
+<td>高分辨率</td>
+<td>原图输入，经过卷积后以1/8缩放，得到原图的1/8大小的feature map，再将中分辨率处理后的输出通过CFF单元融合</td>
+<td>有3个卷积层，虽然分辨率高，因为少，耗时为9ms</td>
+</tr>
+</tbody>
+</table>
+<p>对于每个分支的输出特征，首先会上采样2倍做输出，在训练的时候，会以Ground truth的1/16、1/8/、1/4来指导各个分支的训练，这样的辅助训练使得梯度优化更为平滑，便于训练收敛，随着每个分支学习能力的增强，预测没有被任何一个分支主导。利用这样的渐变的特征融合和级联引导结构可以产生合理的预测结果。</p>
+<p>ICNet使用低分辨率完成语义分割，使用高分辨率帮助细化结果。在结构上，产生的feature大大减少，同时仍然保持必要的细节。</p>
+<p>不同分支的预测效果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/Ke1bI1bEAC.png" alt="mark"></p>
+<p>可以看到第三个分支输出效果无疑是最好的。在测试时，只保留第三分支的结果。</p>
+<h3 id="CFF单元"><a href="#CFF单元" class="headerlink" title="CFF单元"></a>CFF单元</h3><p>在ICNet中，分支之间的融合是通过CFF模块完成的。结构如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/6c54d29BE5.png" alt="mark"></p>
+<p>将低分辨率的图片上采样后使用空洞卷积(dilated conv)，扩大上采样结果的感受野范围。</p>
+<p><strong>注意将辅助的标签引导设置为0.4（依据PSPNet的实验结果）</strong>，即如果下分支的loss$L_3$的占比$\lambda_3$设置为1的话,则中分支的loss$L_2$的占比$\lambda_2$设置为0.4，上分支的loss$L_1$的占比$\lambda_1$设置为0.16。</p>
+<h3 id="损失函数和模型压缩"><a href="#损失函数和模型压缩" class="headerlink" title="损失函数和模型压缩"></a>损失函数和模型压缩</h3><p><strong>损失函数：</strong><br>依据不同的分支定义如下：$$L=\lambda_1L_1+\lambda_2L_2+\lambda_3L_3$$</p>
+<p>依据CFF的设置，下分支的loss$L_3$的占比$\lambda_3$设置为1的话,则中分支的loss$L_2$的占比$\lambda_2$设置为0.4，上分支的loss$L_1$的占比$\lambda_1$设置为0.16。</p>
+<p><strong>压缩模型</strong>：<br>正如前面所述，压缩模型可能通过减少层的核数，降低模型复杂度。</p>
+<p>论文采用的一个简单而有效的办法：渐进式压缩。例如以压缩率1/2为例，我们可以先压缩到3/4，对压缩后的模型进行微调，完成后，再压缩到1/2，再微调。保证压缩稳定进行。</p>
+<p>这里采用<a href="https://arxiv.org/pdf/1608.08710.pdf" target="_blank" rel="external">Pruning filters for efficient convnets</a>的方法，对于每个滤波器计算核权重的L1和，降序排序，删除权重值较小的。</p>
+<hr>
+<h2 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h2><p>实验细节：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>平台</td>
+<td>Caffe，CUDA7.5 cudnnV5，TitanX单卡</td>
+</tr>
+<tr>
+<td>测量推荐时间</td>
+<td>Caffe time，100次取均值</td>
+</tr>
+<tr>
+<td>batch size</td>
+<td>16</td>
+</tr>
+<tr>
+<td>学习率</td>
+<td>poly策略，基础学习率为0.01,动量0.9</td>
+</tr>
+<tr>
+<td>迭代次数</td>
+<td>30K</td>
+</tr>
+<tr>
+<td>权重衰减</td>
+<td>0.0001</td>
+</tr>
+<tr>
+<td>数据增强</td>
+<td>随机翻转，在0.5到2之间随机放缩</td>
+</tr>
+</tbody>
+</table>
+<p>ICNet是从PSPNet修改而来，将PSPNet的池化级联改为了求和，将通道4096减少到2048，改变了PSP模型后的卷积核大小，从$3×3$改为$1×1$，这对结果影响不大，但可以大大节省计算量。</p>
+<p>数据集使用的是的Cityscapes，评估标准有mIoU和推断时间.</p>
+<h3 id="模型压缩的实验"><a href="#模型压缩的实验" class="headerlink" title="模型压缩的实验"></a>模型压缩的实验</h3><p>以PSPNet50为例，直接压缩结果如下表<code>Baseline</code>：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/JI5KmA0B6B.png" alt="mark"></p>
+<p>mIoU降低了，但推理时间170ms达不到实时要求。这表明只是模型压缩是达不到有良好分割结果的实时性能。对比ICNet，有类似的分割结果，但速度提升了5倍多。</p>
+<h3 id="级联结构的有效性实验"><a href="#级联结构的有效性实验" class="headerlink" title="级联结构的有效性实验"></a>级联结构的有效性实验</h3><p>测试级联结构的有效性实验，是通过不同分支的输出对比，如下表：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/m767Iik7KB.png" alt="mark"></p>
+<p><code>sub4</code>代表只有低分辨率输入的结果，<code>sub24</code>代表前两个分支，<code>sub124</code>全部分支。注意到全部分支的速度很快，并且性能接近PSPNet了，且能保持30fps。而且内存消耗也明显减少了。</p>
+<h3 id="视觉比较"><a href="#视觉比较" class="headerlink" title="视觉比较"></a>视觉比较</h3><p>下图是输入和输出之间的比较：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/l4DA8k4Adl.png" alt="mark"></p>
+<p>可以看到<code>sub4</code>可以捕捉到大部分的语义了、但因为是低分辨率输入，输出很粗糙。无论是<code>sub4</code>还是<code>sub24</code>都或多或少的丢失了细节。</p>
+<h3 id="定量分析"><a href="#定量分析" class="headerlink" title="定量分析"></a>定量分析</h3><p>进一步确定每个分支的效率增益，基于连通图定量分析(这个实验没看懂~)</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/5dLD0L7FcE.png" alt="mark"></p>
+<h3 id="Cityscapes上的表现"><a href="#Cityscapes上的表现" class="headerlink" title="Cityscapes上的表现"></a>Cityscapes上的表现</h3><p>ICNet训练90K后与其他模型比较：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/54Kd8ikK1g.png" alt="mark"></p>
+<p>可以看到ICNet的效果不错</p>
+<hr>
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>论文在PSPNet的基础上改进出一个ICNet。 核心的思想是利用低分辨率的快速获取语义信息，高分辨率的细节信息。将两者相融合搞出一个折中的模型。</p>
+<hr>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>这里没有直接分析原版的<a href="https://github.com/hszhao/ICNet" target="_blank" rel="external">Caffe版本</a>.选择的是一个比较好理解的<a href="https://github.com/hellochick/ICNet-tensorflow" target="_blank" rel="external">TensorFlow版本</a>。</p>
+<h3 id="代码框架"><a href="#代码框架" class="headerlink" title="代码框架"></a>代码框架</h3><p>这个TensorFlow代码比较有意思，用装饰器做了一个链式模型，我们先看基本的装饰器和NetWork基类架构实现。</p>
+<p>代码<a href="https://github.com/hellochick/ICNet-tensorflow/blob/master/network.py" target="_blank" rel="external">network</a>包含装饰器等定义：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div><div class="line">296</div><div class="line">297</div><div class="line">298</div><div class="line">299</div><div class="line">300</div><div class="line">301</div><div class="line">302</div><div class="line">303</div><div class="line">304</div><div class="line">305</div><div class="line">306</div><div class="line">307</div><div class="line">308</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line">slim = tf.contrib.slim</div><div class="line"></div><div class="line">DEFAULT_PADDING = <span class="string">'VALID'</span></div><div class="line">DEFAULT_DATAFORMAT = <span class="string">'NHWC'</span></div><div class="line">layer_name = []</div><div class="line">BN_param_map = &#123;<span class="string">'scale'</span>:    <span class="string">'gamma'</span>,</div><div class="line">                <span class="string">'offset'</span>:   <span class="string">'beta'</span>,</div><div class="line">                <span class="string">'variance'</span>: <span class="string">'moving_variance'</span>,</div><div class="line">                <span class="string">'mean'</span>:     <span class="string">'moving_mean'</span>&#125;</div><div class="line">                </div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">layer</span><span class="params">(op)</span>:</span></div><div class="line">    <span class="string">'''定义可组合网络层的装饰器。Decorator for composable network layers.'''</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">layer_decorated</span><span class="params">(self, *args, **kwargs)</span>:</span></div><div class="line">        <span class="comment"># 如果没有提供name，则自动配置</span></div><div class="line">        name = kwargs.setdefault(<span class="string">'name'</span>, self.get_unique_name(op.__name__))</div><div class="line">        <span class="comment"># 弄清楚该层的输入</span></div><div class="line">        <span class="keyword">if</span> len(self.terminals) == <span class="number">0</span>:</div><div class="line">            <span class="keyword">raise</span> RuntimeError(<span class="string">'No input variables found for layer %s.'</span> % name)</div><div class="line">        <span class="keyword">elif</span> len(self.terminals) == <span class="number">1</span>:</div><div class="line">            layer_input = self.terminals[<span class="number">0</span>]</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            layer_input = list(self.terminals)</div><div class="line">        <span class="comment"># 执行对应的操作并输出结果</span></div><div class="line">        layer_output = op(self, layer_input, *args, **kwargs)</div><div class="line">        <span class="comment"># Add to layer LUT.</span></div><div class="line">        self.layers[name] = layer_output</div><div class="line">        layer_name.append(name)</div><div class="line">        <span class="comment"># 该层输出是下层的输入</span></div><div class="line">        self.feed(layer_output)</div><div class="line">        <span class="comment"># 返回self，用于链式调用</span></div><div class="line">        <span class="keyword">return</span> self</div><div class="line"></div><div class="line">    <span class="keyword">return</span> layer_decorated</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Network</span><span class="params">(object)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, inputs, trainable=True, is_training=False, num_classes=<span class="number">21</span>)</span>:</span></div><div class="line">        <span class="string">''' 定义一个NetWork基类 提供必要的方法和层定义 '''</span></div><div class="line">        self.inputs = inputs <span class="comment"># 模型input节点</span></div><div class="line">        self.terminals = [] <span class="comment"># 当前存在节点</span></div><div class="line">        self.layers = dict(inputs) <span class="comment"># Mapping from layer names to layers</span></div><div class="line">        <span class="comment"># If true, the resulting variables are set as trainable</span></div><div class="line">        self.is_training = is_training</div><div class="line">        self.trainable = trainable</div><div class="line">        <span class="comment"># Switch variable for dropout</span></div><div class="line">        self.use_dropout = tf.placeholder_with_default(tf.constant(<span class="number">1.0</span>),</div><div class="line">                                                       shape=[],</div><div class="line">                                                       name=<span class="string">'use_dropout'</span>)</div><div class="line"></div><div class="line">        self.setup(is_training, num_classes)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">setup</span><span class="params">(self, is_training)</span>:</span></div><div class="line">        <span class="string">'''Construct the network. '''</span></div><div class="line">        <span class="keyword">raise</span> NotImplementedError(<span class="string">'Must be implemented by the subclass.'</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load</span><span class="params">(self, data_path, session, ignore_missing=False)</span>:</span></div><div class="line">        <span class="string">'''加载模型权重</span></div><div class="line"><span class="string">        data_path: np序列文件地址</span></div><div class="line"><span class="string">        session: 当前的tensorflow session</span></div><div class="line"><span class="string">        ignore_missing: If true, 忽略序列中缺失层</span></div><div class="line"><span class="string">        '''</span></div><div class="line">        data_dict = np.load(data_path, encoding=<span class="string">'latin1'</span>).item()</div><div class="line">        <span class="keyword">for</span> op_name <span class="keyword">in</span> data_dict:</div><div class="line">            <span class="keyword">with</span> tf.variable_scope(op_name, reuse=<span class="keyword">True</span>):</div><div class="line">                <span class="keyword">for</span> param_name, data <span class="keyword">in</span> data_dict[op_name].iteritems():</div><div class="line">                    <span class="keyword">try</span>:</div><div class="line">                        <span class="keyword">if</span> <span class="string">'bn'</span> <span class="keyword">in</span> op_name:</div><div class="line">                            param_name = BN_param_map[param_name]</div><div class="line"></div><div class="line">                        var = tf.get_variable(param_name)</div><div class="line">                        session.run(var.assign(data))</div><div class="line">                    <span class="keyword">except</span> ValueError:</div><div class="line">                        <span class="keyword">if</span> <span class="keyword">not</span> ignore_missing:</div><div class="line">                            <span class="keyword">raise</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">feed</span><span class="params">(self, *args)</span>:</span></div><div class="line">        <span class="string">'''设置一个输入</span></div><div class="line"><span class="string">        The arguments can be either layer names or the actual layers.</span></div><div class="line"><span class="string">        '''</span></div><div class="line">        <span class="keyword">assert</span> len(args) != <span class="number">0</span></div><div class="line">        self.terminals = []</div><div class="line">        <span class="keyword">for</span> fed_layer <span class="keyword">in</span> args:</div><div class="line">            <span class="keyword">if</span> isinstance(fed_layer, str):</div><div class="line">                <span class="keyword">try</span>:</div><div class="line">                    fed_layer = self.layers[fed_layer]</div><div class="line">                <span class="keyword">except</span> KeyError:</div><div class="line">                    <span class="keyword">raise</span> KeyError(<span class="string">'Unknown layer name fed: %s'</span> % fed_layer)</div><div class="line">            self.terminals.append(fed_layer)</div><div class="line">        <span class="keyword">return</span> self</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_output</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">'''获取模型输出.'''</span></div><div class="line">        <span class="keyword">return</span> self.terminals[<span class="number">-1</span>]</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_unique_name</span><span class="params">(self, prefix)</span>:</span></div><div class="line">        <span class="string">'''Returns an index-suffixed unique name for the given prefix.</span></div><div class="line"><span class="string">        This is used for auto-generating layer names based on the type-prefix.</span></div><div class="line"><span class="string">        '''</span></div><div class="line">        ident = sum(t.startswith(prefix) <span class="keyword">for</span> t, _ <span class="keyword">in</span> self.layers.items()) + <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> <span class="string">'%s_%d'</span> % (prefix, ident)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">make_var</span><span class="params">(self, name, shape)</span>:</span></div><div class="line">        <span class="string">'''Creates a new TensorFlow variable.'''</span></div><div class="line">        <span class="keyword">return</span> tf.get_variable(name, shape, trainable=self.trainable)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_layer_name</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> layer_name</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">validate_padding</span><span class="params">(self, padding)</span>:</span></div><div class="line">        <span class="string">'''判断padding设置是否合法'''</span></div><div class="line">        <span class="keyword">assert</span> padding <span class="keyword">in</span> (<span class="string">'SAME'</span>, <span class="string">'VALID'</span>)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">zero_padding</span><span class="params">(self, input, paddings, name)</span>:</span></div><div class="line">        <span class="string">'''zero padding 层  '''</span></div><div class="line">        pad_mat = np.array([[<span class="number">0</span>,<span class="number">0</span>], [paddings, paddings], [paddings, paddings], [<span class="number">0</span>, <span class="number">0</span>]])</div><div class="line">        <span class="keyword">return</span> tf.pad(input, paddings=pad_mat, name=name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">conv</span><span class="params">(self,</span></span></div><div class="line"><span class="function"><span class="params">             input,</span></span></div><div class="line"><span class="function"><span class="params">             k_h,</span></span></div><div class="line"><span class="function"><span class="params">             k_w,</span></span></div><div class="line"><span class="function"><span class="params">             c_o,</span></span></div><div class="line"><span class="function"><span class="params">             s_h,</span></span></div><div class="line"><span class="function"><span class="params">             s_w,</span></span></div><div class="line"><span class="function"><span class="params">             name,</span></span></div><div class="line"><span class="function"><span class="params">             relu=True,</span></span></div><div class="line"><span class="function"><span class="params">             padding=DEFAULT_PADDING,</span></span></div><div class="line"><span class="function"><span class="params">             group=<span class="number">1</span>,</span></span></div><div class="line"><span class="function"><span class="params">             biased=True)</span>:</span></div><div class="line">        <span class="string">''' conv 层'''</span></div><div class="line">        <span class="comment"># Verify that the padding is acceptable</span></div><div class="line">        self.validate_padding(padding)</div><div class="line">        <span class="comment"># Get the number of channels in the input</span></div><div class="line">        c_i = input.get_shape()[<span class="number">-1</span>]</div><div class="line"></div><div class="line">        convolve = <span class="keyword">lambda</span> i, k: tf.nn.conv2d(i, k, [<span class="number">1</span>, s_h, s_w, <span class="number">1</span>], padding=padding,data_format=DEFAULT_DATAFORMAT)</div><div class="line">        <span class="keyword">with</span> tf.variable_scope(name) <span class="keyword">as</span> scope:</div><div class="line">            kernel = self.make_var(<span class="string">'weights'</span>, shape=[k_h, k_w, c_i, c_o])</div><div class="line">            output = convolve(input, kernel)</div><div class="line"></div><div class="line">            <span class="keyword">if</span> biased:</div><div class="line">                biases = self.make_var(<span class="string">'biases'</span>, [c_o])</div><div class="line">                output = tf.nn.bias_add(output, biases)</div><div class="line">            <span class="keyword">if</span> relu:</div><div class="line">                output = tf.nn.relu(output, name=scope.name)</div><div class="line">            <span class="keyword">return</span> output</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">atrous_conv</span><span class="params">(self,</span></span></div><div class="line"><span class="function"><span class="params">                    input,</span></span></div><div class="line"><span class="function"><span class="params">                    k_h,</span></span></div><div class="line"><span class="function"><span class="params">                    k_w,</span></span></div><div class="line"><span class="function"><span class="params">                    c_o,</span></span></div><div class="line"><span class="function"><span class="params">                    dilation,</span></span></div><div class="line"><span class="function"><span class="params">                    name,</span></span></div><div class="line"><span class="function"><span class="params">                    relu=True,</span></span></div><div class="line"><span class="function"><span class="params">                    padding=DEFAULT_PADDING,</span></span></div><div class="line"><span class="function"><span class="params">                    group=<span class="number">1</span>,</span></span></div><div class="line"><span class="function"><span class="params">                    biased=True)</span>:</span></div><div class="line">        <span class="string">''' 空洞卷积 '''</span></div><div class="line">        self.validate_padding(padding)</div><div class="line">        <span class="comment"># Get the number of channels in the input</span></div><div class="line">        c_i = input.get_shape()[<span class="number">-1</span>]</div><div class="line"></div><div class="line">        convolve = <span class="keyword">lambda</span> i, k: tf.nn.atrous_conv2d(i, k, dilation, padding=padding)</div><div class="line">        <span class="keyword">with</span> tf.variable_scope(name) <span class="keyword">as</span> scope:</div><div class="line">            kernel = self.make_var(<span class="string">'weights'</span>, shape=[k_h, k_w, c_i, c_o])</div><div class="line">            output = convolve(input, kernel)</div><div class="line"></div><div class="line">            <span class="keyword">if</span> biased:</div><div class="line">                biases = self.make_var(<span class="string">'biases'</span>, [c_o])</div><div class="line">                output = tf.nn.bias_add(output, biases)</div><div class="line">            <span class="keyword">if</span> relu:</div><div class="line">                output = tf.nn.relu(output, name=scope.name)</div><div class="line">            <span class="keyword">return</span> output</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">relu</span><span class="params">(self, input, name)</span>:</span></div><div class="line">        <span class="keyword">return</span> tf.nn.relu(input, name=name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">max_pool</span><span class="params">(self, input, k_h, k_w, s_h, s_w, name, padding=DEFAULT_PADDING)</span>:</span></div><div class="line">        self.validate_padding(padding)</div><div class="line">        <span class="keyword">return</span> tf.nn.max_pool(input,</div><div class="line">                              ksize=[<span class="number">1</span>, k_h, k_w, <span class="number">1</span>],</div><div class="line">                              strides=[<span class="number">1</span>, s_h, s_w, <span class="number">1</span>],</div><div class="line">                              padding=padding,</div><div class="line">                              name=name,</div><div class="line">                              data_format=DEFAULT_DATAFORMAT)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">avg_pool</span><span class="params">(self, input, k_h, k_w, s_h, s_w, name, padding=DEFAULT_PADDING)</span>:</span></div><div class="line">        self.validate_padding(padding)</div><div class="line"></div><div class="line">        output = tf.nn.avg_pool(input,</div><div class="line">                              ksize=[<span class="number">1</span>, k_h, k_w, <span class="number">1</span>],</div><div class="line">                              strides=[<span class="number">1</span>, s_h, s_w, <span class="number">1</span>],</div><div class="line">                              padding=padding,</div><div class="line">                              name=name,</div><div class="line">                              data_format=DEFAULT_DATAFORMAT)</div><div class="line">        <span class="keyword">return</span> output</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">lrn</span><span class="params">(self, input, radius, alpha, beta, name, bias=<span class="number">1.0</span>)</span>:</span></div><div class="line">        <span class="keyword">return</span> tf.nn.local_response_normalization(input,</div><div class="line">                                                  depth_radius=radius,</div><div class="line">                                                  alpha=alpha,</div><div class="line">                                                  beta=beta,</div><div class="line">                                                  bias=bias,</div><div class="line">                                                  name=name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">concat</span><span class="params">(self, inputs, axis, name)</span>:</span></div><div class="line">        <span class="keyword">return</span> tf.concat(axis=axis, values=inputs, name=name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(self, inputs, name)</span>:</span></div><div class="line">        <span class="keyword">return</span> tf.add_n(inputs, name=name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fc</span><span class="params">(self, input, num_out, name, relu=True)</span>:</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(name) <span class="keyword">as</span> scope:</div><div class="line">            input_shape = input.get_shape()</div><div class="line">            <span class="keyword">if</span> input_shape.ndims == <span class="number">4</span>:</div><div class="line">                <span class="comment"># The input is spatial. Vectorize it first.</span></div><div class="line">                dim = <span class="number">1</span></div><div class="line">                <span class="keyword">for</span> d <span class="keyword">in</span> input_shape[<span class="number">1</span>:].as_list():</div><div class="line">                    dim *= d</div><div class="line">                feed_in = tf.reshape(input, [<span class="number">-1</span>, dim])</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                feed_in, dim = (input, input_shape[<span class="number">-1</span>].value)</div><div class="line">            weights = self.make_var(<span class="string">'weights'</span>, shape=[dim, num_out])</div><div class="line">            biases = self.make_var(<span class="string">'biases'</span>, [num_out])</div><div class="line">            op = tf.nn.relu_layer <span class="keyword">if</span> relu <span class="keyword">else</span> tf.nn.xw_plus_b</div><div class="line">            fc = op(feed_in, weights, biases, name=scope.name)</div><div class="line">            <span class="keyword">return</span> fc</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">softmax</span><span class="params">(self, input, name)</span>:</span></div><div class="line">        input_shape = map(<span class="keyword">lambda</span> v: v.value, input.get_shape())</div><div class="line">        <span class="keyword">if</span> len(input_shape) &gt; <span class="number">2</span>:</div><div class="line">            <span class="comment"># For certain models (like NiN), the singleton spatial dimensions</span></div><div class="line">            <span class="comment"># need to be explicitly squeezed, since they're not broadcast-able</span></div><div class="line">            <span class="comment"># in TensorFlow's NHWC ordering (unlike Caffe's NCHW).</span></div><div class="line">            <span class="keyword">if</span> input_shape[<span class="number">1</span>] == <span class="number">1</span> <span class="keyword">and</span> input_shape[<span class="number">2</span>] == <span class="number">1</span>:</div><div class="line">                input = tf.squeeze(input, squeeze_dims=[<span class="number">1</span>, <span class="number">2</span>])</div><div class="line">            <span class="keyword">else</span>:        <span class="keyword">return</span> tf.nn.softmax(input, name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">batch_normalization</span><span class="params">(self, input, name, scale_offset=True, relu=False)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line"><span class="string">        # NOTE: Currently, only inference is supported</span></div><div class="line"><span class="string">        with tf.variable_scope(name) as scope:</span></div><div class="line"><span class="string">            shape = [input.get_shape()[-1]]</span></div><div class="line"><span class="string">            if scale_offset:</span></div><div class="line"><span class="string">                scale = self.make_var('scale', shape=shape)</span></div><div class="line"><span class="string">                offset = self.make_var('offset', shape=shape)</span></div><div class="line"><span class="string">            else:</span></div><div class="line"><span class="string">                scale, offset = (None, None)</span></div><div class="line"><span class="string">            output = tf.nn.batch_normalization(</span></div><div class="line"><span class="string">                input,</span></div><div class="line"><span class="string">                mean=self.make_var('mean', shape=shape),</span></div><div class="line"><span class="string">                variance=self.make_var('variance', shape=shape),</span></div><div class="line"><span class="string">                offset=offset,</span></div><div class="line"><span class="string">                scale=scale,</span></div><div class="line"><span class="string">                # TODO: This is the default Caffe batch norm eps</span></div><div class="line"><span class="string">                # Get the actual eps from parameters</span></div><div class="line"><span class="string">                variance_epsilon=1e-5,</span></div><div class="line"><span class="string">                name=name)</span></div><div class="line"><span class="string">            if relu:</span></div><div class="line"><span class="string">                output = tf.nn.relu(output)</span></div><div class="line"><span class="string">            return output</span></div><div class="line"><span class="string">        """</span></div><div class="line">        output = tf.layers.batch_normalization(</div><div class="line">                    input,</div><div class="line">                    momentum=<span class="number">0.95</span>,</div><div class="line">                    epsilon=<span class="number">1e-5</span>,</div><div class="line">                    training=self.is_training,</div><div class="line">                    name=name</div><div class="line">                )</div><div class="line"></div><div class="line">        <span class="keyword">if</span> relu:</div><div class="line">            output = tf.nn.relu(output)</div><div class="line"></div><div class="line">        <span class="keyword">return</span> output</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">dropout</span><span class="params">(self, input, keep_prob, name)</span>:</span></div><div class="line">        keep = <span class="number">1</span> - self.use_dropout + (self.use_dropout * keep_prob)</div><div class="line">        <span class="keyword">return</span> tf.nn.dropout(input, keep, name=name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">resize_bilinear</span><span class="params">(self, input, size, name)</span>:</span></div><div class="line">        <span class="string">'''双线性插值的放缩'''</span></div><div class="line">        <span class="keyword">return</span> tf.image.resize_bilinear(input, size=size, align_corners=<span class="keyword">True</span>, name=name)</div><div class="line"></div><div class="line"><span class="meta">    @layer</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">interp</span><span class="params">(self, input, factor, name)</span>:</span></div><div class="line">        <span class="string">'''指定大小输入'''</span></div><div class="line">        ori_h, ori_w = input.get_shape().as_list()[<span class="number">1</span>:<span class="number">3</span>]</div><div class="line">        resize_shape = [(int)(ori_h * factor), (int)(ori_w * factor)]</div><div class="line"></div><div class="line">        <span class="keyword">return</span> tf.image.resize_bilinear(input, size=resize_shape, align_corners=<span class="keyword">True</span>, name=name)</div></pre></td></tr></table></figure></p>
+<h3 id="ICNet构建"><a href="#ICNet构建" class="headerlink" title="ICNet构建"></a>ICNet构建</h3><p>有了上面的铺垫，再看<a href="https://github.com/hellochick/ICNet-tensorflow/blob/master/model.py" target="_blank" rel="external">model.py</a>文件中关于ICNet_BN的定义。该实现没有做模型压缩的操作，所以在实现的时候只做了一半的kernel.</p>
+<p>注意ICNet_BN类需要继承Network类,重写了setup方法.</p>
+<h4 id="中分支结构"><a href="#中分支结构" class="headerlink" title="中分支结构"></a>中分支结构</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ICNet_BN</span><span class="params">(Network)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">setup</span><span class="params">(self, is_training, num_classes)</span>:</span></div><div class="line">        (self.feed(<span class="string">'data'</span>) <span class="comment"># feed层</span></div><div class="line">             .interp(factor=<span class="number">0.5</span>, name=<span class="string">'data_sub2'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">2</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, padding=<span class="string">'SAME'</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv1_1_3x3_s2'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv1_1_3x3_s2_bn'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, padding=<span class="string">'SAME'</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv1_2_3x3'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv1_2_3x3_bn'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, padding=<span class="string">'SAME'</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv1_3_3x3'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv1_3_3x3_bn'</span>)</div><div class="line">             .max_pool(<span class="number">3</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">2</span>, name=<span class="string">'pool1_3x3_s2'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_1_1x1_proj'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv2_1_1x1_proj_bn'</span>))</div><div class="line"></div><div class="line">        (self.feed(<span class="string">'pool1_3x3_s2'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">32</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_1_1x1_reduce'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv2_1_1x1_reduce_bn'</span>)</div><div class="line">             .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding1'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_1_3x3'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv2_1_3x3_bn'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_1_1x1_increase'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv2_1_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">        (self.feed(<span class="string">'conv2_1_1x1_proj_bn'</span>,</div><div class="line">                   <span class="string">'conv2_1_1x1_increase_bn'</span>)</div><div class="line">             .add(name=<span class="string">'conv2_1'</span>)</div><div class="line">             .relu(name=<span class="string">'conv2_1/relu'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">32</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_2_1x1_reduce'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv2_2_1x1_reduce_bn'</span>)</div><div class="line">             .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding2'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_2_3x3'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv2_2_3x3_bn'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_2_1x1_increase'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv2_2_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">        (self.feed(<span class="string">'conv2_1/relu'</span>,</div><div class="line">                   <span class="string">'conv2_2_1x1_increase_bn'</span>)</div><div class="line">             .add(name=<span class="string">'conv2_2'</span>)</div><div class="line">             .relu(name=<span class="string">'conv2_2/relu'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">32</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_3_1x1_reduce'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv2_3_1x1_reduce_bn'</span>)</div><div class="line">             .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding3'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_3_3x3'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv2_3_3x3_bn'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_3_1x1_increase'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv2_3_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">        (self.feed(<span class="string">'conv2_2/relu'</span>,</div><div class="line">                   <span class="string">'conv2_3_1x1_increase_bn'</span>)</div><div class="line">             .add(name=<span class="string">'conv2_3'</span>)</div><div class="line">             .relu(name=<span class="string">'conv2_3/relu'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">2</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_1x1_proj'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_1x1_proj_bn'</span>))</div><div class="line"></div><div class="line">        (self.feed(<span class="string">'conv2_3/relu'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">64</span>, <span class="number">2</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_1x1_reduce'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_1_1x1_reduce_bn'</span>)</div><div class="line">             .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding4'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_3x3'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_1_3x3_bn'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_1x1_increase'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">        (self.feed(<span class="string">'conv3_1_1x1_proj_bn'</span>,</div><div class="line">                   <span class="string">'conv3_1_1x1_increase_bn'</span>)</div><div class="line">             .add(name=<span class="string">'conv3_1'</span>)</div><div class="line">             .relu(name=<span class="string">'conv3_1/relu'</span>)</div><div class="line">             .interp(factor=<span class="number">0.5</span>, name=<span class="string">'conv3_1_sub4'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_1x1_reduce'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_2_1x1_reduce_bn'</span>)</div><div class="line">             .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding5'</span>)</div><div class="line">             .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_3x3'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_2_3x3_bn'</span>)</div><div class="line">             .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_1x1_increase'</span>)</div><div class="line">             .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_1x1_increase_bn'</span>))</div></pre></td></tr></table></figure>
+<p>基础层有两个常见的单元：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/E3G1jEGiHj.png" alt="mark"></p>
+<p>可以看到主分支的前两个卷积都降通道数了，这可以保持分割结果的同时大幅度减少计算量。<br>普通的残差模块： <strong>在后面空洞卷积后替换主分支中间的卷积.</strong><br>特殊的残差模块功能有：<strong>增加通道，降采样(配合增加通道使用)，带空洞卷积等。</strong></p>
+<p>上面一段代码示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/ifkHfHBEH5.png" alt="mark"></p>
+<p>总结一下，假设原输入为$(1024,1024,3)$</p>
+<ul>
+<li>先将图片长宽resize到原本的1/2大小，即$(512,512,3)$</li>
+<li>$(Conv\_bn)_3$，卷积降采样–&gt;卷积–&gt;卷积，前段提取特征得到$(256,256,64)$</li>
+<li>最大池化得到$(127,127,64)$</li>
+<li>使用通道增加模块得到$(127,127,128)$</li>
+<li>做两个普通残差模块还是$(127,127,128)$</li>
+<li>做了一个降采样通道增加模块，得到$Conv3\_1/relu$的shape为$(64,64,256)$</li>
+</ul>
+<p>这里对应的ICNet的示意图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/6bAa3IDCCf.png" alt="mark"></p>
+<p>可以看到在ICNet上，已经实现了中间分支的CONVS部分了，因为上分支和中间分支在前面的卷积计算是共享的，下面就是实现上分支的剩下部分。</p>
+<h4 id="上分支完整结构"><a href="#上分支完整结构" class="headerlink" title="上分支完整结构"></a>上分支完整结构</h4><p><strong>需要注意的是上分支的输入是中间分支的feature降采样出来的，而不是将原图直接降采样为1/4输入的</strong>。这部分可以参考paper放出来的代码<a href="https://github.com/hszhao/ICNet/blob/master/evaluation/prototxt/icnet_cityscapes_bnnomerge.prototxt" target="_blank" rel="external">icnet_cityscapes_bnnomerge.prototxt</a>.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 这里是截取的代码，与上一段代码有部分重复</span></div><div class="line">(self.feed(<span class="string">'conv3_1_1x1_proj_bn'</span>,</div><div class="line">           <span class="string">'conv3_1_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv3_1'</span>)</div><div class="line">     .relu(name=<span class="string">'conv3_1/relu'</span>)</div><div class="line">     .interp(factor=<span class="number">0.5</span>, name=<span class="string">'conv3_1_sub4'</span>)  <span class="comment"># 这里是在feature的基础上直接降采样</span></div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_2_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding5'</span>)</div><div class="line">     .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_2_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_2_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv3_1_sub4'</span>,</div><div class="line">           <span class="string">'conv3_2_1x1_increase'</span>)</div><div class="line">     .add(name=<span class="string">'conv3_2'</span>)</div><div class="line">     .relu(name=<span class="string">'conv3_2/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_3_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_3_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding6'</span>)</div><div class="line">     .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_3_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_3_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_3_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_3_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv3_2/relu'</span>,</div><div class="line">           <span class="string">'conv3_3_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv3_3'</span>)</div><div class="line">     .relu(name=<span class="string">'conv3_3/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_4_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_4_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">1</span>, name=<span class="string">'padding7'</span>)</div><div class="line">     .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_4_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_4_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_4_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_4_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv3_3/relu'</span>,</div><div class="line">           <span class="string">'conv3_4_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv3_4'</span>)</div><div class="line">     .relu(name=<span class="string">'conv3_4/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_1_1x1_proj'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv4_1_1x1_proj_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv3_4/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_1_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_1_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding8'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_1_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_1_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_1_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv4_1_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv4_1_1x1_proj_bn'</span>,</div><div class="line">           <span class="string">'conv4_1_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv4_1'</span>)</div><div class="line">     .relu(name=<span class="string">'conv4_1/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_2_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_2_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding9'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_2_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_2_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_2_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv4_2_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv4_1/relu'</span>,</div><div class="line">           <span class="string">'conv4_2_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv4_2'</span>)</div><div class="line">     .relu(name=<span class="string">'conv4_2/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_3_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_3_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding10'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_3_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_3_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_3_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv4_3_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv4_2/relu'</span>,</div><div class="line">           <span class="string">'conv4_3_1x1_increase'</span>)</div><div class="line">     .add(name=<span class="string">'conv4_3'</span>)</div><div class="line">     .relu(name=<span class="string">'conv4_3/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_4_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_4_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding11'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_4_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_4_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_4_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv4_4_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv4_3/relu'</span>,</div><div class="line">           <span class="string">'conv4_4_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv4_4'</span>)</div><div class="line">     .relu(name=<span class="string">'conv4_4/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_5_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_5_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding12'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_5_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_5_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_5_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv4_5_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv4_4/relu'</span>,</div><div class="line">           <span class="string">'conv4_5_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv4_5'</span>)</div><div class="line">     .relu(name=<span class="string">'conv4_5/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_6_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_6_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding13'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_6_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv4_6_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv4_6_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv4_6_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv4_5/relu'</span>,</div><div class="line">           <span class="string">'conv4_6_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv4_6'</span>)</div><div class="line">     .relu(name=<span class="string">'conv4_6/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1024</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_1_1x1_proj'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv5_1_1x1_proj_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv4_6/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_1_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_1_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">4</span>, name=<span class="string">'padding14'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">256</span>, <span class="number">4</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_1_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_1_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1024</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_1_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv5_1_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_1_1x1_proj_bn'</span>,</div><div class="line">           <span class="string">'conv5_1_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv5_1'</span>)</div><div class="line">     .relu(name=<span class="string">'conv5_1/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_2_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_2_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">4</span>, name=<span class="string">'padding15'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">256</span>, <span class="number">4</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_2_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_2_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1024</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_2_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv5_2_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_1/relu'</span>,</div><div class="line">           <span class="string">'conv5_2_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv5_2'</span>)</div><div class="line">     .relu(name=<span class="string">'conv5_2/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_3_1x1_reduce'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_3_1x1_reduce_bn'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">4</span>, name=<span class="string">'padding16'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">256</span>, <span class="number">4</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_3_3x3'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_3_3x3_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1024</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_3_1x1_increase'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv5_3_1x1_increase_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_2/relu'</span>,</div><div class="line">           <span class="string">'conv5_3_1x1_increase_bn'</span>)</div><div class="line">     .add(name=<span class="string">'conv5_3'</span>)</div><div class="line">     .relu(name=<span class="string">'conv5_3/relu'</span>))</div><div class="line"></div><div class="line">shape = self.layers[<span class="string">'conv5_3/relu'</span>].get_shape().as_list()[<span class="number">1</span>:<span class="number">3</span>]</div><div class="line">h, w = shape</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_3/relu'</span>)</div><div class="line">     .avg_pool(h, w, h, w, name=<span class="string">'conv5_3_pool1'</span>)</div><div class="line">     .resize_bilinear(shape, name=<span class="string">'conv5_3_pool1_interp'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_3/relu'</span>)</div><div class="line">     .avg_pool(h/<span class="number">2</span>, w/<span class="number">2</span>, h/<span class="number">2</span>, w/<span class="number">2</span>, name=<span class="string">'conv5_3_pool2'</span>)</div><div class="line">     .resize_bilinear(shape, name=<span class="string">'conv5_3_pool2_interp'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_3/relu'</span>)</div><div class="line">     .avg_pool(h/<span class="number">3</span>, w/<span class="number">3</span>, h/<span class="number">3</span>, w/<span class="number">3</span>, name=<span class="string">'conv5_3_pool3'</span>)</div><div class="line">     .resize_bilinear(shape, name=<span class="string">'conv5_3_pool3_interp'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_3/relu'</span>)</div><div class="line">     .avg_pool(h/<span class="number">4</span>, w/<span class="number">4</span>, h/<span class="number">4</span>, w/<span class="number">4</span>, name=<span class="string">'conv5_3_pool6'</span>)</div><div class="line">     .resize_bilinear(shape, name=<span class="string">'conv5_3_pool6_interp'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_3/relu'</span>,</div><div class="line">           <span class="string">'conv5_3_pool6_interp'</span>,</div><div class="line">           <span class="string">'conv5_3_pool3_interp'</span>,</div><div class="line">           <span class="string">'conv5_3_pool2_interp'</span>,</div><div class="line">           <span class="string">'conv5_3_pool1_interp'</span>)</div><div class="line">     .add(name=<span class="string">'conv5_3_sum'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_4_k1'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_4_k1_bn'</span>)</div><div class="line">     .interp(factor=<span class="number">2.0</span>, name=<span class="string">'conv5_4_interp'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding17'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv_sub4'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv_sub4_bn'</span>))</div></pre></td></tr></table></figure>
+<p>代码示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/dBKHiJGdjB.png" alt="mark"></p>
+<p>总结一下，经过中间分支的输出即$Conv3\_1/relu$部分，大小为$(64,64,256)$</p>
+<ul>
+<li>先将feature长宽resize到原本的1/2大小，即$(32,32,256)$</li>
+<li>做三个普通的残差模块，依旧是$(32,32,256)$</li>
+<li>使用通道增加的空洞卷积模块，输出为$(32,32,512)$</li>
+<li>使用五个普通的空洞残差模块(即普通残差模块主分支的卷积换为空洞卷积)，输出为$(32,32,512)$</li>
+<li>使用通道增加的空洞卷积模块，输出为$(32,32,1024)$</li>
+<li>使用两个普通的空洞残差模块，得到$Conv5\_3/relu$，大小为$(32,32,1024)$</li>
+</ul>
+<p>到这里，上分支的空洞卷积部分结束了，接下来就做通道降维，即上图下面的部分：</p>
+<ul>
+<li><p><strong>将$Conv5\_3/relu$送入PSP模块</strong></p>
+<ul>
+<li>即送入4个平均池化层，输出为$(1,1,1024)，(2,2,1024)，(3,3,1024)，(6,6,1024)$</li>
+<li>再通过双线性插值将4个池化输出放缩回$(32,32,1024)$</li>
+<li>将4个放缩输出$(32,32,1024)$与$Conv5\_3/relu$做像素加操作，得到$(32,32,1024)$</li>
+</ul>
+</li>
+<li><p>再卷积将通道降下来，即$Conv5\_4\_k1\_bn$，大小为$(32,32,256)$</p>
+</li>
+</ul>
+<p>这里对应的ICNet的示意图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/m2mlmKDlAk.png" alt="mark"></p>
+<p>可以看到在ICNet上，上分支的提取部分已经实现了.下面就是实现CFF和输出结果了。</p>
+<h4 id="CFF单元和输出"><a href="#CFF单元和输出" class="headerlink" title="CFF单元和输出"></a>CFF单元和输出</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 截取代码，与上面代码有重复</span></div><div class="line">(self.feed(<span class="string">'conv5_3/relu'</span>,</div><div class="line">           <span class="string">'conv5_3_pool6_interp'</span>,</div><div class="line">           <span class="string">'conv5_3_pool3_interp'</span>,</div><div class="line">           <span class="string">'conv5_3_pool2_interp'</span>,</div><div class="line">           <span class="string">'conv5_3_pool1_interp'</span>)</div><div class="line">     .add(name=<span class="string">'conv5_3_sum'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv5_4_k1'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv5_4_k1_bn'</span>)</div><div class="line">     .interp(factor=<span class="number">2.0</span>, name=<span class="string">'conv5_4_interp'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding17'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv_sub4'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv_sub4_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv3_1/relu'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_sub2_proj'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_1_sub2_proj_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv_sub4_bn'</span>,</div><div class="line">           <span class="string">'conv3_1_sub2_proj_bn'</span>)</div><div class="line">     .add(name=<span class="string">'sub24_sum'</span>)</div><div class="line">     .relu(name=<span class="string">'sub24_sum/relu'</span>)</div><div class="line">     .interp(factor=<span class="number">2.0</span>, name=<span class="string">'sub24_sum_interp'</span>)</div><div class="line">     .zero_padding(paddings=<span class="number">2</span>, name=<span class="string">'padding18'</span>)</div><div class="line">     .atrous_conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">128</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv_sub2'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv_sub2_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'data'</span>)</div><div class="line">     .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">2</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, padding=<span class="string">'SAME'</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv1_sub1'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv1_sub1_bn'</span>)</div><div class="line">     .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">2</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, padding=<span class="string">'SAME'</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv2_sub1'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv2_sub1_bn'</span>)</div><div class="line">     .conv(<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">2</span>, <span class="number">2</span>, biased=<span class="keyword">False</span>, padding=<span class="string">'SAME'</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_sub1'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">True</span>, name=<span class="string">'conv3_sub1_bn'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, <span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">False</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv3_sub1_proj'</span>)</div><div class="line">     .batch_normalization(relu=<span class="keyword">False</span>, name=<span class="string">'conv3_sub1_proj_bn'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv_sub2_bn'</span>,</div><div class="line">           <span class="string">'conv3_sub1_proj_bn'</span>)</div><div class="line">     .add(name=<span class="string">'sub12_sum'</span>)</div><div class="line">     .relu(name=<span class="string">'sub12_sum/relu'</span>)</div><div class="line">     .interp(factor=<span class="number">2.0</span>, name=<span class="string">'sub12_sum_interp'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, num_classes, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">True</span>, relu=<span class="keyword">False</span>, name=<span class="string">'conv6_cls'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'conv5_4_interp'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, num_classes, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">True</span>, relu=<span class="keyword">False</span>, name=<span class="string">'sub4_out'</span>))</div><div class="line"></div><div class="line">(self.feed(<span class="string">'sub24_sum_interp'</span>)</div><div class="line">     .conv(<span class="number">1</span>, <span class="number">1</span>, num_classes, <span class="number">1</span>, <span class="number">1</span>, biased=<span class="keyword">True</span>, relu=<span class="keyword">False</span>, name=<span class="string">'sub24_out'</span>))</div></pre></td></tr></table></figure>
+<p>代码示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/agACI0jE2m.png" alt="mark"></p>
+<p>总结一下，经过PSP模块的输出即$Conv5\_4\_k1\_bn$，大小为$(32,32,256)$</p>
+<ul>
+<li>先做第一个CFF模块，完成上分支到中分支的特征融合<ul>
+<li>先上采样2倍到$(64,64,256)$，经过一个空洞卷积将通道降维到$(64,64,128)$</li>
+<li>将$Conv3\_1/relu$做卷积通道降维到$(64,64,128)$，与上面输出作像素加，结果加$relu$得$(64,64,128)$</li>
+<li>再上采样的基础上，再作卷积输出<strong>得到上分支的预测结果</strong>，即$sub4\_out$对应1/16标签。输出为$(64,64,num\_class)$</li>
+</ul>
+</li>
+<li>再做第二个CFF模块，完成中分支到下分支的特征融合<ul>
+<li>先上采样2倍到$(128,128,128)$，经过一个空洞卷积得到$(128,128,128)$</li>
+<li>将输入图片做4次卷积，分别是降采样卷积–&gt;降采样卷积–&gt;降采样卷积–&gt;卷积，得到$(128,128,128)$，与上面输出作像素加，结果加$relu$得$(128,128,128)$</li>
+<li>再上采样的基础上，再作卷积输出<strong>得到中分支的预测结果</strong>，即$sub24\_out$对应1/8标签。输出为$(128,128,num\_class)$</li>
+</ul>
+</li>
+<li>做上采样2倍到$(256,256,128)$，作卷积输出<strong>得到下分支的预测结果</strong>，即$Conv6\_cls$对应1/4标签。输出为$(256,256,num\_class)$</li>
+</ul>
+<p>到这里，ICNet基本上算是定义完成了</p>
+<p>对应CFF模块结构：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/BgJma5FA6L.png" alt="mark"></p>
+<p>这里对应的ICNet的示意图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180108/H65cK1A6J7.png" alt="mark"></p>
+<h3 id="训练代码"><a href="#训练代码" class="headerlink" title="训练代码"></a>训练代码</h3><p>上面说完了ICNet的模型构建，下面看一下ICNet的损失函数和最终的输出，代码见<a href="https://github.com/hellochick/ICNet-tensorflow/blob/master/train.py" target="_blank" rel="external">train.py</a>.</p>
+<p>主要是构建多分支loss，即论文中公式为$L=\lambda_1L_1+\lambda_2L_2+\lambda_3L_3$.<br>其中$\lambda_1=0.16,\lambda_2=0.4,\lambda_3=1$.</p>
+<p>这里主要看main函数的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></div><div class="line">    <span class="string">"""Create the model and start the training."""</span></div><div class="line">    args = get_arguments()</div><div class="line">    </div><div class="line">    h, w = map(int, args.input_size.split(<span class="string">','</span>))</div><div class="line">    input_size = (h, w)</div><div class="line">    </div><div class="line">    coord = tf.train.Coordinator() <span class="comment"># 获取多线程管理器</span></div><div class="line">    </div><div class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">"create_inputs"</span>):</div><div class="line">        reader = ImageReader(</div><div class="line">            <span class="string">' '</span>,</div><div class="line">            args.data_list,</div><div class="line">            input_size,</div><div class="line">            args.random_scale,</div><div class="line">            args.random_mirror,</div><div class="line">            args.ignore_label,</div><div class="line">            IMG_MEAN,</div><div class="line">            coord)</div><div class="line">        image_batch, label_batch = reader.dequeue(args.batch_size)</div><div class="line">    </div><div class="line">    <span class="comment"># 构建模型</span></div><div class="line">    net = ICNet_BN(&#123;<span class="string">'data'</span>: image_batch&#125;, is_training=<span class="keyword">True</span>, num_classes=args.num_classes)</div><div class="line">    </div><div class="line">    <span class="comment"># 获取上中下分支的输出</span></div><div class="line">    sub4_out = net.layers[<span class="string">'sub4_out'</span>]</div><div class="line">    sub24_out = net.layers[<span class="string">'sub24_out'</span>]</div><div class="line">    sub124_out = net.layers[<span class="string">'conv6_cls'</span>]</div><div class="line"></div><div class="line">    restore_var = tf.global_variables()</div><div class="line">    all_trainable = [v <span class="keyword">for</span> v <span class="keyword">in</span> tf.trainable_variables() <span class="keyword">if</span> (<span class="string">'beta'</span> <span class="keyword">not</span> <span class="keyword">in</span> v.name <span class="keyword">and</span> <span class="string">'gamma'</span> <span class="keyword">not</span> <span class="keyword">in</span> v.name) <span class="keyword">or</span> args.train_beta_gamma]</div><div class="line">   </div><div class="line">    loss_sub4 = create_loss(sub4_out, label_batch, args.num_classes, args.ignore_label)</div><div class="line">    loss_sub24 = create_loss(sub24_out, label_batch, args.num_classes, args.ignore_label)</div><div class="line">    loss_sub124 = create_loss(sub124_out, label_batch, args.num_classes, args.ignore_label)</div><div class="line">    l2_losses = [args.weight_decay * tf.nn.l2_loss(v) <span class="keyword">for</span> v <span class="keyword">in</span> tf.trainable_variables() <span class="keyword">if</span> <span class="string">'weights'</span> <span class="keyword">in</span> v.name]</div><div class="line">    </div><div class="line">    <span class="comment"># 构建带L2正则的多分支loss</span></div><div class="line">    reduced_loss = LAMBDA1 * loss_sub4 +  LAMBDA2 * loss_sub24 + LAMBDA3 * loss_sub124 + tf.add_n(l2_losses)</div><div class="line"></div><div class="line">    <span class="comment"># Using Poly learning rate policy </span></div><div class="line">    base_lr = tf.constant(args.learning_rate)</div><div class="line">    step_ph = tf.placeholder(dtype=tf.float32, shape=())</div><div class="line">    learning_rate = tf.scalar_mul(base_lr, tf.pow((<span class="number">1</span> - step_ph / args.num_steps), args.power))</div><div class="line">    </div><div class="line">    <span class="comment"># Gets moving_mean and moving_variance update operations from tf.GraphKeys.UPDATE_OPS</span></div><div class="line">    <span class="keyword">if</span> args.update_mean_var == <span class="keyword">False</span>:</div><div class="line">        update_ops = <span class="keyword">None</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)</div><div class="line"></div><div class="line">    <span class="keyword">with</span> tf.control_dependencies(update_ops):</div><div class="line">        opt_conv = tf.train.MomentumOptimizer(learning_rate, args.momentum)</div><div class="line">        grads = tf.gradients(reduced_loss, all_trainable)</div><div class="line">        train_op = opt_conv.apply_gradients(zip(grads, all_trainable))</div><div class="line">        </div><div class="line">    <span class="comment"># Set up tf session and initialize variables. </span></div><div class="line">    config = tf.ConfigProto()</div><div class="line">    config.gpu_options.allow_growth = <span class="keyword">True</span></div><div class="line">    sess = tf.Session(config=config)</div><div class="line">    init = tf.global_variables_initializer()</div><div class="line">    </div><div class="line">    sess.run(init)</div><div class="line">    </div><div class="line">    <span class="comment"># Saver for storing checkpoints of the model.</span></div><div class="line">    saver = tf.train.Saver(var_list=tf.global_variables(), max_to_keep=<span class="number">5</span>)</div><div class="line"></div><div class="line">    ckpt = tf.train.get_checkpoint_state(args.snapshot_dir)</div><div class="line">    <span class="keyword">if</span> ckpt <span class="keyword">and</span> ckpt.model_checkpoint_path:</div><div class="line">        loader = tf.train.Saver(var_list=restore_var)</div><div class="line">        load_step = int(os.path.basename(ckpt.model_checkpoint_path).split(<span class="string">'-'</span>)[<span class="number">1</span>])</div><div class="line">        load(loader, sess, ckpt.model_checkpoint_path)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        print(<span class="string">'Restore from pre-trained model...'</span>)</div><div class="line">        net.load(args.restore_from, sess)</div><div class="line"></div><div class="line">    <span class="comment"># Start queue threads.</span></div><div class="line">    threads = tf.train.start_queue_runners(coord=coord, sess=sess)</div><div class="line"></div><div class="line">    <span class="comment"># Iterate over training steps.</span></div><div class="line">    <span class="keyword">for</span> step <span class="keyword">in</span> range(args.num_steps):</div><div class="line">        start_time = time.time()</div><div class="line">        </div><div class="line">        feed_dict = &#123;step_ph: step&#125;</div><div class="line">        <span class="keyword">if</span> step % args.save_pred_every == <span class="number">0</span>:</div><div class="line">            loss_value, loss1, loss2, loss3, _ = sess.run([reduced_loss, loss_sub4, loss_sub24, loss_sub124, train_op], feed_dict=feed_dict)</div><div class="line">            save(saver, sess, args.snapshot_dir, step)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            loss_value, loss1, loss2, loss3, _ = sess.run([reduced_loss, loss_sub4, loss_sub24, loss_sub124, train_op], feed_dict=feed_dict)</div><div class="line">        duration = time.time() - start_time</div><div class="line">        print(<span class="string">'step &#123;:d&#125; \t total loss = &#123;:.3f&#125;, sub4 = &#123;:.3f&#125;, sub24 = &#123;:.3f&#125;, sub124 = &#123;:.3f&#125; (&#123;:.3f&#125; sec/step)'</span>.format(step, loss_value, loss1, loss2, loss3, duration))</div><div class="line">        </div><div class="line">    coord.request_stop()</div><div class="line">    coord.join(threads)</div></pre></td></tr></table></figure>
+<h3 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h3><p>上面说完了ICNet的模型训练，下面看一下ICNet的推断处理，代码见<a href="https://github.com/hellochick/ICNet-tensorflow/blob/master/inference.py" target="_blank" rel="external">inference.py</a>.</p>
+<p>这里和原论文一致，处理的比较简单，参考paper给的代码<a href="https://github.com/hellochick/ICNet-tensorflow/blob/master/model/icnet_cityscapes_bnnomerge.prototxt" target="_blank" rel="external">icnet_cityscapes_bnnomerge.prototxt</a>后面.</p>
+<p><strong>将$Conv6\_cls$的结果取出，直接放缩到预测大小。</strong>看main函数的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></div><div class="line">    args = get_arguments()</div><div class="line">    </div><div class="line">    img, filename = load_img(args.img_path)</div><div class="line">    shape = img.shape[<span class="number">0</span>:<span class="number">2</span>]</div><div class="line"></div><div class="line">    x = tf.placeholder(dtype=tf.float32, shape=img.shape)</div><div class="line">    img_tf = preprocess(x)</div><div class="line">    img_tf, n_shape = check_input(img_tf)</div><div class="line"></div><div class="line">    <span class="comment"># Create network.</span></div><div class="line">    <span class="keyword">if</span> args.model[<span class="number">-2</span>:] == <span class="string">'bn'</span>:</div><div class="line">        net = ICNet_BN(&#123;<span class="string">'data'</span>: img_tf&#125;, num_classes=num_classes)</div><div class="line">    <span class="keyword">elif</span> args.model == <span class="string">'others'</span>:</div><div class="line">        net = ICNet_BN(&#123;<span class="string">'data'</span>: img_tf&#125;, num_classes=num_classes)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        net = ICNet(&#123;<span class="string">'data'</span>: img_tf&#125;, num_classes=num_classes)</div><div class="line">    </div><div class="line">    <span class="comment"># 取出下分支的预测结果</span></div><div class="line">    raw_output = net.layers[<span class="string">'conv6_cls'</span>]</div><div class="line">    </div><div class="line">    <span class="comment"># 预测，直接双线性放缩到指定预测大小 完事</span></div><div class="line">    raw_output_up = tf.image.resize_bilinear(raw_output, size=n_shape, align_corners=<span class="keyword">True</span>)</div><div class="line">    raw_output_up = tf.image.crop_to_bounding_box(raw_output_up, <span class="number">0</span>, <span class="number">0</span>, shape[<span class="number">0</span>], shape[<span class="number">1</span>])</div><div class="line">    raw_output_up = tf.argmax(raw_output_up, dimension=<span class="number">3</span>)</div><div class="line">    pred = decode_labels(raw_output_up, shape, num_classes)</div><div class="line"></div><div class="line">    <span class="comment"># Init tf Session</span></div><div class="line">    config = tf.ConfigProto()</div><div class="line">    config.gpu_options.allow_growth = <span class="keyword">True</span></div><div class="line">    sess = tf.Session(config=config)</div><div class="line">    init = tf.global_variables_initializer()</div><div class="line"></div><div class="line">    sess.run(init)</div><div class="line"></div><div class="line">    restore_var = tf.global_variables()</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> args.model == <span class="string">'train'</span>:</div><div class="line">        print(<span class="string">'Restore from train30k model...'</span>)</div><div class="line">        net.load(model_train30k, sess)</div><div class="line">    <span class="keyword">elif</span> args.model == <span class="string">'trainval'</span>:</div><div class="line">        print(<span class="string">'Restore from trainval90k model...'</span>)</div><div class="line">        net.load(model_trainval90k, sess)</div><div class="line">    <span class="keyword">elif</span> args.model == <span class="string">'train_bn'</span>:</div><div class="line">        print(<span class="string">'Restore from train30k bnnomerge model...'</span>)</div><div class="line">        net.load(model_train30k_bn, sess)</div><div class="line">    <span class="keyword">elif</span> args.model == <span class="string">'trainval_bn'</span>:</div><div class="line">        print(<span class="string">'Restore from trainval90k bnnomerge model...'</span>)</div><div class="line">        net.load(model_trainval90k_bn, sess)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        ckpt = tf.train.get_checkpoint_state(snapshot_dir)</div><div class="line">        <span class="keyword">if</span> ckpt <span class="keyword">and</span> ckpt.model_checkpoint_path:</div><div class="line">            loader = tf.train.Saver(var_list=restore_var)</div><div class="line">            load_step = int(os.path.basename(ckpt.model_checkpoint_path).split(<span class="string">'-'</span>)[<span class="number">1</span>])</div><div class="line">            load(loader, sess, ckpt.model_checkpoint_path)</div><div class="line"></div><div class="line">    preds = sess.run(pred, feed_dict=&#123;x: img&#125;)</div><div class="line"></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(args.save_dir):</div><div class="line">        os.makedirs(args.save_dir)</div><div class="line">    misc.imsave(args.save_dir + filename, preds[<span class="number">0</span>])</div></pre></td></tr></table></figure>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/ICNet/" rel="tag"># ICNet</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/05/语义分割论文-PSPNet/" rel="next" title="语义分割论文-PSPNet">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-PSPNet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/22/语义分割论文-DeepLab系列/" rel="prev" title="语义分割论文-DeepLab系列">
+                语义分割论文-DeepLab系列 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ICNet"><span class="nav-text">ICNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Speed-Analysis"><span class="nav-text">Speed Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实时预算-time-budget"><span class="nav-text">实时预算(time budget)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提速方向-Intuitive-Speedup"><span class="nav-text">提速方向(Intuitive Speedup)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Architecture"><span class="nav-text">Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CFF单元"><span class="nav-text">CFF单元</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#损失函数和模型压缩"><span class="nav-text">损失函数和模型压缩</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模型压缩的实验"><span class="nav-text">模型压缩的实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#级联结构的有效性实验"><span class="nav-text">级联结构的有效性实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#视觉比较"><span class="nav-text">视觉比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定量分析"><span class="nav-text">定量分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cityscapes上的表现"><span class="nav-text">Cityscapes上的表现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分析"><span class="nav-text">代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码框架"><span class="nav-text">代码框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ICNet构建"><span class="nav-text">ICNet构建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#中分支结构"><span class="nav-text">中分支结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#上分支完整结构"><span class="nav-text">上分支完整结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CFF单元和输出"><span class="nav-text">CFF单元和输出</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#训练代码"><span class="nav-text">训练代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试代码"><span class="nav-text">测试代码</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

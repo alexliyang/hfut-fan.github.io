@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,PSPNet," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="CVPR2017，文章提出一个金字塔形式的池化结构，用于获取全局信息。论文介绍了大量特征提取模型的训练细节。">
+<meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,PSPNet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文-PSPNet">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/01/05/语义分割论文-PSPNet/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="CVPR2017，文章提出一个金字塔形式的池化结构，用于获取全局信息。论文介绍了大量特征提取模型的训练细节。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/B894IhhI8G.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/i38IAk9ldl.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/6I0FbiGc9d.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/8H90eIA85F.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/CfEK3ia764.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/2EEhId01B5.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/4Ee9gBAijA.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/E0Il480hg8.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/Gc0Hhjme8J.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/0mdIF1k1K9.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/554am90JjB.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/Fm9mb64IiF.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/5k6aj913Hi.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/h5cHL4bfAK.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/3A4fHDjB9J.png">
+<meta property="og:updated_time" content="2018-01-29T02:47:17.022Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文-PSPNet">
+<meta name="twitter:description" content="CVPR2017，文章提出一个金字塔形式的池化结构，用于获取全局信息。论文介绍了大量特征提取模型的训练细节。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180105/B894IhhI8G.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/01/05/语义分割论文-PSPNet/"/>
+
+
+
+
+
+  <title>语义分割论文-PSPNet | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/01/05/语义分割论文-PSPNet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文-PSPNet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-05T20:04:59+08:00">
+                2018-01-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  CVPR2017，文章提出一个金字塔形式的池化结构，用于获取全局信息。论文介绍了大量特征提取模型的训练细节。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="PSPNet"><a href="#PSPNet" class="headerlink" title="PSPNet"></a>PSPNet</h1><p>Pyramid Scene Parsing Network</p>
+<p>收录：CVPR 2017 (IEEE Conference on Computer Vision and Pattern Recognition)</p>
+<p>原文地址： <a href="https://arxiv.org/pdf/1612.01105.pdf" target="_blank" rel="external">PSPNet</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/hszhao/PSPNet" target="_blank" rel="external">pspnet-github</a></li>
+<li><a href="https://github.com/Vladkryvoruchko/PSPNet-Keras-tensorflow" target="_blank" rel="external">Keras</a></li>
+<li><a href="https://github.com/hellochick/PSPNet-tensorflow" target="_blank" rel="external">tensorflow</a></li>
+</ul>
+<p>效果图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/B894IhhI8G.png" alt="mark"></p>
+<hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>本文提出的金字塔池化模块( pyramid pooling module)能够<strong>聚合不同区域的上下文信息</strong>,从而提高获取全局信息的能力。实验表明这样的先验表示(即指代PSP这个结构)是有效的，在多个数据集上展现了优良的效果。</p>
+<hr>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>场景解析(Scene Parsing)的难度与场景的标签密切相关。先大多数先进的场景解析框架大多数基于FCN，但FCN存在的几个问题：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/i38IAk9ldl.png" alt="mark"></p>
+<ul>
+<li><strong>Mismatched Relationship</strong>：上下文关系匹配对理解复杂场景很重要，例如在上图第一行，在水面上的大很可能是“boat”，而不是“car”。虽然“boat和“car”很像。FCN缺乏依据上下文推断的能力。</li>
+<li><strong>Confusion Categories</strong>： 许多标签之间存在关联，可以通过标签之间的关系弥补。上图第二行，把摩天大厦的一部分识别为建筑物，这应该只是其中一个，而不是二者。这可以通过类别之间的关系弥补。</li>
+<li><strong>Inconspicuous Classes</strong>：模型可能会忽略小的东西，而大的东西可能会超过FCN接收范围，从而导致不连续的预测。如上图第三行，枕头与被子材质一致，被识别成到一起了。为了提高不显眼东西的分割效果，应该注重小面积物体。</li>
+</ul>
+<p>总结这些情况，许多问题出在FCN不能有效的处理场景之间的关系和全局信息。本论文提出了能够获取全局场景的深度网络PSPNet，能够融合合适的全局特征，将局部和全局信息融合到一起。并提出了一个适度监督损失的优化策略，在多个数据集上表现优异。</p>
+<p>本文的主要贡献如下：</p>
+<ul>
+<li>提出了一个金字塔场景解析网络，能够将难解析的场景信息特征嵌入基于FCN预测框架中</li>
+<li>在基于深度监督损失ResNet上制定有效的优化策略</li>
+<li>构建了一个实用的系统，用于场景解析和语义分割，并包含了实施细节</li>
+</ul>
+<hr>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>受到深度神经网络的驱动，场景解析和语义分割获得了极大的进展。例如FCN、ENet等工作。许多深度卷积神经网络为了扩大高层feature的感受野，常用dilated convolution(空洞卷积)、coarse-to-fine structure等方法。本文基于先前的工作，选择的baseline是带dilated network的FCN。</p>
+<p>大多数语义分割模型的工作基于两个方面：</p>
+<ul>
+<li>一方面：具有多尺度的特征融合，高层特征具有强的语义信息，底层特征包含更多的细节。</li>
+<li>另一方面：基于结构预测。例如使用CRF(条件随机场)做后端细化分割结果。</li>
+</ul>
+<p>为了充分的利用全局特征层次先验知识来进行不同场景理解，本文提出的PSP模块能够聚合不同区域的上下文从而达到获取全局上下文的目的。</p>
+<hr>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><div class="note info"><h3 id="Pyramid-Pooling-Module"><a href="#Pyramid-Pooling-Module" class="headerlink" title="Pyramid Pooling Module"></a>Pyramid Pooling Module</h3><p>前面也说到了，本文的一大贡献就是PSP模块。</p>
+<p>在一般CNN中感受野可以粗略的认为是使用上下文信息的大小，论文指出在许多网络中没有充分的获取全局信息，所以效果不好。要解决这一问题，常用的方法是：</p>
+<ul>
+<li><strong>用全局平均池化处理</strong>。但这在某些数据集上，可能会失去空间关系并导致模糊。</li>
+<li><strong>由金字塔池化产生不同层次的特征最后被平滑的连接成一个FC层做分类</strong>。这样可以去除CNN固定大小的图像分类约束，减少不同区域之间的信息损失。</li>
+</ul>
+<p>论文提出了一个具有层次全局优先级，包含不同子区域之间的不同尺度的信息，称之为pyramid pooling module。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/6I0FbiGc9d.png" alt="mark"></p>
+<p>该模块融合了4种不同金字塔尺度的特征，第一行红色是最粗糙的特征–全局池化生成单个bin输出，后面三行是不同尺度的池化特征。为了保证全局特征的权重，如果金字塔共有N个级别，则在每个级别后使用$1×1$的卷积将对于级别通道降为原本的1/N。再通过双线性插值获得未池化前的大小，最终concat到一起。</p>
+<p>金字塔等级的池化核大小是可以设定的，这与送到金字塔的输入有关。论文中使用的4个等级，核大小分别为$1×1，2×2，3×3，6×6$。</p></div>
+<h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p>在PSP模块的基础上，PSPNet的整体架构如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/8H90eIA85F.png" alt="mark"></p>
+<ul>
+<li>基础层经过预训练的模型(ResNet101)和空洞卷积策略提取feature map,提取后的feature map是输入的1/8大小</li>
+<li>feature map经过Pyramid Pooling Module得到融合的带有整体信息的feature，在上采样与池化前的feature map相concat</li>
+<li>最后过一个卷积层得到最终输出</li>
+</ul>
+<p>PSPNet本身提供了一个全局上下文的先验(即指代Pyramid Pooling Module这个结构)，后面的实验会验证这一结构的有效性。</p>
+<h3 id="基于ResNet的深度监督网络"><a href="#基于ResNet的深度监督网络" class="headerlink" title="基于ResNet的深度监督网络"></a>基于ResNet的深度监督网络</h3><p>论文用了一个很“玄学”的方法搞了一个基础网络层，如下图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/CfEK3ia764.png" alt="mark"></p>
+<p>在ResNet101的基础上做了改进，除了使用后面的softmax分类做loss，额外的在第四阶段添加了一个辅助的loss，两个loss一起传播，使用不同的权重，共同优化参数。后续的实验证明这样做有利于快速收敛。</p>
+<hr>
+<h2 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h2><p>论文在ImageNet scene parsing challenge 2016, PASCAL VOC 2012,Cityscapes 三个数据集上做了实验。</p>
+<p>训练细节：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>学习率</strong></td>
+<td>采用“poly”策略，即$lr=lr_{base}*(1-\frac{iter}{max_{iter}})^{power}$ 设置$lr_{base}=0.01,power=0.9$，衰减动量设置为0.9 and 0.0001</td>
+</tr>
+<tr>
+<td><strong>迭代次数</strong></td>
+<td>ImageNet上设置150K,PASCAL VOC设置30K，Cityscapes设置90K</td>
+</tr>
+<tr>
+<td><strong>数据增强</strong></td>
+<td>随机翻转、尺寸在0.5到2之间缩放、角度在-10到10之间旋转、随机的高斯滤波</td>
+</tr>
+<tr>
+<td><strong>batchsize</strong></td>
+<td>batch很重要，设置batch=16(这很吃显存啊~)</td>
+</tr>
+<tr>
+<td><strong>训练分支网络</strong></td>
+<td>设置辅助loss的权重为0.4</td>
+</tr>
+<tr>
+<td>平台</td>
+<td>Caffe</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ImageNet-scene-parsing-challenge-2016"><a href="#ImageNet-scene-parsing-challenge-2016" class="headerlink" title="ImageNet scene parsing challenge 2016"></a>ImageNet scene parsing challenge 2016</h3><ul>
+<li><p>测试不同配置下的ResNet的性能,找到比较好的预训练模型：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/2EEhId01B5.png" alt="mark"></p>
+<ul>
+<li>ResNet50-Baseline: 基于FCN的ResNet50结构，带空洞卷积的baseline</li>
+<li>ResNet50+B1+MAX：只带$1×1$的最大池化</li>
+<li>ResNet50+B1+AVE: 只带$1×1$的平均池化</li>
+<li>ResNet50+B1236+MAX: 带$1×1，2×2，3×3，6×6$的最大池化</li>
+<li>ResNet50+B1236+AVE: 带$1×1，2×2，3×3，6×6$的平均池化</li>
+<li>ResNet50+B1236+MAX+DR: 带$1×1，2×2，3×3，6×6$的最大池化，池化后做通道降维</li>
+<li><strong>ResNet50+B1236+AVE+DR(best)</strong>: 带$1×1，2×2，3×3，6×6$的平均池化，池化后做通道降维</li>
+</ul>
+<p>可以看到做平均池化的都比最大池化效果要好，最后将多个操作结合得到最终最好的效果。</p>
+</li>
+<li><p>测试辅助loss的影响：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/4Ee9gBAijA.png" alt="mark"></p>
+<p>实验都是以ResNet50-Baseline为基准，最后以$\alpha=0.4$为最佳。</p>
+</li>
+<li><p>测试预训练模型的深度：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/E0Il480hg8.png" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/Gc0Hhjme8J.png" alt="mark"><br>可以看到在测试的{50,101,152,269}这四个层次的网络中，网络越深，效果越好。</p>
+</li>
+</ul>
+<ul>
+<li>多种技巧融合<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/0mdIF1k1K9.png" alt="mark"><br>带有<code>DA</code>即数据增强，<code>AL</code>即带辅助loss，<code>PSP</code>带金字塔池化模块，<code>MS</code>多尺度。</li>
+</ul>
+<p>在IamgeNet上的表现：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/554am90JjB.png" alt="mark"></p>
+<h3 id="PASCAL-VOC-2012"><a href="#PASCAL-VOC-2012" class="headerlink" title="PASCAL VOC 2012"></a>PASCAL VOC 2012</h3><p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/Fm9mb64IiF.png" alt="mark"></p>
+<p>可以看到在MS-COCO上预训练过的效果最好。</p>
+<h3 id="Cityscapes"><a href="#Cityscapes" class="headerlink" title="Cityscapes"></a>Cityscapes</h3><p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/5k6aj913Hi.png" alt="mark"></p>
+<p>在Cityscapes上表现也是很不错的。</p>
+<hr>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>论文在结构上提供了一个pyramid pooling module，在不同层次上融合feature,达到语义和细节的融合。 模型的性能表现很大，但感觉主要归功于一个良好的特征提取层。在实验部分讲了很多训练细节，但还是很难复现，这里值得好好推敲一下。</p>
+<hr>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>这里分析的代码是<a href="https://github.com/Vladkryvoruchko/PSPNet-Keras-tensorflow" target="_blank" rel="external">Keras</a>版本.</p>
+<p>看<a href="https://github.com/Vladkryvoruchko/PSPNet-Keras-tensorflow/blob/master/layers_builder.py" target="_blank" rel="external">layers_builder.py</a>这个文件，构建了PSPNet。</p>
+<p>主要看一下PSP模块：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/h5cHL4bfAK.png" alt="mark"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_pyramid_pooling_module</span><span class="params">(res, input_shape)</span>:</span></div><div class="line">    <span class="string">"""Build the Pyramid Pooling Module."""</span></div><div class="line">    <span class="comment"># ---PSPNet concat layers with Interpolation</span></div><div class="line">    feature_map_size = tuple(int(ceil(input_dim / <span class="number">8.0</span>)) <span class="keyword">for</span> input_dim <span class="keyword">in</span> input_shape)</div><div class="line">    print(<span class="string">"PSP module will interpolate to a final feature map size of %s"</span> % (feature_map_size, ))</div><div class="line"></div><div class="line">    <span class="comment"># 创建不同尺度的feature</span></div><div class="line">    interp_block1 = interp_block(res, <span class="number">1</span>, feature_map_size, input_shape)</div><div class="line">    interp_block2 = interp_block(res, <span class="number">2</span>, feature_map_size, input_shape)</div><div class="line">    interp_block3 = interp_block(res, <span class="number">3</span>, feature_map_size, input_shape)</div><div class="line">    interp_block6 = interp_block(res, <span class="number">6</span>, feature_map_size, input_shape)</div><div class="line"></div><div class="line">    <span class="comment"># 通道融合，融合所有feature 原本通道为2048  每层池化占512个通道  </span></div><div class="line">    <span class="comment"># shape=(1,feature_map_size_x,feature_map_size_y,4096)  融合后共4096个</span></div><div class="line">    res = Concatenate()([res,</div><div class="line">                         interp_block6,</div><div class="line">                         interp_block3,</div><div class="line">                         interp_block2,</div><div class="line">                         interp_block1])</div><div class="line">    <span class="keyword">return</span> res</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">interp_block</span><span class="params">(prev_layer, level, feature_map_shape, input_shape)</span>:</span></div><div class="line">    <span class="keyword">if</span> input_shape == (<span class="number">473</span>, <span class="number">473</span>):</div><div class="line">        kernel_strides_map = &#123;<span class="number">1</span>: <span class="number">60</span>,  <span class="comment"># (473-60)/60 + 1 = 6 + 1 = 7</span></div><div class="line">                              <span class="number">2</span>: <span class="number">30</span>,  <span class="comment"># (473-30)/30 + 1 = 11 + 1 = 12</span></div><div class="line">                              <span class="number">3</span>: <span class="number">20</span>,  <span class="comment"># (473-20)/20 + 1 = 22 + 1 = 23</span></div><div class="line">                              <span class="number">6</span>: <span class="number">10</span>&#125;  <span class="comment"># (473-10)/10 + 1 = 46 + 1 = 47</span></div><div class="line">    <span class="keyword">elif</span> input_shape == (<span class="number">713</span>, <span class="number">713</span>):</div><div class="line">        kernel_strides_map = &#123;<span class="number">1</span>: <span class="number">90</span>,  <span class="comment"># (713-90)/90 + 1 = 6 + 1 = 7</span></div><div class="line">                              <span class="number">2</span>: <span class="number">45</span>,  <span class="comment"># (713-45)/45 + 1 = 14 + 1 = 15</span></div><div class="line">                              <span class="number">3</span>: <span class="number">30</span>,  <span class="comment"># (713-30)/30 + 1 = 6 + 1 = 23</span></div><div class="line">                              <span class="number">6</span>: <span class="number">15</span>&#125;  <span class="comment"># (713-15)/15 + 1 = 6 + 1 = 47</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        print(<span class="string">"Pooling parameters for input shape "</span>, input_shape, <span class="string">" are not defined."</span>)</div><div class="line">        exit(<span class="number">1</span>)</div><div class="line"></div><div class="line">    names = [</div><div class="line">        <span class="string">"conv5_3_pool"</span> + str(level) + <span class="string">"_conv"</span>,</div><div class="line">        <span class="string">"conv5_3_pool"</span> + str(level) + <span class="string">"_conv_bn"</span></div><div class="line">        ]</div><div class="line">    kernel = (kernel_strides_map[level], kernel_strides_map[level])</div><div class="line">    strides = (kernel_strides_map[level], kernel_strides_map[level])</div><div class="line">    prev_layer = AveragePooling2D(kernel, strides=strides)(prev_layer) <span class="comment"># 平均池化</span></div><div class="line">    prev_layer = Conv2D(<span class="number">512</span>, (<span class="number">1</span>, <span class="number">1</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), name=names[<span class="number">0</span>],</div><div class="line">                        use_bias=<span class="keyword">False</span>)(prev_layer) <span class="comment"># 通道降到 原本的1/N = 1/4</span></div><div class="line">    prev_layer = BN(name=names[<span class="number">1</span>])(prev_layer)</div><div class="line">    prev_layer = Activation(<span class="string">'relu'</span>)(prev_layer)</div><div class="line">    prev_layer = Lambda(Interp, arguments=&#123;<span class="string">'shape'</span>: feature_map_shape&#125;)(prev_layer) <span class="comment"># 放缩到指定大小</span></div><div class="line">    <span class="keyword">return</span> prev_layer</div></pre></td></tr></table></figure>
+<p>构建PSPnet网络：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180105/3A4fHDjB9J.png" alt="mark"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_pspnet</span><span class="params">(nb_classes, resnet_layers, input_shape, activation=<span class="string">'softmax'</span>)</span>:</span></div><div class="line">    <span class="string">"""Build PSPNet."""</span></div><div class="line">    print(<span class="string">"Building a PSPNet based on ResNet %i expecting inputs of shape %s predicting %i classes"</span> % (resnet_layers, input_shape, nb_classes))</div><div class="line"></div><div class="line">    inp = Input((input_shape[<span class="number">0</span>], input_shape[<span class="number">1</span>], <span class="number">3</span>))</div><div class="line">    res = ResNet(inp, layers=resnet_layers) <span class="comment"># 基础的特征提取层 </span></div><div class="line">    psp = build_pyramid_pooling_module(res, input_shape) <span class="comment"># PSP模块</span></div><div class="line"></div><div class="line">    x = Conv2D(<span class="number">512</span>, (<span class="number">3</span>, <span class="number">3</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), padding=<span class="string">"same"</span>, name=<span class="string">"conv5_4"</span>,</div><div class="line">               use_bias=<span class="keyword">False</span>)(psp) <span class="comment"># PSP后接卷积输出结果</span></div><div class="line">    x = BN(name=<span class="string">"conv5_4_bn"</span>)(x)</div><div class="line">    x = Activation(<span class="string">'relu'</span>)(x)</div><div class="line">    x = Dropout(<span class="number">0.1</span>)(x)</div><div class="line"></div><div class="line">    x = Conv2D(nb_classes, (<span class="number">1</span>, <span class="number">1</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), name=<span class="string">"conv6"</span>)(x) <span class="comment"># 1x1变换输出分类结果</span></div><div class="line">    x = Lambda(Interp, arguments=&#123;<span class="string">'shape'</span>: (input_shape[<span class="number">0</span>], input_shape[<span class="number">1</span>])&#125;)(x) <span class="comment"># 使用Lambda层放缩到原图片大小</span></div><div class="line">    x = Activation(<span class="string">'softmax'</span>)(x) <span class="comment"># 经过softmax得到最终输出</span></div><div class="line"></div><div class="line">    model = Model(inputs=inp, outputs=x)</div><div class="line"></div><div class="line">    <span class="comment"># Solver</span></div><div class="line">    sgd = SGD(lr=learning_rate, momentum=<span class="number">0.9</span>, nesterov=<span class="keyword">True</span>)</div><div class="line">    model.compile(optimizer=sgd,</div><div class="line">                  loss=<span class="string">'categorical_crossentropy'</span>,</div><div class="line">                  metrics=[<span class="string">'accuracy'</span>])</div><div class="line">    <span class="keyword">return</span> model</div></pre></td></tr></table></figure>
+<p>PSPNet的基础特征提取层，即构建ResNet(这部分可以自己选定其他模型)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</div><div class="line"><span class="keyword">from</span> math <span class="keyword">import</span> ceil</div><div class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Conv2D, MaxPooling2D, AveragePooling2D</div><div class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> BatchNormalization, Activation, Input, Dropout, ZeroPadding2D, Lambda</div><div class="line"><span class="keyword">from</span> keras.layers.merge <span class="keyword">import</span> Concatenate, Add</div><div class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Model</div><div class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> SGD</div><div class="line"></div><div class="line">learning_rate = <span class="number">1e-3</span>  <span class="comment"># Layer specific learning rate</span></div><div class="line"><span class="comment"># Weight decay not implemented</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">BN</span><span class="params">(name=<span class="string">""</span>)</span>:</span></div><div class="line">    <span class="keyword">return</span> BatchNormalization(momentum=<span class="number">0.95</span>, name=name, epsilon=<span class="number">1e-5</span>)</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">Interp</span><span class="params">(x, shape)</span>:</span></div><div class="line">    <span class="string">''' 对图片做一个放缩，配合Keras的Lambda层使用'''</span></div><div class="line">    <span class="keyword">from</span> keras.backend <span class="keyword">import</span> tf <span class="keyword">as</span> ktf</div><div class="line">    new_height, new_width = shape</div><div class="line">    resized = ktf.image.resize_images(x, [new_height, new_width],</div><div class="line">                                      align_corners=<span class="keyword">True</span>)</div><div class="line">    <span class="keyword">return</span> resized</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">residual_conv</span><span class="params">(prev, level, pad=<span class="number">1</span>, lvl=<span class="number">1</span>, sub_lvl=<span class="number">1</span>, modify_stride=False)</span>:</span></div><div class="line">    lvl = str(lvl)</div><div class="line">    sub_lvl = str(sub_lvl)</div><div class="line">    names = [<span class="string">"conv"</span>+lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_1x1_reduce"</span>,</div><div class="line">             <span class="string">"conv"</span>+lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_1x1_reduce_bn"</span>,</div><div class="line">             <span class="string">"conv"</span>+lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_3x3"</span>,</div><div class="line">             <span class="string">"conv"</span>+lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_3x3_bn"</span>,</div><div class="line">             <span class="string">"conv"</span>+lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_1x1_increase"</span>,</div><div class="line">             <span class="string">"conv"</span>+lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_1x1_increase_bn"</span>]</div><div class="line">    <span class="keyword">if</span> modify_stride <span class="keyword">is</span> <span class="keyword">False</span>:</div><div class="line">        prev = Conv2D(<span class="number">64</span> * level, (<span class="number">1</span>, <span class="number">1</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), name=names[<span class="number">0</span>],</div><div class="line">                      use_bias=<span class="keyword">False</span>)(prev)</div><div class="line">    <span class="keyword">elif</span> modify_stride <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">        prev = Conv2D(<span class="number">64</span> * level, (<span class="number">1</span>, <span class="number">1</span>), strides=(<span class="number">2</span>, <span class="number">2</span>), name=names[<span class="number">0</span>],</div><div class="line">                      use_bias=<span class="keyword">False</span>)(prev)</div><div class="line"></div><div class="line">    prev = BN(name=names[<span class="number">1</span>])(prev)</div><div class="line">    prev = Activation(<span class="string">'relu'</span>)(prev)</div><div class="line"></div><div class="line">    prev = ZeroPadding2D(padding=(pad, pad))(prev)</div><div class="line">    prev = Conv2D(<span class="number">64</span> * level, (<span class="number">3</span>, <span class="number">3</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), dilation_rate=pad,</div><div class="line">                  name=names[<span class="number">2</span>], use_bias=<span class="keyword">False</span>)(prev)</div><div class="line"></div><div class="line">    prev = BN(name=names[<span class="number">3</span>])(prev)</div><div class="line">    prev = Activation(<span class="string">'relu'</span>)(prev)</div><div class="line">    prev = Conv2D(<span class="number">256</span> * level, (<span class="number">1</span>, <span class="number">1</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), name=names[<span class="number">4</span>],</div><div class="line">                  use_bias=<span class="keyword">False</span>)(prev)</div><div class="line">    prev = BN(name=names[<span class="number">5</span>])(prev)</div><div class="line">    <span class="keyword">return</span> prev</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">short_convolution_branch</span><span class="params">(prev, level, lvl=<span class="number">1</span>, sub_lvl=<span class="number">1</span>, modify_stride=False)</span>:</span></div><div class="line">    lvl = str(lvl)</div><div class="line">    sub_lvl = str(sub_lvl)</div><div class="line">    names = [<span class="string">"conv"</span> + lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_1x1_proj"</span>,</div><div class="line">             <span class="string">"conv"</span> + lvl+<span class="string">"_"</span> + sub_lvl + <span class="string">"_1x1_proj_bn"</span>]</div><div class="line"></div><div class="line">    <span class="keyword">if</span> modify_stride <span class="keyword">is</span> <span class="keyword">False</span>:</div><div class="line">        prev = Conv2D(<span class="number">256</span> * level, (<span class="number">1</span>, <span class="number">1</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), name=names[<span class="number">0</span>],</div><div class="line">                      use_bias=<span class="keyword">False</span>)(prev)</div><div class="line">    <span class="keyword">elif</span> modify_stride <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">        prev = Conv2D(<span class="number">256</span> * level, (<span class="number">1</span>, <span class="number">1</span>), strides=(<span class="number">2</span>, <span class="number">2</span>), name=names[<span class="number">0</span>],</div><div class="line">                      use_bias=<span class="keyword">False</span>)(prev)</div><div class="line"></div><div class="line">    prev = BN(name=names[<span class="number">1</span>])(prev)</div><div class="line">    <span class="keyword">return</span> prev</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">empty_branch</span><span class="params">(prev)</span>:</span></div><div class="line">    <span class="keyword">return</span> prev</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">residual_short</span><span class="params">(prev_layer, level, pad=<span class="number">1</span>, lvl=<span class="number">1</span>, sub_lvl=<span class="number">1</span>, modify_stride=False)</span>:</span></div><div class="line">    prev_layer = Activation(<span class="string">'relu'</span>)(prev_layer)</div><div class="line">    block_1 = residual_conv(prev_layer, level,</div><div class="line">                            pad=pad, lvl=lvl, sub_lvl=sub_lvl,</div><div class="line">                            modify_stride=modify_stride)</div><div class="line"></div><div class="line">    block_2 = short_convolution_branch(prev_layer, level,</div><div class="line">                                       lvl=lvl, sub_lvl=sub_lvl,</div><div class="line">                                       modify_stride=modify_stride)</div><div class="line">    added = Add()([block_1, block_2])</div><div class="line">    <span class="keyword">return</span> added</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">residual_empty</span><span class="params">(prev_layer, level, pad=<span class="number">1</span>, lvl=<span class="number">1</span>, sub_lvl=<span class="number">1</span>)</span>:</span></div><div class="line">    prev_layer = Activation(<span class="string">'relu'</span>)(prev_layer)</div><div class="line"></div><div class="line">    block_1 = residual_conv(prev_layer, level, pad=pad,</div><div class="line">                            lvl=lvl, sub_lvl=sub_lvl)</div><div class="line">    block_2 = empty_branch(prev_layer)</div><div class="line">    added = Add()([block_1, block_2])</div><div class="line">    <span class="keyword">return</span> added</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">ResNet</span><span class="params">(inp, layers)</span>:</span></div><div class="line">    <span class="string">'''构建ResNet'''</span></div><div class="line">    <span class="comment"># Names for the first couple layers of model</span></div><div class="line">    names = [<span class="string">"conv1_1_3x3_s2"</span>,</div><div class="line">             <span class="string">"conv1_1_3x3_s2_bn"</span>,</div><div class="line">             <span class="string">"conv1_2_3x3"</span>,</div><div class="line">             <span class="string">"conv1_2_3x3_bn"</span>,</div><div class="line">             <span class="string">"conv1_3_3x3"</span>,</div><div class="line">             <span class="string">"conv1_3_3x3_bn"</span>]</div><div class="line"></div><div class="line">    <span class="comment"># Short branch(only start of network)</span></div><div class="line"></div><div class="line">    cnv1 = Conv2D(<span class="number">64</span>, (<span class="number">3</span>, <span class="number">3</span>), strides=(<span class="number">2</span>, <span class="number">2</span>), padding=<span class="string">'same'</span>, name=names[<span class="number">0</span>],</div><div class="line">                  use_bias=<span class="keyword">False</span>)(inp)  <span class="comment"># "conv1_1_3x3_s2"</span></div><div class="line">    bn1 = BN(name=names[<span class="number">1</span>])(cnv1)  <span class="comment"># "conv1_1_3x3_s2/bn"</span></div><div class="line">    relu1 = Activation(<span class="string">'relu'</span>)(bn1)  <span class="comment"># "conv1_1_3x3_s2/relu"</span></div><div class="line"></div><div class="line">    cnv1 = Conv2D(<span class="number">64</span>, (<span class="number">3</span>, <span class="number">3</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), padding=<span class="string">'same'</span>, name=names[<span class="number">2</span>],</div><div class="line">                  use_bias=<span class="keyword">False</span>)(relu1)  <span class="comment"># "conv1_2_3x3"</span></div><div class="line">    bn1 = BN(name=names[<span class="number">3</span>])(cnv1)  <span class="comment"># "conv1_2_3x3/bn"</span></div><div class="line">    relu1 = Activation(<span class="string">'relu'</span>)(bn1)  <span class="comment"># "conv1_2_3x3/relu"</span></div><div class="line"></div><div class="line">    cnv1 = Conv2D(<span class="number">128</span>, (<span class="number">3</span>, <span class="number">3</span>), strides=(<span class="number">1</span>, <span class="number">1</span>), padding=<span class="string">'same'</span>, name=names[<span class="number">4</span>],</div><div class="line">                  use_bias=<span class="keyword">False</span>)(relu1)  <span class="comment"># "conv1_3_3x3"</span></div><div class="line">    bn1 = BN(name=names[<span class="number">5</span>])(cnv1)  <span class="comment"># "conv1_3_3x3/bn"</span></div><div class="line">    relu1 = Activation(<span class="string">'relu'</span>)(bn1)  <span class="comment"># "conv1_3_3x3/relu"</span></div><div class="line"></div><div class="line">    res = MaxPooling2D(pool_size=(<span class="number">3</span>, <span class="number">3</span>), padding=<span class="string">'same'</span>,</div><div class="line">                       strides=(<span class="number">2</span>, <span class="number">2</span>))(relu1)  <span class="comment"># "pool1_3x3_s2"</span></div><div class="line"></div><div class="line">    <span class="comment"># ---Residual layers(body of network)</span></div><div class="line"></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    Modify_stride --Used only once in first 3_1 convolutions block.</span></div><div class="line"><span class="string">    changes stride of first convolution from 1 -&gt; 2</span></div><div class="line"><span class="string">    """</span></div><div class="line"></div><div class="line">    <span class="comment"># 2_1- 2_3</span></div><div class="line">    res = residual_short(res, <span class="number">1</span>, pad=<span class="number">1</span>, lvl=<span class="number">2</span>, sub_lvl=<span class="number">1</span>)</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">2</span>):</div><div class="line">        res = residual_empty(res, <span class="number">1</span>, pad=<span class="number">1</span>, lvl=<span class="number">2</span>, sub_lvl=i+<span class="number">2</span>)</div><div class="line"></div><div class="line">    <span class="comment"># 3_1 - 3_3</span></div><div class="line">    res = residual_short(res, <span class="number">2</span>, pad=<span class="number">1</span>, lvl=<span class="number">3</span>, sub_lvl=<span class="number">1</span>, modify_stride=<span class="keyword">True</span>)</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>):</div><div class="line">        res = residual_empty(res, <span class="number">2</span>, pad=<span class="number">1</span>, lvl=<span class="number">3</span>, sub_lvl=i+<span class="number">2</span>)</div><div class="line">    <span class="keyword">if</span> layers <span class="keyword">is</span> <span class="number">50</span>:</div><div class="line">        <span class="comment"># 4_1 - 4_6</span></div><div class="line">        res = residual_short(res, <span class="number">4</span>, pad=<span class="number">2</span>, lvl=<span class="number">4</span>, sub_lvl=<span class="number">1</span>)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5</span>):</div><div class="line">            res = residual_empty(res, <span class="number">4</span>, pad=<span class="number">2</span>, lvl=<span class="number">4</span>, sub_lvl=i+<span class="number">2</span>)</div><div class="line">    <span class="keyword">elif</span> layers <span class="keyword">is</span> <span class="number">101</span>:</div><div class="line">        <span class="comment"># 4_1 - 4_23</span></div><div class="line">        res = residual_short(res, <span class="number">4</span>, pad=<span class="number">2</span>, lvl=<span class="number">4</span>, sub_lvl=<span class="number">1</span>)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">22</span>):</div><div class="line">            res = residual_empty(res, <span class="number">4</span>, pad=<span class="number">2</span>, lvl=<span class="number">4</span>, sub_lvl=i+<span class="number">2</span>)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        print(<span class="string">"This ResNet is not implemented"</span>)</div><div class="line"></div><div class="line">    <span class="comment"># 5_1 - 5_3</span></div><div class="line">    res = residual_short(res, <span class="number">8</span>, pad=<span class="number">4</span>, lvl=<span class="number">5</span>, sub_lvl=<span class="number">1</span>)</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">2</span>):</div><div class="line">        res = residual_empty(res, <span class="number">8</span>, pad=<span class="number">4</span>, lvl=<span class="number">5</span>, sub_lvl=i+<span class="number">2</span>)</div><div class="line"></div><div class="line">    res = Activation(<span class="string">'relu'</span>)(res)</div><div class="line">    <span class="keyword">return</span> res</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/PSPNet/" rel="tag"># PSPNet</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/02/语义分割论文-ENet/" rel="next" title="语义分割论文-ENet">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-ENet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/08/语义分割论文-ICNet/" rel="prev" title="语义分割论文-ICNet">
+                语义分割论文-ICNet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PSPNet"><span class="nav-text">PSPNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Architecture"><span class="nav-text">Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Pyramid-Pooling-Module"><span class="nav-text">Pyramid Pooling Module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体架构"><span class="nav-text">整体架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于ResNet的深度监督网络"><span class="nav-text">基于ResNet的深度监督网络</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ImageNet-scene-parsing-challenge-2016"><span class="nav-text">ImageNet scene parsing challenge 2016</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PASCAL-VOC-2012"><span class="nav-text">PASCAL VOC 2012</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cityscapes"><span class="nav-text">Cityscapes</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分析"><span class="nav-text">代码分析</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

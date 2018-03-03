@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LightWeight Convolutional NetWork,ShuffleNet," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="ShuffleNet针对现有先进模型基本单元中存在的问题，提出了群卷积和通道混洗两个手段。进一步提高了模型的准确度。">
+<meta name="keywords" content="LightWeight Convolutional NetWork,ShuffleNet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量级网络-ShuffleNet">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/01/28/轻量级网络-ShuffleNet/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="ShuffleNet针对现有先进模型基本单元中存在的问题，提出了群卷积和通道混洗两个手段。进一步提高了模型的准确度。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/CfFEGdgJlI.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/lj9IK1cm9H.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/cHcCCLaiHE.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/7l8keJCGeK.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/3a1K7CglHA.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/E893dkdIIb.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/dmKmLDBfJB.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/mCIE9kj8ik.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/3DCm61F00i.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/03I3BcLHFH.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/ljccdgkKjf.png">
+<meta property="og:updated_time" content="2018-01-29T14:05:44.011Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="轻量级网络-ShuffleNet">
+<meta name="twitter:description" content="ShuffleNet针对现有先进模型基本单元中存在的问题，提出了群卷积和通道混洗两个手段。进一步提高了模型的准确度。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/CfFEGdgJlI.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/01/28/轻量级网络-ShuffleNet/"/>
+
+
+
+
+
+  <title>轻量级网络-ShuffleNet | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/01/28/轻量级网络-ShuffleNet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">轻量级网络-ShuffleNet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-28T16:27:35+08:00">
+                2018-01-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  ShuffleNet针对现有先进模型基本单元中存在的问题，提出了群卷积和通道混洗两个手段。进一步提高了模型的准确度。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="ShuffleNet"><a href="#ShuffleNet" class="headerlink" title="ShuffleNet"></a>ShuffleNet</h1><p>ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices</p>
+<p>原文地址： <a href="https://arxiv.org/pdf/1707.01083.pdf" target="_blank" rel="external">ShuffleNet</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/MG2033/ShuffleNet" target="_blank" rel="external">TensorFlow</a></li>
+<li><a href="https://github.com/farmingyard/ShuffleNet" target="_blank" rel="external">Caffe</a></li>
+</ul>
+<hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>论文介绍一个效率极高的CNN架构ShuffleNet，专门应用于计算力受限的移动设备。新的架构利用两个操作：<strong>逐点群卷积(pointwise group convolution)</strong>和<strong>通道混洗(channel shuffle)</strong>,与现有先进模型相比在类似的精度下大大降低计算量。在ImageNet和MS COCO上ShuffleNet表现出比其他先进模型的优越性能。</p>
+<hr>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>现许多CNNs模型的发展方向是更大更深，这让深度网络模型难以运行在移动设备上，针对这一问题，许多工作的重点放在对现有预训练模型的修剪、压缩或使用低精度数据表示。</p>
+<p>论文中提出的ShuffleNet是<strong>探索一个可以满足受限的条件的高效基础架构。</strong>论文的Insight是现有的先进basic架构如$Xception$和$ResNeXt$在小型网络模型中效率较低，因为大量的$1×1$卷积耗费很多计算资源，论文提出了<strong>逐点群卷积</strong>(<code>pointwise group convolution</code>)帮助降低计算复杂度；但是使用逐点群卷积会有幅作用，故在此基础上，论文提出通道混洗(<code>channel shuffle</code>)帮助信息流通。基于这两种技术，我们构建一个名为ShuffleNet的高效架构，相比于其他先进模型，对于给定的计算复杂度预算，ShuffleNet允许使用更多的特征映射通道，在小型网络上有助于编码更多信息。</p>
+<p>论文在ImageNet和MS COCO上做了相关实验，展现出ShuffleNet设计原理的有效性和结构优越性。同时论文还探讨了在真实嵌入式设备上运行效率。</p>
+<hr>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><ul>
+<li><strong>高效模型设计：</strong>  CNNs在CV任务中取得了极大的成功，在嵌入式设备上运行高质量深度神经网络需求越来越大，这也促进了对高效模型的探究。例如，与单纯的堆叠卷积层，GoogleNet增加了网络的宽度，复杂度降低很多；SqueezeNet在保持精度的同时大大减少参数和计算量；ResNet利用高效的bottleneck结构实现惊人的效果。Xception中提出深度可分卷积概括了Inception序列。MobileNet利用深度可分卷积构建的轻量级模型获得了先进的成果；<strong>ShuffleNet的工作是推广群卷积(group convolution)和深度可分卷积(depthwise separable convolution)。</strong></li>
+</ul>
+<ul>
+<li><strong>模型加速：</strong> 该方向旨在保持预训练模型的精度同时加速推理过程。常见的工作有：通过修剪网络连接或减少通道数减少模型中连接冗余；量化和因式分解减少计算中冗余；不修改参数的前提下，通过FFT和其他方法优化卷积计算消耗；蒸馏将大模型的知识转化为小模型，是的小模型训练更加容易；<strong>ShuffleNet的工作专注于设计更好的模型，直接提高性能，而不是加速或转换现有模型。</strong></li>
+</ul>
+<hr>
+<h2 id="Approch"><a href="#Approch" class="headerlink" title="Approch"></a>Approch</h2><h3 id="针对群卷积的通道混洗-Channel-Shuffle-for-Group-Convolutions"><a href="#针对群卷积的通道混洗-Channel-Shuffle-for-Group-Convolutions" class="headerlink" title="针对群卷积的通道混洗(Channel Shuffle for Group Convolutions)"></a>针对群卷积的通道混洗(Channel Shuffle for Group Convolutions)</h3><p>现代卷积神经网络会包含多个重复模块。其中，最先进的网络例如Xception和ResNeXt将有效的深度可分离卷积或群卷积引入构建block中，在表示能力和计算消耗之间取得很好的折中。但是，我们注意到这两个设计都没有充分采用$1×1$的逐点卷积，因为这需要很大的计算复杂度。例如，在ResNeXt中$3×3$卷积配有群卷积，逐点卷积占了93.4%的multiplication-adds。</p>
+<p><strong>在小型网络中，昂贵的逐点卷积造成有限的通道之间充满约束，这会显著的损失精度。</strong>为了解决这个问题，一个直接的方法是应用通道稀疏连接，例如组卷积(group convolutions)。通过确保每个卷积操作仅在对应的输入通道组上，组卷积可以显著的降低计算损失。然而，如果多个<strong>组卷积堆叠在一起，会有一个副作用： 某个通道输出仅从一小部分输入通道中导出，如下图(a)所示，这样的属性降低了通道组之间的信息流通，降低了信息表示能力。</strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/CfFEGdgJlI.png" alt="mark"></p>
+<p>如果我们允许组卷积能够得到不同组的输入数据，即上图(b)所示效果，那么输入和输出通道会是全关联的。具体来说，对于上一层输出的通道，我们可做一个混洗(Shuffle)操作，如上图(c)所示，再分成几个组，feed到下一层。</p>
+<p>对于这个混洗操作，有一个有效高雅(efficiently and elegantly)的实现:</p>
+<p>对于一个卷积层分为$g$组，</p>
+<ul>
+<li>1.有$g×n$个输出通道</li>
+<li>2.reshape为$(g,n)$</li>
+<li>3.再转置为$(n,g)$</li>
+<li>4.平坦化,再分回$g$组作为下一层的输入</li>
+</ul>
+<p>示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/lj9IK1cm9H.png" alt="mark"></p>
+<p>这样操作有点在于是可微的，模型可以保持end-to-end训练.</p>
+<h3 id="Shuffle-unit"><a href="#Shuffle-unit" class="headerlink" title="Shuffle unit"></a>Shuffle unit</h3><p>前面我们讲了通道混洗的好处了，在实际过程中我们构建了一个ShuffleNet unit，便于构建实际模型。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/cHcCCLaiHE.png" alt="mark"></p>
+<ul>
+<li><p>图(a)是一个残差模块。对于主分支部分，我们可将其中标准卷积$3×3$拆分成深度分离卷积(可参考我的<code>MobileNet</code>笔记)。我们将第一个$1×1$卷积替换为逐点组卷积，再作通道混洗(即(b))。</p>
+</li>
+<li><p>图(b)即ShuffleNet unit，主分支最后的$1×1 Conv$改为$1×1 GConv$，为了适配和恒等映射做通道融合。配合BN层和ReLU激活函数构成基本单元.</p>
+</li>
+<li><p>图(c)即是做降采样的ShuffleNet unit，这主要做了两点修改：</p>
+<ul>
+<li>在辅分支加入步长为2的<code>3×3</code>平均池化</li>
+<li>原本做元素相加的操作转为了通道级联，这扩大了通道维度，增加的计算成本却很少</li>
+</ul>
+</li>
+</ul>
+<p>归功于逐点群卷积和通道混洗，ShuffleNet unit可以高效的计算。相比于其他先进的单元，在相同设置下复杂度较低。</p>
+<p>例如：给定输入大小$h×w×c$,通道数为$c$。对于的bottleneck通道为$m$:</p>
+<ul>
+<li>ResNet unit需要$hw(2cm+9m^2)FLOPS$计算量。</li>
+<li>ResNeXt需要$hw(2cm+9m^2/g)$FLOPS</li>
+<li>而ShuffleNet unit只需要$hw(2cm/g+9m)$FLOPS.</li>
+</ul>
+<p>其中$g$代表组卷积数目。即表示<strong>：给定一个计算限制，ShuffleNet可以使用更宽的特征映射。我们发现这对小型网络很重要，因为小型网络没有足够的通道传递信息</strong>。</p>
+<p><strong>需要注意的是:</strong>虽然深度卷积可以减少计算量和参数量，但在低功耗设备上，与密集的操作相比，计算/存储访问的效率更差。故在ShuffleNet上我们只在bottleneck上使用深度卷积，尽可能的减少开销.</p>
+<h3 id="NetWork-Architecture"><a href="#NetWork-Architecture" class="headerlink" title="NetWork Architecture"></a>NetWork Architecture</h3><p>在上面的基本单元基础上，我们提出了ShuffleNet的整体架构：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/7l8keJCGeK.png" alt="mark"></p>
+<p>主要分为三个阶段：</p>
+<ul>
+<li>每个阶段的第一个block的步长为2，下一阶段的通道翻倍</li>
+<li>每个阶段内的除步长其他超参数保持不变</li>
+<li>每个ShuffleNet unit的bottleneck通道数为输出的1/4(和ResNet设置一致)</li>
+</ul>
+<p>这里主要是给出一个baseline。在ShuffleNet Unit中，参数$g$控制逐点卷积的连接稀疏性(即分组数)，对于给定的限制下，越大的$g$会有越多的输出通道，这帮助我们编码信息。</p>
+<p>定制模型需要满足指定的预算，<strong>我们可以简单的使用放缩因子$s$控制通道数，ShuffleNet$s×$即表示通道数放缩到$s$倍。</strong></p>
+<hr>
+<h2 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h2><p>实验在ImageNet的分类集上做评估，大多数遵循<a href="http://openaccess.thecvf.com/content_cvpr_2017/papers/Xie_Aggregated_Residual_Transformations_CVPR_2017_paper.pdf" target="_blank" rel="external">ResNeXt</a>的设置，除了两点：</p>
+<ul>
+<li>权重衰减从1e-4降低到了4e-5</li>
+<li>数据增强使用较少的aggressive scale 增强</li>
+</ul>
+<p>这样做的原因是小型网络在训练过程通常会遇到欠拟合而不是过拟合问题。</p>
+<h3 id="On-the-Importance-of-Pointwise-Group-Convolutions"><a href="#On-the-Importance-of-Pointwise-Group-Convolutions" class="headerlink" title="On the Importance of Pointwise Group Convolutions"></a>On the Importance of Pointwise Group Convolutions</h3><p>为了评估逐点卷积的重要性，比较相同复杂度下组数从1到8的ShuffleNet模型，同时我们通过放缩因子$s$控制网络宽度，扩展为3种：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/3a1K7CglHA.png" alt="mark"></p>
+<p>从结果来看，有组卷积的一致比没有组卷积($g=1$)的效果要好。<strong>注意组卷积可允许获得更多通道的信息，我们假设性能的收益源于更宽的特征映射，这帮助我们编码更多信息。并且，较小的模型的特征映射通道更少，这意味着能多的从特征映射上获取收益。</strong></p>
+<p>表2还显示，对于一些模型，随着$g$增大，性能上有所下降。意味组数增加，每个卷积滤波器的输入通道越来越少，损害了模型表示能力。</p>
+<p>值得注意的是，对于小型的ShuffleNet 0.25×，组数越大性能越好，这表明对于小模型更宽的特征映射更有效。受此启发，在原结构的阶段3删除两个单元，即表2中的<code>arch2</code>结构，放宽对应的特征映射，明显新的架构效果要好很多。</p>
+<h3 id="Channel-Shuffle-vs-No-Shuffle"><a href="#Channel-Shuffle-vs-No-Shuffle" class="headerlink" title="Channel Shuffle vs. No Shuffle"></a>Channel Shuffle vs. No Shuffle</h3><p>Shuffle操作是为了实现多个组之间信息交流，下表表现了有无Shuffle操作的性能差异：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/E893dkdIIb.png" alt="mark"></p>
+<p>在三个不同复杂度下带Shuffle的都表现出更优异的性能，尤其是当组更大(arch2,$g=8$)，具有shuffle操作性能提升较多，这表现出Shuffle操作的重要性。</p>
+<h3 id="Comparison-with-Other-Structure-Units"><a href="#Comparison-with-Other-Structure-Units" class="headerlink" title="Comparison with Other Structure Units"></a>Comparison with Other Structure Units</h3><p>我们对比不同unit之间的性能差异，使用表1的结构，用各个unit控制阶段2-4之间的Shuffle unit，调整通道数保证复杂度类似。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/dmKmLDBfJB.png" alt="mark"></p>
+<p>可以看到ShuffleNet的表现是比较出色的。有趣的是，我们发现特征映射通道和精度之间是存在直观上的关系，以38MFLOPs为例，VGG-like, ResNet, ResNeXt, Xception-like, ShuffleNet模型在阶段4上的输出通道为50, 192, 192, 288, 576，这是和精度的变化趋势是一致的。我们可以在给定的预算中使用更多的通道，通常可以获得更好的性能。</p>
+<p>上述的模型不包括GoogleNet或Inception结构，因为Inception涉及到太多超参数了，做为参考，我们采用了一个类似的轻量级网络PVANET。结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/mCIE9kj8ik.png" alt="mark"></p>
+<p>ShuffleNet模型效果要好点</p>
+<h3 id="Comparison-with-MobileNets-and-Other-Frameworks"><a href="#Comparison-with-MobileNets-and-Other-Frameworks" class="headerlink" title="Comparison with MobileNets and Other Frameworks"></a>Comparison with MobileNets and Other Frameworks</h3><p>与MobileNet和其他模型相比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/3DCm61F00i.png" alt="mark"></p>
+<p>相比于不同深度的模型对比，可以看到我们的模型要比MobileNet的效果要好，这表明ShuffleNet的有效性主要来源于高效的结构设计，而不是深度。</p>
+<h3 id="Generalization-Ability"><a href="#Generalization-Ability" class="headerlink" title="Generalization Ability"></a>Generalization Ability</h3><p>我们在MS COCO目标检测任务上测试ShuffleNet的泛化和迁移学习能力，以Faster RCNN为例：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/03I3BcLHFH.png" alt="mark"></p>
+<p>ShuffleNet的效果要比同等条件下的MobileNet效果要好，我们认为收益源于ShuffleNet的设计。</p>
+<h3 id="Actual-Speedup-Evaluation"><a href="#Actual-Speedup-Evaluation" class="headerlink" title="Actual Speedup Evaluation"></a>Actual Speedup Evaluation</h3><p>评估ShuffleNet在ARM平台的移动设备上的推断速度。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/ljccdgkKjf.png" alt="mark"></p>
+<p>三种分辨率输入做测试，由于内存访问和其他开销，原本理论上4倍的加速降低到了2.6倍左右。</p>
+<hr>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>论文针对现多数有效模型采用的逐点卷积存在的问题，提出了<code>组卷积</code>和<code>通道混洗</code>的处理方法，并在此基础上提出了一个ShuffleNet unit，后续对该单元做了一系列的实验验证，证明ShuffleNet的结构有效性。</p>
+<hr>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>这里分析的<a href="https://github.com/MG2033/ShuffleNet" target="_blank" rel="external">github-MG2033</a>的代码。</p>
+<h3 id="层定义"><a href="#层定义" class="headerlink" title="层定义"></a>层定义</h3><p>先看<a href="https://github.com/MG2033/ShuffleNet/blob/master/layers.py" target="_blank" rel="external">layers.py</a>文件，这部分定义了模型中使用的层。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 构建的shufflenet unit</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">shufflenet_unit</span><span class="params">(name, x, w=None, num_groups=<span class="number">1</span>, group_conv_bottleneck=True, num_filters=<span class="number">16</span>, stride=<span class="params">(<span class="number">1</span>, <span class="number">1</span>)</span>,</span></span></div><div class="line"><span class="function"><span class="params">                    l2_strength=<span class="number">0.0</span>, bias=<span class="number">0.0</span>, batchnorm_enabled=True, is_training=True, fusion=<span class="string">'add'</span>)</span>:</span></div><div class="line">    <span class="comment"># Paper parameters. If you want to change them feel free to pass them as method parameters.</span></div><div class="line">    activation = tf.nn.relu</div><div class="line"></div><div class="line">    <span class="keyword">with</span> tf.variable_scope(name) <span class="keyword">as</span> scope:</div><div class="line">        residual = x</div><div class="line">        bottleneck_filters = (num_filters // <span class="number">4</span>) <span class="keyword">if</span> fusion == <span class="string">'add'</span> <span class="keyword">else</span> (num_filters - residual.get_shape()[</div><div class="line">            <span class="number">3</span>].value) // <span class="number">4</span></div><div class="line"></div><div class="line">        <span class="keyword">if</span> group_conv_bottleneck:</div><div class="line">            <span class="comment"># 先1x1卷积</span></div><div class="line">            bottleneck = grouped_conv2d(<span class="string">'Gbottleneck'</span>, x=x, w=<span class="keyword">None</span>, num_filters=bottleneck_filters, kernel_size=(<span class="number">1</span>, <span class="number">1</span>),</div><div class="line">                                        padding=<span class="string">'VALID'</span>,</div><div class="line">                                        num_groups=num_groups, l2_strength=l2_strength, bias=bias,</div><div class="line">                                        activation=activation,</div><div class="line">                                        batchnorm_enabled=batchnorm_enabled, is_training=is_training)</div><div class="line">            <span class="comment"># 通道混洗</span></div><div class="line">            shuffled = channel_shuffle(<span class="string">'channel_shuffle'</span>, bottleneck, num_groups) </div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            bottleneck = conv2d(<span class="string">'bottleneck'</span>, x=x, w=<span class="keyword">None</span>, num_filters=bottleneck_filters, kernel_size=(<span class="number">1</span>, <span class="number">1</span>),</div><div class="line">                                padding=<span class="string">'VALID'</span>, l2_strength=l2_strength, bias=bias, activation=activation,</div><div class="line">                                batchnorm_enabled=batchnorm_enabled, is_training=is_training)</div><div class="line">            shuffled = bottleneck</div><div class="line">        <span class="comment"># 3x3深度分离卷积</span></div><div class="line">        padded = tf.pad(shuffled, [[<span class="number">0</span>, <span class="number">0</span>], [<span class="number">1</span>, <span class="number">1</span>], [<span class="number">1</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">0</span>]], <span class="string">"CONSTANT"</span>)</div><div class="line">        depthwise = depthwise_conv2d(<span class="string">'depthwise'</span>, x=padded, w=<span class="keyword">None</span>, stride=stride, l2_strength=l2_strength,</div><div class="line">                                     padding=<span class="string">'VALID'</span>, bias=bias,</div><div class="line">                                     activation=<span class="keyword">None</span>, batchnorm_enabled=batchnorm_enabled, is_training=is_training)</div><div class="line">        <span class="comment"># 如果步长为2，则下采样</span></div><div class="line">        <span class="keyword">if</span> stride == (<span class="number">2</span>, <span class="number">2</span>):</div><div class="line">            residual_pooled = avg_pool_2d(residual, size=(<span class="number">3</span>, <span class="number">3</span>), stride=stride, padding=<span class="string">'SAME'</span>)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            residual_pooled = residual</div><div class="line"></div><div class="line">        <span class="comment"># 如果是通道连接</span></div><div class="line">        <span class="keyword">if</span> fusion == <span class="string">'concat'</span>:</div><div class="line">            group_conv1x1 = grouped_conv2d(<span class="string">'Gconv1x1'</span>, x=depthwise, w=<span class="keyword">None</span>,</div><div class="line">                                           num_filters=num_filters - residual.get_shape()[<span class="number">3</span>].value,</div><div class="line">                                           kernel_size=(<span class="number">1</span>, <span class="number">1</span>),</div><div class="line">                                           padding=<span class="string">'VALID'</span>,</div><div class="line">                                           num_groups=num_groups, l2_strength=l2_strength, bias=bias,</div><div class="line">                                           activation=<span class="keyword">None</span>,</div><div class="line">                                           batchnorm_enabled=batchnorm_enabled, is_training=is_training)</div><div class="line">            <span class="keyword">return</span> activation(tf.concat([residual_pooled, group_conv1x1], axis=<span class="number">-1</span>))</div><div class="line">        <span class="comment"># 最后像素加</span></div><div class="line">        <span class="keyword">elif</span> fusion == <span class="string">'add'</span>:</div><div class="line">            group_conv1x1 = grouped_conv2d(<span class="string">'Gconv1x1'</span>, x=depthwise, w=<span class="keyword">None</span>,</div><div class="line">                                           num_filters=num_filters,</div><div class="line">                                           kernel_size=(<span class="number">1</span>, <span class="number">1</span>),</div><div class="line">                                           padding=<span class="string">'VALID'</span>,</div><div class="line">                                           num_groups=num_groups, l2_strength=l2_strength, bias=bias,</div><div class="line">                                           activation=<span class="keyword">None</span>,</div><div class="line">                                           batchnorm_enabled=batchnorm_enabled, is_training=is_training)</div><div class="line">            residual_match = residual_pooled</div><div class="line">            <span class="comment"># This is used if the number of filters of the residual block is different from that</span></div><div class="line">            <span class="comment"># of the group convolution.</span></div><div class="line">            <span class="keyword">if</span> num_filters != residual_pooled.get_shape()[<span class="number">3</span>].value:</div><div class="line">                residual_match = conv2d(<span class="string">'residual_match'</span>, x=residual_pooled, w=<span class="keyword">None</span>, num_filters=num_filters,</div><div class="line">                                        kernel_size=(<span class="number">1</span>, <span class="number">1</span>),</div><div class="line">                                        padding=<span class="string">'VALID'</span>, l2_strength=l2_strength, bias=bias, activation=<span class="keyword">None</span>,</div><div class="line">                                        batchnorm_enabled=batchnorm_enabled, is_training=is_training)</div><div class="line">            <span class="keyword">return</span> activation(group_conv1x1 + residual_match)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">raise</span> ValueError(<span class="string">"Specify whether the fusion is \'concat\' or \'add\'"</span>)</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 通道混洗</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">channel_shuffle</span><span class="params">(name, x, num_groups)</span>:</span></div><div class="line">    <span class="keyword">with</span> tf.variable_scope(name) <span class="keyword">as</span> scope:</div><div class="line">        n, h, w, c = x.shape.as_list()</div><div class="line">        x_reshaped = tf.reshape(x, [<span class="number">-1</span>, h, w, num_groups, c // num_groups]) <span class="comment"># 先合并重组</span></div><div class="line">        x_transposed = tf.transpose(x_reshaped, [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">3</span>]) <span class="comment"># 转置</span></div><div class="line">        output = tf.reshape(x_transposed, [<span class="number">-1</span>, h, w, c]) <span class="comment"># 摊平</span></div><div class="line">        <span class="keyword">return</span> output</div></pre></td></tr></table></figure>
+<h3 id="模型定义"><a href="#模型定义" class="headerlink" title="模型定义"></a>模型定义</h3><p>直接看<a href="https://github.com/MG2033/ShuffleNet/blob/master/model.py" target="_blank" rel="external">model.py</a>文件，有了上面的层定义，这代码看起来就整洁很多了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line"><span class="keyword">from</span> layers <span class="keyword">import</span> shufflenet_unit, conv2d, max_pool_2d, avg_pool_2d, dense, flatten</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ShuffleNet</span>:</span></div><div class="line">    <span class="string">"""ShuffleNet is implemented here!"""</span></div><div class="line">    MEAN = [<span class="number">103.94</span>, <span class="number">116.78</span>, <span class="number">123.68</span>]</div><div class="line">    NORMALIZER = <span class="number">0.017</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, args)</span>:</span></div><div class="line">        self.args = args</div><div class="line">        self.X = <span class="keyword">None</span></div><div class="line">        self.y = <span class="keyword">None</span></div><div class="line">        self.logits = <span class="keyword">None</span></div><div class="line">        self.is_training = <span class="keyword">None</span></div><div class="line">        self.loss = <span class="keyword">None</span></div><div class="line">        self.regularization_loss = <span class="keyword">None</span></div><div class="line">        self.cross_entropy_loss = <span class="keyword">None</span></div><div class="line">        self.train_op = <span class="keyword">None</span></div><div class="line">        self.accuracy = <span class="keyword">None</span></div><div class="line">        self.y_out_argmax = <span class="keyword">None</span></div><div class="line">        self.summaries_merged = <span class="keyword">None</span></div><div class="line"></div><div class="line">        <span class="comment"># A number stands for the num_groups</span></div><div class="line">        <span class="comment"># Output channels for conv1 layer</span></div><div class="line">        self.output_channels = &#123;<span class="string">'1'</span>: [<span class="number">144</span>, <span class="number">288</span>, <span class="number">576</span>], <span class="string">'2'</span>: [<span class="number">200</span>, <span class="number">400</span>, <span class="number">800</span>], <span class="string">'3'</span>: [<span class="number">240</span>, <span class="number">480</span>, <span class="number">960</span>], <span class="string">'4'</span>: [<span class="number">272</span>, <span class="number">544</span>, <span class="number">1088</span>],</div><div class="line">                                <span class="string">'8'</span>: [<span class="number">384</span>, <span class="number">768</span>, <span class="number">1536</span>], <span class="string">'conv1'</span>: <span class="number">24</span>&#125;</div><div class="line"></div><div class="line">        self.__build()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init_input</span><span class="params">(self)</span>:</span></div><div class="line">        batch_size = self.args.batch_size <span class="keyword">if</span> self.args.train_or_test == <span class="string">'train'</span> <span class="keyword">else</span> <span class="number">1</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'input'</span>):</div><div class="line">            <span class="comment"># Input images</span></div><div class="line">            self.X = tf.placeholder(tf.float32,</div><div class="line">                                    [batch_size, self.args.img_height, self.args.img_width,</div><div class="line">                                     self.args.num_channels])</div><div class="line">            <span class="comment"># Classification supervision, it's an argmax. Feel free to change it to one-hot,</span></div><div class="line">            <span class="comment"># but don't forget to change the loss from sparse as well</span></div><div class="line">            self.y = tf.placeholder(tf.int32, [batch_size])</div><div class="line">            <span class="comment"># is_training is for batch normalization and dropout, if they exist</span></div><div class="line">            self.is_training = tf.placeholder(tf.bool)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__resize</span><span class="params">(self, x)</span>:</span></div><div class="line">        <span class="keyword">return</span> tf.image.resize_bicubic(x, [<span class="number">224</span>, <span class="number">224</span>])</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__stage</span><span class="params">(self, x, stage=<span class="number">2</span>, repeat=<span class="number">3</span>)</span>:</span></div><div class="line">        <span class="keyword">if</span> <span class="number">2</span> &lt;= stage &lt;= <span class="number">4</span>:</div><div class="line">            stage_layer = shufflenet_unit(<span class="string">'stage'</span> + str(stage) + <span class="string">'_0'</span>, x=x, w=<span class="keyword">None</span>,</div><div class="line">                                          num_groups=self.args.num_groups,</div><div class="line">                                          group_conv_bottleneck=<span class="keyword">not</span> (stage == <span class="number">2</span>),</div><div class="line">                                          num_filters=</div><div class="line">                                          self.output_channels[str(self.args.num_groups)][</div><div class="line">                                              stage - <span class="number">2</span>],</div><div class="line">                                          stride=(<span class="number">2</span>, <span class="number">2</span>),</div><div class="line">                                          fusion=<span class="string">'concat'</span>, l2_strength=self.args.l2_strength,</div><div class="line">                                          bias=self.args.bias,</div><div class="line">                                          batchnorm_enabled=self.args.batchnorm_enabled,</div><div class="line">                                          is_training=self.is_training)</div><div class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>, repeat + <span class="number">1</span>):</div><div class="line">                stage_layer = shufflenet_unit(<span class="string">'stage'</span> + str(stage) + <span class="string">'_'</span> + str(i),</div><div class="line">                                              x=stage_layer, w=<span class="keyword">None</span>,</div><div class="line">                                              num_groups=self.args.num_groups,</div><div class="line">                                              group_conv_bottleneck=<span class="keyword">True</span>,</div><div class="line">                                              num_filters=self.output_channels[</div><div class="line">                                                  str(self.args.num_groups)][stage - <span class="number">2</span>],</div><div class="line">                                              stride=(<span class="number">1</span>, <span class="number">1</span>),</div><div class="line">                                              fusion=<span class="string">'add'</span>,</div><div class="line">                                              l2_strength=self.args.l2_strength,</div><div class="line">                                              bias=self.args.bias,</div><div class="line">                                              batchnorm_enabled=self.args.batchnorm_enabled,</div><div class="line">                                              is_training=self.is_training)</div><div class="line">            <span class="keyword">return</span> stage_layer</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">raise</span> ValueError(<span class="string">"Stage should be from 2 -&gt; 4"</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init_output</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'output'</span>):</div><div class="line">            <span class="comment"># Losses</span></div><div class="line">            self.regularization_loss = tf.reduce_sum(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))</div><div class="line">            self.cross_entropy_loss = tf.reduce_mean(</div><div class="line">                tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.y, name=<span class="string">'loss'</span>))</div><div class="line">            self.loss = self.regularization_loss + self.cross_entropy_loss</div><div class="line"></div><div class="line">            <span class="comment"># Optimizer</span></div><div class="line">            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)</div><div class="line">            <span class="keyword">with</span> tf.control_dependencies(update_ops):</div><div class="line">                self.optimizer = tf.train.AdamOptimizer(learning_rate=self.args.learning_rate)</div><div class="line">                self.train_op = self.optimizer.minimize(self.loss)</div><div class="line">                <span class="comment"># This is for debugging NaNs. Check TensorFlow documentation.</span></div><div class="line">                self.check_op = tf.add_check_numerics_ops()</div><div class="line"></div><div class="line">            <span class="comment"># Output and Metrics</span></div><div class="line">            self.y_out_softmax = tf.nn.softmax(self.logits)</div><div class="line">            self.y_out_argmax = tf.argmax(self.y_out_softmax, axis=<span class="number">-1</span>, output_type=tf.int32)</div><div class="line">            self.accuracy = tf.reduce_mean(tf.cast(tf.equal(self.y, self.y_out_argmax), tf.float32))</div><div class="line"></div><div class="line">        <span class="keyword">with</span> tf.name_scope(<span class="string">'train-summary-per-iteration'</span>):</div><div class="line">            tf.summary.scalar(<span class="string">'loss'</span>, self.loss)</div><div class="line">            tf.summary.scalar(<span class="string">'acc'</span>, self.accuracy)</div><div class="line">            self.summaries_merged = tf.summary.merge_all()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__build</span><span class="params">(self)</span>:</span></div><div class="line">        self.__init_global_epoch()</div><div class="line">        self.__init_global_step()</div><div class="line">        self.__init_input()</div><div class="line"></div><div class="line">        <span class="keyword">with</span> tf.name_scope(<span class="string">'Preprocessing'</span>):</div><div class="line">            red, green, blue = tf.split(self.X, num_or_size_splits=<span class="number">3</span>, axis=<span class="number">3</span>)</div><div class="line">            preprocessed_input = tf.concat([</div><div class="line">                tf.subtract(blue, ShuffleNet.MEAN[<span class="number">0</span>]) * ShuffleNet.NORMALIZER,</div><div class="line">                tf.subtract(green, ShuffleNet.MEAN[<span class="number">1</span>]) * ShuffleNet.NORMALIZER,</div><div class="line">                tf.subtract(red, ShuffleNet.MEAN[<span class="number">2</span>]) * ShuffleNet.NORMALIZER,</div><div class="line">            ], <span class="number">3</span>)</div><div class="line">        x_padded = tf.pad(preprocessed_input, [[<span class="number">0</span>, <span class="number">0</span>], [<span class="number">1</span>, <span class="number">1</span>], [<span class="number">1</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">0</span>]], <span class="string">"CONSTANT"</span>)</div><div class="line">        conv1 = conv2d(<span class="string">'conv1'</span>, x=x_padded, w=<span class="keyword">None</span>, num_filters=self.output_channels[<span class="string">'conv1'</span>], kernel_size=(<span class="number">3</span>, <span class="number">3</span>),</div><div class="line">                       stride=(<span class="number">2</span>, <span class="number">2</span>), l2_strength=self.args.l2_strength, bias=self.args.bias,</div><div class="line">                       batchnorm_enabled=self.args.batchnorm_enabled, is_training=self.is_training,</div><div class="line">                       activation=tf.nn.relu, padding=<span class="string">'VALID'</span>)</div><div class="line">        padded = tf.pad(conv1, [[<span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">0</span>]], <span class="string">"CONSTANT"</span>)</div><div class="line">        max_pool = max_pool_2d(padded, size=(<span class="number">3</span>, <span class="number">3</span>), stride=(<span class="number">2</span>, <span class="number">2</span>), name=<span class="string">'max_pool'</span>)</div><div class="line">        stage2 = self.__stage(max_pool, stage=<span class="number">2</span>, repeat=<span class="number">3</span>)</div><div class="line">        stage3 = self.__stage(stage2, stage=<span class="number">3</span>, repeat=<span class="number">7</span>)</div><div class="line">        stage4 = self.__stage(stage3, stage=<span class="number">4</span>, repeat=<span class="number">3</span>)</div><div class="line">        global_pool = avg_pool_2d(stage4, size=(<span class="number">7</span>, <span class="number">7</span>), stride=(<span class="number">1</span>, <span class="number">1</span>), name=<span class="string">'global_pool'</span>, padding=<span class="string">'VALID'</span>)</div><div class="line"></div><div class="line">        logits_unflattened = conv2d(<span class="string">'fc'</span>, global_pool, w=<span class="keyword">None</span>, num_filters=self.args.num_classes,</div><div class="line">                                    kernel_size=(<span class="number">1</span>, <span class="number">1</span>),</div><div class="line">                                    l2_strength=self.args.l2_strength,</div><div class="line">                                    bias=self.args.bias,</div><div class="line">                                    is_training=self.is_training)</div><div class="line">        self.logits = flatten(logits_unflattened)</div><div class="line"></div><div class="line">        self.__init_output()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init_global_epoch</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line"><span class="string">        Create a global epoch tensor to totally save the process of the training</span></div><div class="line"><span class="string">        :return:</span></div><div class="line"><span class="string">        """</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'global_epoch'</span>):</div><div class="line">            self.global_epoch_tensor = tf.Variable(<span class="number">-1</span>, trainable=<span class="keyword">False</span>, name=<span class="string">'global_epoch'</span>)</div><div class="line">            self.global_epoch_input = tf.placeholder(<span class="string">'int32'</span>, <span class="keyword">None</span>, name=<span class="string">'global_epoch_input'</span>)</div><div class="line">            self.global_epoch_assign_op = self.global_epoch_tensor.assign(self.global_epoch_input)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init_global_step</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line"><span class="string">        Create a global step variable to be a reference to the number of iterations</span></div><div class="line"><span class="string">        :return:</span></div><div class="line"><span class="string">        """</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'global_step'</span>):</div><div class="line">            self.global_step_tensor = tf.Variable(<span class="number">0</span>, trainable=<span class="keyword">False</span>, name=<span class="string">'global_step'</span>)</div><div class="line">            self.global_step_input = tf.placeholder(<span class="string">'int32'</span>, <span class="keyword">None</span>, name=<span class="string">'global_step_input'</span>)</div><div class="line">            self.global_step_assign_op = self.global_step_tensor.assign(self.global_step_input)</div></pre></td></tr></table></figure>
+<h2 id="ShuffleNet思路还是比较清晰的"><a href="#ShuffleNet思路还是比较清晰的" class="headerlink" title="ShuffleNet思路还是比较清晰的~ "></a>ShuffleNet思路还是比较清晰的~ </h2><hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LightWeight-Convolutional-NetWork/" rel="tag"># LightWeight Convolutional NetWork</a>
+          
+            <a href="/tags/ShuffleNet/" rel="tag"># ShuffleNet</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/26/轻量级网络-MobileNetv1/" rel="next" title="轻量级网络-MobileNetV1">
+                <i class="fa fa-chevron-left"></i> 轻量级网络-MobileNetV1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/29/轻量级网络-MobileNetV2/" rel="prev" title="轻量级网络-MobileNetV2">
+                轻量级网络-MobileNetV2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ShuffleNet"><span class="nav-text">ShuffleNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Approch"><span class="nav-text">Approch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#针对群卷积的通道混洗-Channel-Shuffle-for-Group-Convolutions"><span class="nav-text">针对群卷积的通道混洗(Channel Shuffle for Group Convolutions)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Shuffle-unit"><span class="nav-text">Shuffle unit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NetWork-Architecture"><span class="nav-text">NetWork Architecture</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#On-the-Importance-of-Pointwise-Group-Convolutions"><span class="nav-text">On the Importance of Pointwise Group Convolutions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Channel-Shuffle-vs-No-Shuffle"><span class="nav-text">Channel Shuffle vs. No Shuffle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Comparison-with-Other-Structure-Units"><span class="nav-text">Comparison with Other Structure Units</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Comparison-with-MobileNets-and-Other-Frameworks"><span class="nav-text">Comparison with MobileNets and Other Frameworks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generalization-Ability"><span class="nav-text">Generalization Ability</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Actual-Speedup-Evaluation"><span class="nav-text">Actual Speedup Evaluation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分析"><span class="nav-text">代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#层定义"><span class="nav-text">层定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型定义"><span class="nav-text">模型定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ShuffleNet思路还是比较清晰的"><span class="nav-text">ShuffleNet思路还是比较清晰的~ </span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LightWeight Convolutional NetWork,MobileNet," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="MobileNet是针对移动设备提出的基于深度可分离卷积的新模型，可通过两个超参数快速调节模型大小适配到特定嵌入式环境。">
+<meta name="keywords" content="LightWeight Convolutional NetWork,MobileNet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量级网络-MobileNetV1">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/01/26/轻量级网络-MobileNetv1/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="MobileNet是针对移动设备提出的基于深度可分离卷积的新模型，可通过两个超参数快速调节模型大小适配到特定嵌入式环境。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/8hJA2kbHag.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/9k3I8gHIAb.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/86eaaeHbBD.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/0BfCGIEb6d.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/2djHJ1F1Ld.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/eE4BIFGIIe.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/48da2cJHh5.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/DLK805LDHJ.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/2mmkE9LFg8.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/37kAbE3Hd0.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/dFcH3bjGmf.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/5d52Akk43A.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/ALacc9D3Lm.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/Fb1h4bkDiJ.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/fb4c76F9j6.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/53mj94566J.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/6gka3hHidk.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/8LFGAaIG20.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/GF6Kc46HHb.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/C8jCkHdI13.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/kC0lDkkJ5m.png">
+<meta property="og:updated_time" content="2018-01-29T12:07:01.292Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="轻量级网络-MobileNetV1">
+<meta name="twitter:description" content="MobileNet是针对移动设备提出的基于深度可分离卷积的新模型，可通过两个超参数快速调节模型大小适配到特定嵌入式环境。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180129/8hJA2kbHag.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/01/26/轻量级网络-MobileNetv1/"/>
+
+
+
+
+
+  <title>轻量级网络-MobileNetV1 | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/01/26/轻量级网络-MobileNetv1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">轻量级网络-MobileNetV1</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-26T16:27:23+08:00">
+                2018-01-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  MobileNet是针对移动设备提出的基于深度可分离卷积的新模型，可通过两个超参数快速调节模型大小适配到特定嵌入式环境。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="MobileNetV1"><a href="#MobileNetV1" class="headerlink" title="MobileNetV1"></a>MobileNetV1</h1><p>MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications</p>
+<p>原文地址：<a href="https://arxiv.org/abs/1704.04861" target="_blank" rel="external">MobileNetV1</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/tensorflow/models/tree/master/research/slim/nets" target="_blank" rel="external">TensorFlow官方</a></li>
+<li><a href="https://github.com/Zehaos/MobileNet" target="_blank" rel="external">github-Tensorflow</a></li>
+<li><a href="https://github.com/shicai/MobileNet-Caffe" target="_blank" rel="external">github-Caffe</a></li>
+</ul>
+<hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>MobileNets是为移动和嵌入式设备提出的高效模型。MobileNets基于流线型架构(streamlined)，使用<strong>深度可分离卷积(depthwise separable convolutions,即Xception变体结构)来构建轻量级深度神经网络</strong>。</p>
+<p>论文介绍了两个简单的全局超参数，可有效的在延迟和准确率之间做折中。这些超参数允许我们依据约束条件选择合适大小的模型。论文测试在多个参数量下做了广泛的实验，并在ImageNet分类任务上与其他先进模型做了对比，显示了强大的性能。论文验证了模型在其他领域(对象检测，人脸识别，大规模地理定位等)使用的有效性。</p>
+<hr>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>深度卷积神经网络将多个计算机视觉任务性能提升到了一个新高度，总体的趋势是为了达到更高的准确性构建了更深更复杂的网络，但是这些网络在尺度和速度上不一定满足移动设备要求。MobileNet描述了一个高效的网络架构，允许通过两个超参数直接构建非常小、低延迟、易满足嵌入式设备要求的模型。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/8hJA2kbHag.png" alt="mark"></p>
+<hr>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>现阶段，在建立小型高效的神经网络工作中，通常可分为两类工作：</p>
+<ul>
+<li><p><strong>压缩预训练模型。</strong>获得小型网络的一个办法是减小、分解或压缩预训练网络，例如量化压缩(product quantization)、哈希(hashing )、剪枝(pruning)、矢量编码( vector quantization)和霍夫曼编码(Huffman coding)等；此外还有各种分解因子(various factorizations )用来加速预训练网络；还有一种训练小型网络的方法叫蒸馏(distillation )，使用大型网络指导小型网络，这是对论文的方法做了一个补充，后续有介绍补充。</p>
+</li>
+<li><p><strong>直接训练小型模型。</strong> 例如Flattened networks利用完全的因式分解的卷积网络构建模型，显示出完全分解网络的潜力；Factorized Networks引入了类似的分解卷积以及拓扑连接的使用；Xception network显示了如何扩展深度可分离卷积到Inception V3 networks；Squeezenet 使用一个bottleneck用于构建小型网络。</p>
+</li>
+</ul>
+<p>本文提出的MobileNet网络架构，允许模型开发人员专门选择与其资源限制(延迟、大小)匹配的小型模型，MobileNets主要注重于优化延迟同时考虑小型网络，从深度可分离卷积的角度重新构建模型。</p>
+<hr>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><h3 id="Depthwise-Separable-Convolution"><a href="#Depthwise-Separable-Convolution" class="headerlink" title="Depthwise Separable Convolution"></a>Depthwise Separable Convolution</h3><p>MobileNet是基于深度可分离卷积的。通俗的来说，深度可分离卷积干的活是：把标准卷积分解成<strong>深度卷积(depthwise convolution)</strong>和<strong>逐点卷积(pointwise convolution)</strong>。这么做的好处是可以大幅度降低参数量和计算量。分解过程示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/9k3I8gHIAb.png" alt="mark"></p>
+<p>输入的特征映射$F$尺寸为$(D_F,D_F,M)$，采用的标准卷积$K$为$(D_K,D_K,M,N)$(如图(a)所示)，输出的特征映射为$G$尺寸为$(D_G,D_G,N)$</p>
+<p>标准卷积的卷积计算公式为：$$G_{k,l,n}=\sum_{i,j,m}K_{i,j,m,n}·F_{k+i-1,l+j-1,m}$$ 输入的通道数为$M$,输出的通道数为$N$。对应的计算量为：$D_K·D_K·M·N·D_F·D_F$</p>
+<p>可将标准卷积$(D_K,D_K,M,N)$拆分为深度卷积和逐点卷积：</p>
+<ul>
+<li>深度卷积负责滤波作用,尺寸为$(D_K,D_K,1,M)$如图(b)所示。输出特征为$(D_G,D_G,M)$</li>
+<li>逐点卷积负责转换通道，尺寸为$(1,1,M,N)$如图(c)所示。得到最终输出为$(D_G,D_G,N)$</li>
+</ul>
+<p>深度卷积的卷积公式为：$$\hat{G}_{k,l,n}=\sum_{i,j}\hat{K}_{i,j,m}·F_{k+i-1,l+j-1,m}$$其中$\hat{K}$是深度卷积，卷积核为$(D_K,D_K,1,M)$，其中$m_{th}$个卷积核应用在$F$中第$m_{th}$个通道上，产生$\hat{G}$上第$m_{th}$个通道输出.</p>
+<p>深度卷积和逐点卷积计算量：$D_K·D_K·M·D_F·D_F + M·N·D_F·D_F $</p>
+<p>计算量减少了:$$\frac{D_K·D_K·M·D_F·D_F + M·N·D_F·D_F }{D_K·D_K·M·N·D_F·D_F}=\frac{1}{N} + \frac{1}{D_K^2}$$</p>
+<h4 id="深度分类卷积示例"><a href="#深度分类卷积示例" class="headerlink" title="深度分类卷积示例"></a>深度分类卷积示例</h4><p>输入图片的大小为$(6,6,3)$，原卷积操作是用$(4,4,3,5)$的卷积($4×4$是卷积核大小，3是卷积核通道数，5个卷积核数量)，stride=1,无padding。输出的特征尺寸为$\frac{6-4}{1}+1=3$，即输出的特征映射为$(3,3,5)$</p>
+<p>将标准卷积中选取序号为$n$的卷积核，大小为$(4,4,3)$，<strong>标准卷积过程示意图</strong>如下(<strong>注意省略了偏置单元</strong>)：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/86eaaeHbBD.png" alt="mark"></p>
+<p>黑色的输入为$(6,6,3)$与第$n$个卷积核对应，每个通道对应每个卷积核通道卷积得到输出，最终输出为$2+0+1=3$。(这是常见的卷积操作，注意这里卷积核要和输入的通道数相同，即图中表示的3个通道~)</p>
+<p>对于深度分离卷积，把标准卷积$(4,4,3,5)$分解为：</p>
+<ul>
+<li>深度卷积部分：大小为$(4,4,1,3)$，作用在输入的每个通道上，输出特征映射为$(3,3,3)$</li>
+<li>逐点卷积部分：大小为$(1,1,3,5)$，作用在深度卷积的输出特征映射上，得到最终输出为$(3,3,5)$</li>
+</ul>
+<p>例中深度卷积卷积过程示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/0BfCGIEb6d.png" alt="mark"></p>
+<p>输入有3个通道，对应着有3个大小为$(4,4,1)$的深度卷积核，卷积结果共有3个大小为$(3,3,1)$，我们按顺序将这卷积按通道排列得到输出卷积结果$(3,3,3)$。</p>
+<p>相比之下计算量减少了:<br>$4×4×3×5$转为了$4×4×1×3 + 1×1×3×5$,即参数量减少了$$\frac{4×4×1×3 + 1×1×3×5}{4×4×3×5}=\frac{21}{80}即(\frac{1}{5}+\frac{1}{4^2})$$ </p>
+<p>MobileNet使用可分离卷积减少了8到9倍的计算量，只损失了一点准确度。</p>
+<h3 id="Network-Structure-and-Training"><a href="#Network-Structure-and-Training" class="headerlink" title="Network Structure and Training"></a>Network Structure and Training</h3><p>标准卷积和MobileNet中使用的深度分离卷积结构对比如下:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/2djHJ1F1Ld.png" alt="mark"></p>
+<p><strong>注意：如果是需要下采样，则在第一个深度卷积上取步长为2.</strong></p>
+<p>MobileNet的具体结构如下(dw表示深度分离卷积)：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/eE4BIFGIIe.png" alt="mark"></p>
+<p>除了最后的FC层没有非线性激活函数，其他层都有BN和ReLU非线性函数.</p>
+<p>我们的模型几乎将所有的密集运算放到$1×1$卷积上，这可以使用general matrix multiply (GEMM) functions优化。在MobileNet中有95%的时间花费在$1×1$卷积上,这部分也占了75%的参数：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/48da2cJHh5.png" alt="mark"></p>
+<p>剩余的其他参数几乎都在FC层上了。</p>
+<p>在TensorFlow中使用RMSprop对MobileNet做训练，使用类似InceptionV3 的异步梯度下降。与训练大型模型不同的是，我们较少使用正则和数据增强技术，因为小模型不易陷入过拟合；没有使用side heads or label smoothing，我们发现在深度卷积核上放入很少的L2正则或不设置权重衰减的很重要，因为这部分参数很少。</p>
+<h3 id="Width-Multiplier-Thinner-Models"><a href="#Width-Multiplier-Thinner-Models" class="headerlink" title="Width Multiplier: Thinner Models"></a>Width Multiplier: Thinner Models</h3><p>我们引入的第一个控制模型大小的超参数是：<strong>宽度因子$\alpha$(Width multiplier )</strong>，用于控制输入和输出的通道数，即输入通道从$M$变为$\alpha M$,输出通道从$N$变为$\alpha N$。</p>
+<p>深度卷积和逐点卷积的计算量：$$D_K·D_K·\alpha M·D_F·D_F + \alpha M· \alpha N·D_F·D_F $$可设置$\alpha∈(0,1]$，通常取$1,0.75,0.5和0.25$。</p>
+<p>计算量减少了:$$\frac{D_K·D_K·\alpha M·D_F·D_F + \alpha M· \alpha N·D_F·D_F }{D_K·D_K·M·N·D_F·D_F}=\frac{\alpha}{N} + \frac{\alpha^2}{D_K^2}$$</p>
+<p>宽度因子将计算量和参数降低了约$\alpha^2$倍，可很方便的控制模型大小.</p>
+<h3 id="Resolution-Multiplier-Reduced-Representation"><a href="#Resolution-Multiplier-Reduced-Representation" class="headerlink" title="Resolution Multiplier: Reduced Representation"></a>Resolution Multiplier: Reduced Representation</h3><p>我们引入的第二个控制模型大小的超参数是：<strong>分辨率因子$\rho$(resolution multiplier )</strong>.用于控制输入和内部层表示。即用分辨率因子控制输入的分辨率。</p>
+<p>深度卷积和逐点卷积的计算量：$$D_K·D_K·\alpha M·\rho D_F·\rho D_F + \alpha M· \alpha N·\rho D_F·\rho D_F $$可设置$\rho∈(0,1]$，通常设置输入分辨率为$224,192,160和128$。</p>
+<p>计算量减少了:$$\frac{D_K·D_K·\alpha M·\rho D_F·\rho D_F + \alpha M· \alpha N·\rho D_F·\rho D_F }{D_K·D_K·M·N·D_F·D_F}=\frac{\alpha \rho}{N} + \frac{\alpha^2 \rho^2}{D_K^2}$$</p>
+<p>分辨率因子将计算量和参数降低了约$\rho^2$倍，可很方便的控制模型大小.</p>
+<p>下面的示例展现了宽度因子和分辨率因子对模型的影响：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/DLK805LDHJ.png" alt="mark"></p>
+<p>第一行是使用标准卷积的参数量和Mult-Adds；第二行将标准卷积改为深度分类卷积，参数量降低到约为原本的1/10，Mult-Adds降低约为原本的1/9。使用$\alpha和\rho$参数可以再将参数降低一半，Mult-Adds再成倍下降。</p>
+<hr>
+<h2 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h2><p>实验部分主要研究以下部分： 深度卷积的影响；宽度因子的影响；两个超参数的权衡；与其他模型对比。</p>
+<h3 id="Model-Choices"><a href="#Model-Choices" class="headerlink" title="Model Choices"></a>Model Choices</h3><p>使用深度分类卷积的MobileNet与使用标准卷积的MobileNet之间对比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/2mmkE9LFg8.png" alt="mark"></p>
+<p>在精度上损失了1%，但是的计算量和参数量上降低了一个数量级。</p>
+<p>原MobileNet的配置如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/37kAbE3Hd0.png" alt="mark"></p>
+<p>为了进一步缩小模型，可将MobileNet中的5层$14×14×512$的深度可分离卷积去除。</p>
+<p>实验结果对比：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/dFcH3bjGmf.png" alt="mark"></p>
+<p>可以看到在类似的参数量和计算量下，精度衰减了3%。(中间的深度卷积用于过滤作用，参数量少，冗余度相比于大量的逐点卷积应该是少很多的~)</p>
+<h3 id="Model-Shrinking-Hyperparameters"><a href="#Model-Shrinking-Hyperparameters" class="headerlink" title="Model Shrinking Hyperparameters"></a>Model Shrinking Hyperparameters</h3><h4 id="单参数验证"><a href="#单参数验证" class="headerlink" title="单参数验证"></a>单参数验证</h4><p>表6显示宽度因子对模型参数量、计算量精度的影响，表7显示分辨率因子对模型参数量、计算量精度的影响：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/5d52Akk43A.png" alt="mark"></p>
+<p>使用过程要权衡参数对模型性能和大小的影响。</p>
+<h4 id="交叉验证计算量对精度影响"><a href="#交叉验证计算量对精度影响" class="headerlink" title="交叉验证计算量对精度影响"></a>交叉验证计算量对精度影响</h4><p>图4显示了16个交叉的模型在ImageNet上的表现，宽度因子取值为$\alpha∈{1,0.75,0.5,0.25}$，分辨率取值为${224,192,160,128}$。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/ALacc9D3Lm.png" alt="mark"></p>
+<p>当模型越来越小时，精度可近似看成对数跳跃形式的。</p>
+<h4 id="交叉验证参数量对精度影响"><a href="#交叉验证参数量对精度影响" class="headerlink" title="交叉验证参数量对精度影响"></a>交叉验证参数量对精度影响</h4><p>图5显示了16个交叉的模型在ImageNet上的表现，宽度因子取值为$\alpha∈{1,0.75,0.5,0.25}$，分辨率取值为${224,192,160,128}$。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/Fb1h4bkDiJ.png" alt="mark"></p>
+<h4 id="与其他先进模型相比"><a href="#与其他先进模型相比" class="headerlink" title="与其他先进模型相比"></a>与其他先进模型相比</h4><p>表8将完整的MobileNet与原始的GoogleNet和VGG16对比，MobileNet与VGG16有相似的精度，参数量和计算量减少了2个数量级。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/fb4c76F9j6.png" alt="mark"></p>
+<p>表9是MobileNet的宽度因子$\alpha=0.5$和分辨率设置为$160×160$的缩小模型与其他模型对比结果，相比于老大哥AlexNet在计算量和参数量上都降低一个数量级，对比同为小型网络的Squeezenet，计算量少了2个数量级，在参数量类似的情况下，精度高了3%。</p>
+<h3 id="其他应用场景性能"><a href="#其他应用场景性能" class="headerlink" title="其他应用场景性能"></a>其他应用场景性能</h3><h4 id="Fine-Grained-Recognition"><a href="#Fine-Grained-Recognition" class="headerlink" title="Fine Grained Recognition"></a>Fine Grained Recognition</h4><p>在Stanford Dogs dataset的表现如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/53mj94566J.png" alt="mark"></p>
+<p>MobileNet在计算量和参数量降低一个数量级的同时几乎保持相同的精度。</p>
+<h4 id="Large-Scale-Geolocalizaton"><a href="#Large-Scale-Geolocalizaton" class="headerlink" title="Large Scale Geolocalizaton"></a>Large Scale Geolocalizaton</h4><p>PlaNet是做大规模地理分类任务，我们使用MobileNet的框架重新设计了PlaNet，对比如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/6gka3hHidk.png" alt="mark"></p>
+<p>基于Inception V3架构的PlaNet有5200万参数和574亿的mult-adds，而基于MobileNet的PlaNet只有1300万参数(300个是主体参数，1000万是最后分类层参数)和58万的mult-adds，相比之下，只是性能稍微受损，但还是比原Im2GPS效果好多了。</p>
+<h4 id="Face-Attributes"><a href="#Face-Attributes" class="headerlink" title="Face Attributes"></a>Face Attributes</h4><p>MobileNet的框架技术可用于压缩大型模型，在Face Attributes任务中，我们验证了MobileNet的蒸馏(distillation )技术的关系，蒸馏的核心是让小模型去模拟大模型，而不是直接逼近Ground Label：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/8LFGAaIG20.png" alt="mark"></p>
+<p>将蒸馏技术的可扩展性和MobileNet技术的精简性结合到一起，最终系统不仅不需要正则技术(例如权重衰减和退火等)，而且表现出更强的性能。</p>
+<h4 id="Object-Detection"><a href="#Object-Detection" class="headerlink" title="Object Detection"></a>Object Detection</h4><p>基于MobileNet改进的检测模型对比如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/GF6Kc46HHb.png" alt="mark"></p>
+<p>可视化结果：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/C8jCkHdI13.png" alt="mark"></p>
+<h4 id="Face-Embeddings"><a href="#Face-Embeddings" class="headerlink" title="Face Embeddings"></a>Face Embeddings</h4><p>FaceNet是现阶段最先进的人脸识别模型，基于MobileNet和蒸馏技术训练出结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180129/kC0lDkkJ5m.png" alt="mark"></p>
+<hr>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>论文提出了一种基于深度可分离卷积的新模型MobileNet，同时提出了两个超参数用于快速调节模型适配到特定环境。实验部分将MobileNet与许多先进模型做对比，展现出MobileNet的在尺寸、计算量、速度上的优越性。</p>
+<hr>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>这里参考的代码是<a href="https://github.com/Zehaos/MobileNet/blob/master/nets/mobilenet.py" target="_blank" rel="external">mobilenet.py</a>文件（当然也可以参考<a href="https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.py" target="_blank" rel="external">TensoeFlow官方的MobileNet</a>）</p>
+<p>TensorFlow有实现好的深度卷积API，所以整个代码非常整洁的~</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div></pre></td><td class="code"><pre><div class="line"><span class="string">'''</span></div><div class="line"><span class="string">100% Mobilenet V1 (base) with input size 224x224:</span></div><div class="line"><span class="string">See mobilenet_v1()</span></div><div class="line"><span class="string">Layer                                                     params           macs</span></div><div class="line"><span class="string">--------------------------------------------------------------------------------</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_0/Conv2D:                                 864      10,838,016</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_1_depthwise/depthwise:                    288       3,612,672</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_1_pointwise/Conv2D:                     2,048      25,690,112</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_2_depthwise/depthwise:                    576       1,806,336</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_2_pointwise/Conv2D:                     8,192      25,690,112</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_3_depthwise/depthwise:                  1,152       3,612,672</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_3_pointwise/Conv2D:                    16,384      51,380,224</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_4_depthwise/depthwise:                  1,152         903,168</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_4_pointwise/Conv2D:                    32,768      25,690,112</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_5_depthwise/depthwise:                  2,304       1,806,336</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_5_pointwise/Conv2D:                    65,536      51,380,224</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_6_depthwise/depthwise:                  2,304         451,584</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_6_pointwise/Conv2D:                   131,072      25,690,112</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_7_depthwise/depthwise:                  4,608         903,168</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_7_pointwise/Conv2D:                   262,144      51,380,224</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_8_depthwise/depthwise:                  4,608         903,168</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_8_pointwise/Conv2D:                   262,144      51,380,224</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_9_depthwise/depthwise:                  4,608         903,168</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_9_pointwise/Conv2D:                   262,144      51,380,224</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_10_depthwise/depthwise:                 4,608         903,168</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_10_pointwise/Conv2D:                  262,144      51,380,224</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_11_depthwise/depthwise:                 4,608         903,168</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_11_pointwise/Conv2D:                  262,144      51,380,224</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_12_depthwise/depthwise:                 4,608         225,792</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_12_pointwise/Conv2D:                  524,288      25,690,112</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_13_depthwise/depthwise:                 9,216         451,584</span></div><div class="line"><span class="string">MobilenetV1/Conv2d_13_pointwise/Conv2D:                1,048,576      51,380,224</span></div><div class="line"><span class="string">--------------------------------------------------------------------------------</span></div><div class="line"><span class="string">Total:                                                 3,185,088     567,716,352</span></div><div class="line"><span class="string">'''</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mobilenet</span><span class="params">(inputs,</span></span></div><div class="line"><span class="function"><span class="params">          num_classes=<span class="number">1000</span>,</span></span></div><div class="line"><span class="function"><span class="params">          is_training=True,</span></span></div><div class="line"><span class="function"><span class="params">          width_multiplier=<span class="number">1</span>,</span></span></div><div class="line"><span class="function"><span class="params">          scope=<span class="string">'MobileNet'</span>)</span>:</span></div><div class="line">  <span class="string">""" MobileNet</span></div><div class="line"><span class="string">  More detail, please refer to Google's paper(https://arxiv.org/abs/1704.04861).</span></div><div class="line"><span class="string"></span></div><div class="line"><span class="string">  Args:</span></div><div class="line"><span class="string">    inputs: a tensor of size [batch_size, height, width, channels].</span></div><div class="line"><span class="string">    num_classes: number of predicted classes.</span></div><div class="line"><span class="string">    is_training: whether or not the model is being trained.</span></div><div class="line"><span class="string">    scope: Optional scope for the variables.</span></div><div class="line"><span class="string">  Returns:</span></div><div class="line"><span class="string">    logits: the pre-softmax activations, a tensor of size</span></div><div class="line"><span class="string">      [batch_size, `num_classes`]</span></div><div class="line"><span class="string">    end_points: a dictionary from components of the network to the corresponding</span></div><div class="line"><span class="string">      activation.</span></div><div class="line"><span class="string">  """</span></div><div class="line">  <span class="comment">#  depthwise_separable_conv内包含深度卷积和逐点卷积</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">_depthwise_separable_conv</span><span class="params">(inputs,</span></span></div><div class="line"><span class="function"><span class="params">                                num_pwc_filters,</span></span></div><div class="line"><span class="function"><span class="params">                                width_multiplier,</span></span></div><div class="line"><span class="function"><span class="params">                                sc,</span></span></div><div class="line"><span class="function"><span class="params">                                downsample=False)</span>:</span></div><div class="line">    <span class="string">""" Helper function to build the depth-wise separable convolution layer.</span></div><div class="line"><span class="string">    """</span></div><div class="line">    num_pwc_filters = round(num_pwc_filters * width_multiplier)</div><div class="line">    _stride = <span class="number">2</span> <span class="keyword">if</span> downsample <span class="keyword">else</span> <span class="number">1</span></div><div class="line"></div><div class="line">    <span class="comment"># 设置num_outputs=None跳过pointwise</span></div><div class="line">    depthwise_conv = slim.separable_convolution2d(inputs,</div><div class="line">                                                  num_outputs=<span class="keyword">None</span>,</div><div class="line">                                                  stride=_stride,</div><div class="line">                                                  depth_multiplier=<span class="number">1</span>,</div><div class="line">                                                  kernel_size=[<span class="number">3</span>, <span class="number">3</span>],</div><div class="line">                                                  scope=sc+<span class="string">'/depthwise_conv'</span>)</div><div class="line"></div><div class="line">    bn = slim.batch_norm(depthwise_conv, scope=sc+<span class="string">'/dw_batch_norm'</span>)</div><div class="line">    <span class="comment"># 逐点卷积变换通道</span></div><div class="line">    pointwise_conv = slim.convolution2d(bn,</div><div class="line">                                        num_pwc_filters,</div><div class="line">                                        kernel_size=[<span class="number">1</span>, <span class="number">1</span>],</div><div class="line">                                        scope=sc+<span class="string">'/pointwise_conv'</span>)</div><div class="line">    bn = slim.batch_norm(pointwise_conv, scope=sc+<span class="string">'/pw_batch_norm'</span>)</div><div class="line">    <span class="keyword">return</span> bn</div><div class="line"></div><div class="line">  <span class="keyword">with</span> tf.variable_scope(scope) <span class="keyword">as</span> sc:</div><div class="line">    end_points_collection = sc.name + <span class="string">'_end_points'</span></div><div class="line">    <span class="keyword">with</span> slim.arg_scope([slim.convolution2d, slim.separable_convolution2d],</div><div class="line">                        activation_fn=<span class="keyword">None</span>,</div><div class="line">                        outputs_collections=[end_points_collection]):</div><div class="line">      <span class="keyword">with</span> slim.arg_scope([slim.batch_norm],</div><div class="line">                          is_training=is_training,</div><div class="line">                          activation_fn=tf.nn.relu,</div><div class="line">                          fused=<span class="keyword">True</span>):</div><div class="line">        </div><div class="line">        <span class="comment"># 定义整体结构</span></div><div class="line">        net = slim.convolution2d(inputs, round(<span class="number">32</span> * width_multiplier), [<span class="number">3</span>, <span class="number">3</span>], stride=<span class="number">2</span>, padding=<span class="string">'SAME'</span>, scope=<span class="string">'conv_1'</span>)</div><div class="line">        net = slim.batch_norm(net, scope=<span class="string">'conv_1/batch_norm'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">64</span>, width_multiplier, sc=<span class="string">'conv_ds_2'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">128</span>, width_multiplier, downsample=<span class="keyword">True</span>, sc=<span class="string">'conv_ds_3'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">128</span>, width_multiplier, sc=<span class="string">'conv_ds_4'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">256</span>, width_multiplier, downsample=<span class="keyword">True</span>, sc=<span class="string">'conv_ds_5'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">256</span>, width_multiplier, sc=<span class="string">'conv_ds_6'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">512</span>, width_multiplier, downsample=<span class="keyword">True</span>, sc=<span class="string">'conv_ds_7'</span>)</div><div class="line"></div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">512</span>, width_multiplier, sc=<span class="string">'conv_ds_8'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">512</span>, width_multiplier, sc=<span class="string">'conv_ds_9'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">512</span>, width_multiplier, sc=<span class="string">'conv_ds_10'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">512</span>, width_multiplier, sc=<span class="string">'conv_ds_11'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">512</span>, width_multiplier, sc=<span class="string">'conv_ds_12'</span>)</div><div class="line"></div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">1024</span>, width_multiplier, downsample=<span class="keyword">True</span>, sc=<span class="string">'conv_ds_13'</span>)</div><div class="line">        net = _depthwise_separable_conv(net, <span class="number">1024</span>, width_multiplier, sc=<span class="string">'conv_ds_14'</span>)</div><div class="line">        net = slim.avg_pool2d(net, [<span class="number">7</span>, <span class="number">7</span>], scope=<span class="string">'avg_pool_15'</span>)</div><div class="line"></div><div class="line">    end_points = slim.utils.convert_collection_to_dict(end_points_collection)</div><div class="line">    net = tf.squeeze(net, [<span class="number">1</span>, <span class="number">2</span>], name=<span class="string">'SpatialSqueeze'</span>)</div><div class="line">    end_points[<span class="string">'squeeze'</span>] = net</div><div class="line">    </div><div class="line">    <span class="comment"># 接FC再接Softmax</span></div><div class="line">    logits = slim.fully_connected(net, num_classes, activation_fn=<span class="keyword">None</span>, scope=<span class="string">'fc_16'</span>)</div><div class="line">    predictions = slim.softmax(logits, scope=<span class="string">'Predictions'</span>)</div><div class="line"></div><div class="line">    end_points[<span class="string">'Logits'</span>] = logits</div><div class="line">    end_points[<span class="string">'Predictions'</span>] = predictions</div><div class="line"></div><div class="line">  <span class="keyword">return</span> logits, end_points</div><div class="line"></div><div class="line">mobilenet.default_image_size = <span class="number">224</span></div></pre></td></tr></table></figure>
+<hr>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LightWeight-Convolutional-NetWork/" rel="tag"># LightWeight Convolutional NetWork</a>
+          
+            <a href="/tags/MobileNet/" rel="tag"># MobileNet</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/22/语义分割论文-DeepLab系列/" rel="next" title="语义分割论文-DeepLab系列">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-DeepLab系列
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/28/轻量级网络-ShuffleNet/" rel="prev" title="轻量级网络-ShuffleNet">
+                轻量级网络-ShuffleNet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MobileNetV1"><span class="nav-text">MobileNetV1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Architecture"><span class="nav-text">Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Depthwise-Separable-Convolution"><span class="nav-text">Depthwise Separable Convolution</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#深度分类卷积示例"><span class="nav-text">深度分类卷积示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Network-Structure-and-Training"><span class="nav-text">Network Structure and Training</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Width-Multiplier-Thinner-Models"><span class="nav-text">Width Multiplier: Thinner Models</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Resolution-Multiplier-Reduced-Representation"><span class="nav-text">Resolution Multiplier: Reduced Representation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Model-Choices"><span class="nav-text">Model Choices</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Model-Shrinking-Hyperparameters"><span class="nav-text">Model Shrinking Hyperparameters</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#单参数验证"><span class="nav-text">单参数验证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#交叉验证计算量对精度影响"><span class="nav-text">交叉验证计算量对精度影响</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#交叉验证参数量对精度影响"><span class="nav-text">交叉验证参数量对精度影响</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#与其他先进模型相比"><span class="nav-text">与其他先进模型相比</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他应用场景性能"><span class="nav-text">其他应用场景性能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Fine-Grained-Recognition"><span class="nav-text">Fine Grained Recognition</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Large-Scale-Geolocalizaton"><span class="nav-text">Large Scale Geolocalizaton</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Face-Attributes"><span class="nav-text">Face Attributes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Object-Detection"><span class="nav-text">Object Detection</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Face-Embeddings"><span class="nav-text">Face Embeddings</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分析"><span class="nav-text">代码分析</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Classification,DenseNet,Deep Convolutional NetWork," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="DenseNet是建立ResNet工作之上的又一力作，这篇paper获得了2017 CVPR 最佳论文。">
+<meta name="keywords" content="Classification,DenseNet,Deep Convolutional NetWork">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图像分类论文-DenseNet">
+<meta property="og:url" content="http://hfut-fan.github.io/2017/10/19/图像分类论文-DenseNet/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="DenseNet是建立ResNet工作之上的又一力作，这篇paper获得了2017 CVPR 最佳论文。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171009/eKbc85Jlge.jpg?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171019/hIhKAejii8.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171009/daLB4ACHIk.jpg?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171009/b8BjmC9i8e.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171009/5L3GDcKFgB.jpg?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171009/2JIg7m2fA4.jpg?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171019/lBEklkmIlj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171019/DmkHiE1i59.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171019/49iKjE5GJd.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171019/gIEDfm9FdE.png?imageslim">
+<meta property="og:updated_time" content="2018-01-29T02:47:57.335Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="图像分类论文-DenseNet">
+<meta name="twitter:description" content="DenseNet是建立ResNet工作之上的又一力作，这篇paper获得了2017 CVPR 最佳论文。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/171009/eKbc85Jlge.jpg?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2017/10/19/图像分类论文-DenseNet/"/>
+
+
+
+
+
+  <title>图像分类论文-DenseNet | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2017/10/19/图像分类论文-DenseNet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">图像分类论文-DenseNet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-19T22:07:47+08:00">
+                2017-10-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  DenseNet是建立ResNet工作之上的又一力作，这篇paper获得了2017 CVPR 最佳论文。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<p>论文地址：<a href="https://arxiv.org/pdf/1608.06993.pdf" target="_blank" rel="external">arxiv-paper</a></p>
+<p>实现代码：<a href="https://github.com/liuzhuang13/DenseNet" target="_blank" rel="external">github</a></p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>DenseNet在ResNet的基础上(<a href="http://blog.csdn.net/u011974639/article/details/76737547" target="_blank" rel="external">ResNet介绍</a>)，进一步扩展网络连接，<strong>对于网络的任意一层，该层前面所有层的feature map都是这层的输入，该层的feature map是后面所有层的输入。</strong>示意图如下:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171009/eKbc85Jlge.jpg?imageslim" alt="mark"></p>
+<p>原本$L$层的网络有$L$个连接，<strong>现在$L$层的网络共有$C_{L+1}^2=\frac{L(L+1)}{2}$个连接。</strong></p>
+<p>DenseNet有几个明显的优点:</p>
+<ul>
+<li>减轻了梯度消失问题(vanishing-gradient problem)</li>
+<li>增强了feature map的传播，利用率也上升了(前面层的feature map直接传给后面，利用更充分了)</li>
+<li>大大减少了参数量</li>
+</ul>
+<hr>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><p>在CNN模型里，传统的feed-forward架构可以视为状态模型，状态在层与层之间传播，每一层读取它上一层状态，改变状态并保留一些需要保留的信息并将装备传给下一层。ResNet通过增加额外的identity transformations让状态内需要保留的信息显性化。<a href="https://arxiv.org/pdf/1603.09382.pdf" target="_blank" rel="external">作者的另一篇paper</a>指出ResNet中有一个非常有意义的现象：<strong>网络的许多层贡献较小并且在训练过程中可以被随机丢弃。</strong></p>
+<p><a href="https://www.zhihu.com/question/60109389/answer/203099761" target="_blank" rel="external">这里引用Lyken的回答</a>，分析ResNet，其gradient的主要来源是residual分支；在测试过程中，即便移除掉正常链接（仅留下 shortcut），模型照样能保持较好的正确率。</p>
+<p>本论文指出了residual connection实质是 highway network 的一种特殊例子，将 ResNet 展开以后，<a href="https://arxiv.org/abs/1611.10080" target="_blank" rel="external">论文1</a>指出带 Residual Connection 的深网络可以“近似地”看作宽模型（印证了为什么移除主干连接不会大幅影响正确率）。</p>
+<div class="note info"><h2 id="ResNet再分析"><a href="#ResNet再分析" class="headerlink" title="ResNet再分析"></a>ResNet再分析</h2><p>但是ResNet和真正的宽模型还是不同的：<strong>Forward 时两者可以看做相同，但 backward 时有部分 gradient 路径无法联通。也就是说， ResNet 在回传 gradient 时，尚有提升的空间</strong>，这就是为什么 ResNeXt，Wide-ResNet 等文章能有提升的原因:<strong>因为 ResNet 并不是真正的宽模型</strong>。</p>
+<p>以ResNet中一个Residual unit的<strong>gradient回传</strong>为例，示意图如下:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171019/hIhKAejii8.png?imageslim" alt="mark"></p>
+<p>$$\begin{align}<br>y_2 &amp;= y_1+f_2(y_1,w_2) \\<br>&amp;= y_0+f_1(y_0,w_1)+f_2(y_0+f_1(y_0,w_1),w_2) \\<br>&amp;≠ y_0+f_1(y_0,w_1)+f_2(y_0,w_2)+f_2(f_1(y_0,w_1),w_2) \\<br>\end{align}$$</p>
+<p>注意上式的不等于，为什么backward的部分gradient路径无法联通？<strong>这是因为$f_2(·)$是非线性的</strong>，即变现为$f_2(y_0+f_1(y_0,w_1),w_2)≠ f_2(y_0,w_2)+f_2(f_1(y_0,w_1),w_2)$。</p></div>
+<h2 id="DenseNet的Insight"><a href="#DenseNet的Insight" class="headerlink" title="DenseNet的Insight"></a>DenseNet的Insight</h2><p>既然 Residual Connection 能够让模型趋向于宽网络，那么为什么不直接来个狠得，这就是 Densenet论文核心思想：对每一层的前面所有层都加一个单独的 shortcut到该层，使得任意两层网络都可以直接“沟通”。即下图:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171009/daLB4ACHIk.jpg?imageslim" alt="mark"></p>
+<p>这一举看似粗暴，实则带来不少好处：</p>
+<ul>
+<li>从feature来考虑，每一层feature 被用到时，都可以被看作做了新的 normalization，<a href="https://arxiv.org/abs/1604.00676" target="_blank" rel="external">论文3</a>可以看到即便去掉BN， 深层 DenseNet也可以保证较好的收敛率。</li>
+<li>从perceptual field来看，浅层和深层的field 可以更自由的组合，会使得模型的结果更加robust。</li>
+<li>从 wide-network 来看， DenseNet 看以被看作一个真正的宽网络，在训练时会有比 ResNet 更稳定的梯度，收敛速度自然更好（paper的实验可以佐证）</li>
+</ul>
+<hr>
+<h1 id="DenseNet"><a href="#DenseNet" class="headerlink" title="DenseNet"></a>DenseNet</h1><p>记模型的输入图片为$x_o$，模型由$L$层组成，每层的非线性转换函数为$H_l(·)$，$l$是层的序号。将$l^{th}$层的输出记为$x_l$。</p>
+<h2 id="Dense-connectivity"><a href="#Dense-connectivity" class="headerlink" title="Dense connectivity"></a>Dense connectivity</h2><p>DenseNet中每层的输入是前面的所有层，故任何两层之间都有连接。但在实际情况下，因为多层之间feature maps大小不同，不便于任何两层之间的组合，受到GoogleNet的启发，<strong>论文提出了Dense Block，即在每个Block内，所有layer都保持dense connectivity，而在Block之间是没有dense connectivity，而是通过transition layer连接的。</strong>如下图:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171009/b8BjmC9i8e.png?imageslim" alt="mark"></p>
+<h3 id="Composite-function"><a href="#Composite-function" class="headerlink" title="Composite function"></a>Composite function</h3><p>即单个Block内，层与层之间的非线性转换函数$H_l(·)$就是Composite function，,每个Composite function的结构如下:<br>$$BN \rightarrow ReLU  \rightarrow  Conv_{(3×3)}$$</p>
+<h3 id="Transition-layer"><a href="#Transition-layer" class="headerlink" title="Transition layer"></a>Transition layer</h3><p>不同层的feature map大小不同，考虑到池化层在CNN模型内的重要性，提出一个<code>Transition layer</code>用于连接Block与Block，每个Transition layer的结构如下：<br>$$ BN  \rightarrow  Conv_{(1×1)} \rightarrow Avg    Pool_{(2×2)}$$</p>
+<h3 id="Growth-rate"><a href="#Growth-rate" class="headerlink" title="Growth rate"></a>Growth rate</h3><p>如果一个$H_l$输出$k$个feature maps，那么$l^{th}$层有$k_0+k×(l-1)$个feature maps输入。$k_0$是输入层的通道数。如果$k$太多，即feature map太多，从而导致模型参数太多。这里我们定义Growth rate就是超参数$k$，用于控制feature maps的数量。</p>
+<div class="note success"><h2 id="DenseNet-BC"><a href="#DenseNet-BC" class="headerlink" title="DenseNet-BC"></a>DenseNet-BC</h2><h3 id="Bottleneck-layers"><a href="#Bottleneck-layers" class="headerlink" title="Bottleneck layers"></a>Bottleneck layers</h3><p>尽管每层只产生$k$个feature maps，但还是很多。<strong>这里就要用到$1×1×n$的小卷积来降维了。</strong>作者发现在DenseNet上使用$1×1×n$小卷积很有效，并定义了Bottleneck layers，结构如下:<br>$$BN \rightarrow ReLU \rightarrow  Conv_{(1×1)} \rightarrow BN \rightarrow ReLU \rightarrow  Conv_{(3×3)}  $$</p>
+<p>并将<strong>使用Bottleneck layers的DenseNet表示为DenseNet-B</strong>。(在paper实验里，将$1×1×n$小卷积里的$n$设置为$4k$)</p>
+<h3 id="Compression"><a href="#Compression" class="headerlink" title="Compression"></a>Compression</h3><p>考虑到feature maps的数量多，为了进一步的提高模型的紧凑性，我们可以在transition layers上下手，如果Dense Block内包含$m$个feature maps，那么可以通过transition layers减少feature maps。</p>
+<p><strong>这里让transition layers输出$\left \lfloor \theta m  \right \rfloor$个feature maps，这样就能通过控制参数$\theta$来控制feature maps的数量了。我们把参数$\theta$定义为compression factor。</strong></p>
+<p>一般$0&lt;\theta&lt;1$，在paper的实验中，$\theta=0.5$，<strong>使用compression factor的DenseNet记为DenseNet-C。同时使用compression factor 和 Bottleneck layers的DenseNet记为DenseNet-BC</strong>。</p></div>
+<h2 id="Implementation-Details"><a href="#Implementation-Details" class="headerlink" title="Implementation Details"></a>Implementation Details</h2><h3 id="非ImageNet数据集"><a href="#非ImageNet数据集" class="headerlink" title="非ImageNet数据集"></a>非ImageNet数据集</h3><ul>
+<li>使用3个Dense Block</li>
+<li>每个Block都有相同的层数</li>
+<li>模型为DenseNet，配置为${L=40,k=12}，$${L=100,k=12}，$${L=100,k=24}$</li>
+<li>模型为DenseNet-BC，配置为${L=100,k=12}，$${L=250,k=24}，$${L=190,k=40}$</li>
+<li>在送入第一个Dense Block前，会先送到一个16通道的卷积层</li>
+<li>使用$3×3$的小卷积，采用zero-padding保持feature map尺寸</li>
+<li>最后一个Dense Block后接一个global average pooling，再跟softmax分类。</li>
+</ul>
+<h3 id="ImageNet数据集"><a href="#ImageNet数据集" class="headerlink" title="ImageNet数据集"></a>ImageNet数据集</h3><ul>
+<li>使用的是DenseNet-BC</li>
+<li><p>使用4个Dense Block</p>
+</li>
+<li><p>在送入第一个Dense Block前，会先送到一个$7×7×2k$的$stride=2$的卷积层</p>
+</li>
+<li>所有的layers的feature map都设置为$k$</li>
+</ul>
+<p>在ImageNet上，具体的DenseNet-BC如下图：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171009/5L3GDcKFgB.jpg?imageslim" alt="mark"></p>
+<hr>
+<h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><h2 id="Training-Details"><a href="#Training-Details" class="headerlink" title="Training Details"></a>Training Details</h2><p>所有的网络都是使用SGD训练的，具体的batch和learning rate设置如下:</p>
+<table>
+<thead>
+<tr>
+<th>数据集</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CIFAR and SCHN</td>
+<td>batch size 64 for 300 and 40 epochs<br> learning rate初始设置为0.1，在epoch执行到50%和75%的时候降低10倍</td>
+</tr>
+<tr>
+<td>ImageNet</td>
+<td>batch size 256 for 90 epochs <br> learning rate初始设置为0.1，在epoch执行到30和60的时候降低10倍</td>
+</tr>
+<tr>
+<td>DenseNet-161<br>考虑到GPU显存问题</td>
+<td>mini-batch size 128 for 100 epochs <br> learning rate初始设置为0.1，在epoch执行到90的时候降低10倍</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>其他设置</td>
+<td>description</td>
+</tr>
+<tr>
+<td>weight decay</td>
+<td>$10^{-4}$</td>
+</tr>
+<tr>
+<td>Nesterov momentum</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td>dropout</td>
+<td>在C10，C100，SVHN上，没有使用data augmentation，则在每个卷积层后添加dropout layer(除了第一个)，并设置为0.2</td>
+</tr>
+</tbody>
+</table>
+<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><h3 id="DenseNet在CIFAR和SVHV上的表现如下："><a href="#DenseNet在CIFAR和SVHV上的表现如下：" class="headerlink" title="DenseNet在CIFAR和SVHV上的表现如下："></a>DenseNet在CIFAR和SVHV上的表现如下：</h3><p><img src="http://owv7la1di.bkt.clouddn.com/blog/171009/2JIg7m2fA4.jpg?imageslim" alt="mark"></p>
+<p>$L$表示网络深度，$k$为growth rate。蓝色字体表示最优结果，$+$表示对原数据库进行data augmentation。DenseNet相比ResNet取得更低的错误率，且参数更少。 </p>
+<h3 id="DenseNet在ImageNet上的表现如下："><a href="#DenseNet在ImageNet上的表现如下：" class="headerlink" title="DenseNet在ImageNet上的表现如下："></a>DenseNet在ImageNet上的表现如下：</h3><p><img src="http://owv7la1di.bkt.clouddn.com/blog/171019/lBEklkmIlj.png?imageslim" alt="mark"></p>
+<p>可以看到DenseNet相比于ResNet有着更少的参数，更好的测试结果。</p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>DenseNet的优点在前面讲过了，总结的来说就是Feature Reuse，模型Robustness。这里主要关注DenseNet的缺点。</p>
+<div class="note danger"><h2 id="DenseNet-的缺点"><a href="#DenseNet-的缺点" class="headerlink" title="DenseNet 的缺点"></a>DenseNet 的缺点</h2><p><img src="http://owv7la1di.bkt.clouddn.com/blog/171019/DmkHiE1i59.png?imageslim" alt="mark"></p>
+<p>在图中可以看到，DenseNet-100层增长率为24时（无BottleNeck的最早版），parameter快要是ResNet-1001的三倍了。一般显卡根本塞不下更深的DenseNet。在不断的优化后，DenseNet 的显存问题已大有改善。</p>
+<p>但Flops消耗问题仍令人头疼。本来 DenseNet 的实时性尚还可以（拓扑序跟普通网络一样），但由于其过多的Dense 的num_filters，计算量就超过了很多卡的上限。为了优化这两个问题，论文中采用了bottleneck和compression来大幅压缩filters数目。（将DenseNet实用–&gt;<a href="https://arxiv.org/abs/1611.09326" target="_blank" rel="external">bengio组的DenseNet for segmentation </a>）</p>
+<h3 id="为什么会很耗费显存"><a href="#为什么会很耗费显存" class="headerlink" title="为什么会很耗费显存"></a>为什么会很耗费显存</h3><p>引用<a href="https://www.zhihu.com/question/60109389" target="_blank" rel="external">taineleau的回答</a>。首先，无论是什么 framework的NN，都由forward和backward两部分构成。假设只考虑一个 feed-forward network，并且移除所有 in-place 操作（如 ReLU），那么内存依赖大概是这个样子的：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171019/49iKjE5GJd.png?imageslim" alt="mark"></p>
+<p>$$ input_i = fw_i(input_{i-1}) \\<br>gradInput_i = bw_i(input_{i-1}, gradInput_{i+1})$$</p>
+<p>对于 Backward 来说，深红色的$gradInput$算完一块就可以扔掉（它的出度为1），这也是几乎所有16 年以后新framework都会做的 shareGradient 优化。</p>
+<p>但是浅红色的内存块因为要在backward的时候还会被用到，所以不能扔，那肿么办？<a href="https://arxiv.org/abs/1604.06174" target="_blank" rel="external">[1]</a> 说可以用时间换空间，即在需要用粉红块的时候，重新计算即可。而对于 DenseNet 来说，每个 DenseLayer (Concat-BN-ReLU-Conv)，Concat 和 BN 两层的 output 全扔掉就可以省下很多内存，却只多花了 15% 的计算量。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171019/gIEDfm9FdE.png?imageslim" alt="mark"></p>
+<p>现在已经整理出来的干净代码有 Torch 版本，见<a href="https://github.com/liuzhuang13/DenseNet/tree/master/models" target="_blank" rel="external">PyTorch版</a>，有不同 level 的优化，最多能省 70% 的显存。</p></div>
+<hr>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://www.zhihu.com/question/60109389" target="_blank" rel="external">Lyken回答</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Classification/" rel="tag"># Classification</a>
+          
+            <a href="/tags/DenseNet/" rel="tag"># DenseNet</a>
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/14/物体检测论文-SSD和FPN/" rel="next" title="物体检测论文-SSD和FPN">
+                <i class="fa fa-chevron-left"></i> 物体检测论文-SSD和FPN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/08/Keras实现Mask-R-CNN/" rel="prev" title="Keras实现Mask R-CNN">
+                Keras实现Mask R-CNN <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ResNet再分析"><span class="nav-text">ResNet再分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DenseNet的Insight"><span class="nav-text">DenseNet的Insight</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DenseNet"><span class="nav-text">DenseNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dense-connectivity"><span class="nav-text">Dense connectivity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Composite-function"><span class="nav-text">Composite function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transition-layer"><span class="nav-text">Transition layer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Growth-rate"><span class="nav-text">Growth rate</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DenseNet-BC"><span class="nav-text">DenseNet-BC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bottleneck-layers"><span class="nav-text">Bottleneck layers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Compression"><span class="nav-text">Compression</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Implementation-Details"><span class="nav-text">Implementation Details</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#非ImageNet数据集"><span class="nav-text">非ImageNet数据集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ImageNet数据集"><span class="nav-text">ImageNet数据集</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-text">Experiments</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Training-Details"><span class="nav-text">Training Details</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验结果"><span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DenseNet在CIFAR和SVHV上的表现如下："><span class="nav-text">DenseNet在CIFAR和SVHV上的表现如下：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DenseNet在ImageNet上的表现如下："><span class="nav-text">DenseNet在ImageNet上的表现如下：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DenseNet-的缺点"><span class="nav-text">DenseNet 的缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么会很耗费显存"><span class="nav-text">为什么会很耗费显存</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

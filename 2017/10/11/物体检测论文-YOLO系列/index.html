@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Object Detection,Deep Convolutional NetWork,YOLO," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="本次论文主要分为两个部分:YOLO和YOLO9000。YOLO是Rgb大神在Object Detection上的新尝试，目的是在保持准确率的基础上提高检测速度，从而达到了实用要求。YOLO9000是YOLO的改进版，使用了多种trick，并提供了一种使用多种训练集训练模型的方法。">
+<meta name="keywords" content="Object Detection,Deep Convolutional NetWork,YOLO">
+<meta property="og:type" content="article">
+<meta property="og:title" content="物体检测论文-YOLO系列">
+<meta property="og:url" content="http://hfut-fan.github.io/2017/10/11/物体检测论文-YOLO系列/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="本次论文主要分为两个部分:YOLO和YOLO9000。YOLO是Rgb大神在Object Detection上的新尝试，目的是在保持准确率的基础上提高检测速度，从而达到了实用要求。YOLO9000是YOLO的改进版，使用了多种trick，并提供了一种使用多种训练集训练模型的方法。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170927/JC1gBGikH9.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170927/l7Ga5EIK1f.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170927/74F9E1e344.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170927/cje1AIfD6l.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170928/8FfkC3FHcc.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/83Cm7I0dfm.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/65DI14kghd.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170928/mDdGddJhlc.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/1f7g3b2A48.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/mKBCfhGBIl.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/b99dJJ524k.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/ceILAf8eF9.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170929/6Li4BEFFCL.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/J0dcmGkE7G.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170929/5gbbhadG3b.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/170929/i2e6E71G3e.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/329H9A25hg.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171003/AmAhKjjKDb.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171003/2bJG6CEK3f.png?imageslim">
+<meta property="og:updated_time" content="2018-01-29T02:49:14.748Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="物体检测论文-YOLO系列">
+<meta name="twitter:description" content="本次论文主要分为两个部分:YOLO和YOLO9000。YOLO是Rgb大神在Object Detection上的新尝试，目的是在保持准确率的基础上提高检测速度，从而达到了实用要求。YOLO9000是YOLO的改进版，使用了多种trick，并提供了一种使用多种训练集训练模型的方法。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/170927/JC1gBGikH9.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2017/10/11/物体检测论文-YOLO系列/"/>
+
+
+
+
+
+  <title>物体检测论文-YOLO系列 | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2017/10/11/物体检测论文-YOLO系列/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">物体检测论文-YOLO系列</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-11T17:31:39+08:00">
+                2017-10-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本次论文主要分为两个部分:YOLO和YOLO9000。<br>YOLO是Rgb大神在Object Detection上的新尝试，目的是在保持准确率的基础上提高检测速度，从而达到了实用要求。<br>YOLO9000是YOLO的改进版，使用了多种trick，并提供了一种使用多种训练集训练模型的方法。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="YOLO"><a href="#YOLO" class="headerlink" title="YOLO"></a>YOLO</h1><p>Rgb大神关于物体检测的新作YOLO，<a href="https://arxiv.org/pdf/1506.02640.pdf" target="_blank" rel="external">论文You Only Look Once: Unified, Real-Time Object Detection</a>。</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>对比人类的视觉系统，现存的物体检测模型:</p>
+<ul>
+<li>要不就是准确度不咋的(DPM速度还行，准确率很差，实用不现实)</li>
+<li>要不就是速度跟不上(Faster R-CNN 准确度还可以，3FPS的速度不能实时监测啊~)</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170927/JC1gBGikH9.png?imageslim" alt="mark"></p>
+<p>这一堆物体检测模型，无论在学术界还是工程界，都不算令人满意。为此需要注入新的血液(重新挖坑)，那么从哪里开始扎针呢？</p>
+<p>作者在论文内主要对比R-CNN系列，指出了R-CNN系列速度慢的原因是： <strong> 模型把物体检测任务分为了多个阶段，而这几个阶段需要分开训练，难以优化(虽然Faster R-CNN是一个整体的网络，但是训练的时候还是需要交替训练)。 </strong></p>
+<p><strong> 为什么非要分为多个阶段？ </strong><br>这是因为基于RPN(region proposal networks)在设计时已经把object detection问题分为多个pipeline，如果要改，就要把RPN方案砍掉。</p>
+<p>YOLO在此基础上重建了整个模型框架，将原先的Region Proposal一套方案抛弃掉，将object detection作为回归问题来处理，模型能够接收原始像素直接输出object的bbox和类别categories，也就是<code>end-to-end</code>模型.</p>
+<h2 id="Detection-System"><a href="#Detection-System" class="headerlink" title="Detection System"></a>Detection System</h2><p>YOLO工作的流程图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170927/l7Ga5EIK1f.png?imageslim" alt="mark"></p>
+<p>大致步骤为：</p>
+<ul>
+<li>整个图片resize到指定大小，得到图片$Input_{rs}$</li>
+<li>将$Input_{rs}$塞给CNN</li>
+<li>使用NMS(非极大值抑制)去除多余框，得到最后预测结果</li>
+</ul>
+<p>总的步骤很简单，下面具体看看图片塞给CNN时是怎么整的。</p>
+<h3 id="分成单元格"><a href="#分成单元格" class="headerlink" title="分成单元格"></a>分成单元格</h3><p>首先会把原始图片resize到$448×448$,放缩到这个尺寸是为了后面整除来的方便。<strong>再把整个图片分成$S×S(例:7×7)$个单元格，此后以每个单元格为单位进行预测分析。</strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170927/74F9E1e344.png?imageslim" alt="mark"></p>
+<div class="note danger"><h3 id="每个单元格需要做三件事"><a href="#每个单元格需要做三件事" class="headerlink" title="每个单元格需要做三件事:"></a><strong>每个单元格需要做三件事:</strong></h3><ol>
+<li><p>如果一个object的中心落在某个单元格上，那么这个单元格负责预测这个物体(论文的思想是让每个单元格单独干活)。</p>
+</li>
+<li><p>每个单元格需要预测$B$个bbox值(bbox值包括坐标和宽高)，同时为每个bbox值预测一个<code>置信度(confidence scores)</code>。也就是每个单元格需要预测$B×(4+1)$个值。</p>
+</li>
+<li><p>每个单元格需要预测$C$(物体种类个数)个条件概率值.</p>
+</li>
+</ol>
+<p>注意到：<strong> 每个单元格只能预测一种物体，并且直接预测物体的概率值。但是每个单元格可以预测多个bbox值(包括置信度)。</strong></p></div>
+<div class="note info"><h3 id="单元格数据"><a href="#单元格数据" class="headerlink" title="单元格数据"></a>单元格数据</h3><p>我们细致的分析一下每个单元格预测的$B$个$(x,y,w,h,confidence)$：</p>
+<ul>
+<li>$(x,y)$是bbox的中心相对于单元格的offset</li>
+<li>$(w,h)$是bbox相对于整个图片的比例</li>
+<li>$confidence$下面有详解</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170927/cje1AIfD6l.png?imageslim" alt="mark"></p>
+<p>如上图，图片分成$S×S(7×7)$个单元格。整张图片的长宽为$h_i,w_i$。</p>
+<h4 id="x-y-到底代表啥意思"><a href="#x-y-到底代表啥意思" class="headerlink" title="$(x,y)$到底代表啥意思?"></a>$(x,y)$到底代表啥意思?</h4><p>对于蓝色框的那个单元格(坐标为$(x_{col}=1,y_{row}=4)$)，假设它预测的是红色框的bbox(即object是愚蠢的阿拉斯加),我们设bbox的中心坐标为$(x_c,y_c)$,那么最终预测出来的$(x,y)$是经过归一化处理的，表示的时中心相对于单元格的offset，计算公式如下：<br>$$ x = \frac{x_c}{w_i}S-x_{col}  ,   y = \frac{y_c}{h_i}S-y_{row}$$</p>
+<h4 id="w-h-又是啥意思"><a href="#w-h-又是啥意思" class="headerlink" title="$(w,h)$又是啥意思?"></a>$(w,h)$又是啥意思?</h4><p>预测的bbox的宽高为$w_b,h_b$，$(w,b)$表示的是bbox的是相对于整张图片的占比，计算公式如下:<br>$$w=\frac{w_b}{w_i}   ,   h=\frac{h_b}{h_i}$$</p>
+<h4 id="Confidence"><a href="#Confidence" class="headerlink" title="$Confidence$ "></a><strong>$Confidence$ </strong></h4><p>这个置信度有两个含义：一是格子内是否有目标，二是bbox的准确度。</p>
+<p>我们定义置信度为$Pr(Object)*IOU_{pred}^{truth}$.</p>
+<ul>
+<li>如果格子内有物体，则$Pr(Object)=1$，此时置信度等于IoU</li>
+<li>如果格子内没有物体，则$Pr(Object)=0$，此时置信度为0</li>
+</ul>
+<h4 id="C-个种类的概率值"><a href="#C-个种类的概率值" class="headerlink" title="$C$个种类的概率值"></a>$C$个种类的概率值</h4><p>每个网格在输出bbox值的同时要给出给个网格存在object的类型。记为:$$Pr(Class_i|Object)$$这是条件概率。</p>
+<p>需要注意的是：<strong>输出的种类概率值是针对网格的，不是针对bbox的。所以一个网格只会输出$C$个种类信息。</strong>(这样就是默认为一个格子内只能预测一种类别的object了，简化了计算，但对于检测小object很不利)。</p>
+<p>在检测目标时，我们把$confidence$做处理：<br>$$ Pr(Class_i|Object) * Pr(Object)*IoU_{pred}^{truth}=Pr(Class_i)*IoU_{pred}^{truth} $$</p>
+<p>这就是每个单元格的class-specific confidence scores，这即包含了预测的类别信息，也包含了对bbox值的准确度。 我们可以设置一个阈值，把低分的class-specific confidence scores滤掉，剩下的塞给非极大值抑制，得到最终的标定框。<br>对于这部分可以<a href="https://docs.google.com/presentation/d/1aeRvtKG21KHdD5lg6Hgyhx5rPq_ZOsGjG5rJ1HP7BbA/pub?start=false&amp;loop=false&amp;delayms=3000&amp;slide=id.p" target="_blank" rel="external">看deepsystem.ai的PPT，讲的很详细，需要翻墙</a>。</p></div>
+<h3 id="单元格输出"><a href="#单元格输出" class="headerlink" title="单元格输出"></a>单元格输出</h3><p><strong>每个网络一共会输出:$B×(4+1)+C$个预测值.</strong><br><strong>故所有的单元格输出为:$S×S×(B×5+C)$个预测值.</strong></p>
+<p>论文中每个单元格的输出如下图:<br><img src="http://owv7la1di.bkt.clouddn.com/blog/170928/8FfkC3FHcc.png?imageslim" alt="mark"><br><strong>YOLO论文中：$S=7,B=2,C=20$</strong></p>
+<p>所有单元格输出为$7×7×(2×5+20)$，即最终的输出为$7×7×30$的张量。</p>
+<h3 id="YOLO检测物体的流程"><a href="#YOLO检测物体的流程" class="headerlink" title="YOLO检测物体的流程"></a>YOLO检测物体的流程</h3><p><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/83Cm7I0dfm.png?imageslim" alt="mark"></p>
+<ul>
+<li>分割成单元格</li>
+<li>预测bbox与类别信息，得到最终的$specific confidence$</li>
+<li>设置阈值，滤掉低分的bbox</li>
+<li>非极大值抑制得到最终的bbox</li>
+</ul>
+<h2 id="YOLO的架构"><a href="#YOLO的架构" class="headerlink" title="YOLO的架构"></a>YOLO的架构</h2><p>上面说了YOLO的检测过程，那么中间关键的预测bbox和$confidence$该怎么实现？</p>
+<p>当然是用CNN来整，整个网络框架如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/65DI14kghd.png?imageslim" alt="mark"></p>
+<p>网络架构受GoogleNet启发，共24个卷积层，后面接了2个FC层。</p>
+<h3 id="预训练"><a href="#预训练" class="headerlink" title="预训练"></a>预训练</h3><p>使用上图的前20个卷积层+平均池化+FC层在ImageNet上跑了一圈。(在ImageNet上跑是用的$224×224$输入)。</p>
+<p>预训练完事后，也就是get到了想要的前20个卷积层权重，在此基础上添加4个卷积层和2个FC层，得到最终模型(也就是上图)。同时将网络的输入尺寸从$224×224$改成了$448×448$。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170928/mDdGddJhlc.png?imageslim" alt="mark"></p>
+<h2 id="YOLO的训练"><a href="#YOLO的训练" class="headerlink" title="YOLO的训练"></a>YOLO的训练</h2><p>整个YOLO在训练时，有很多处理的细节，我们主要讲一下网络损失函数的定义。</p>
+<h3 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h3><p>这里我们把损失函数分为3个部分，每个部分都使用均方误差(为什么用均方，论文给出的原因是这样做简单啊)：</p>
+<p>先看一下整个损失函数:<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/1f7g3b2A48.png?imageslim" alt="mark"></p>
+<p><strong>每个图片的每个单元格不一定都包含object，如果没有object，那么$confidence$就会变成0，这样在优化模型的时候可能会让梯度跨越太大，模型不稳定跑飞了。为了平衡这一点，在损失函数中，设置两个参数$\lambda_{corrd}$和$\lambda_{noobj}$，其中$\lambda_{corrd}$控制bbox预测位置的损失，$\lambda_{noobj}$控制单个格内没有目标的损失。</strong></p>
+<p>对三个损失函数有细节上的调整:</p>
+<ul>
+<li><p>bbox<br>  对于预测的bbox框，大的bbox预测有点偏差可以接受，而小的bbox预测有点偏差就比较受影响了，如下图：<br>  <img src="http://owv7la1di.bkt.clouddn.com/blog/171011/mKBCfhGBIl.png?imageslim" alt="mark"><br>对于这种情况，<strong>使用先平方根再求均方误差，尽可能的缩小小偏差下的影响</strong>。<br>bbox的损失记为:<br>$$中心点损失:\lambda_{corrd}\sum_{i=0}^{S^2}\sum_{j=0}^B\mathbb{I}_{ij}^{obj}\left [    (x_i-\hat{x_i})^2+(y_i-\hat{y_i})^2 \right ]   $$<br>$$宽高损失:+\lambda_{corrd}\sum_{i=0}^{S^2}\sum_{j=0}^B\mathbb{I}_{ij}^{obj}\left [     (\sqrt{w_i}-\sqrt{\hat{w_i}})^2+(\sqrt{h_i}-\sqrt{\hat{h_i}})^2 \right ]$$<br><strong>$\mathbb{I}_{ij}^{obj}$表示第i个单元格内预测的第j个bbox是否负责这个object:在计算损失过程中，bbox与ground truth的IoU值最大的负责object。</strong></p>
+</li>
+<li><p>confidence<br>  对于置信度的损失，是按照是否含有object情况下分成两部分，对于不包含object的单元格，我们使用$\lambda_{noobj}$调整比例，防止这部分overpowering。<br>$$\sum_{i=0}^{S^2}\sum_{j=0}^B\mathbb{I}_{ij}^{obj}(C_i-\hat{C_i})^2+\lambda_{noobj}\sum_{i=0}^{S^2}\sum_{j=0}^B\mathbb{I}_{ij}^{obj}(C_i-\hat{C_i})^2$$</p>
+</li>
+</ul>
+<ul>
+<li>categories<br>  对于种类预测，前面说了，这里设定每个单元格只负责一个object的预测，所以我们不用考虑多个bbox了。故损失函数为:<br>$$\sum_{i=0}^{S^2}\mathbb{I}_{i}^{obj}(p_i(c)-\hat{p_i}(c))^2$$</li>
+</ul>
+<h3 id="训练细节"><a href="#训练细节" class="headerlink" title="训练细节"></a>训练细节</h3><ul>
+<li><p>在激活函数上:<br>最后一层使用的是标准的线性激活函数，其他的层都使用leaky rectified linear activation:<br>$$<br>\phi(x)=<br>\begin{cases}<br>  　x   ,　　　 if  　  x&gt;0\\<br> 0.1x 　 ,　　 otherelse<br> \end{cases}<br>$$</p>
+</li>
+<li><p>在学习率上:</p>
+<ul>
+<li>前75个epoch设置为$10^{-2}$</li>
+<li>再30个epoch设置为$10^{-3}$</li>
+<li>最后30个epoch设置为$10^{-4}$</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>其他的训练细节:</p>
+<ul>
+<li>batch=64</li>
+<li>动量0.9，衰减为0.0005</li>
+<li>使用dropout，设置为0.5，接在第一个FC层后</li>
+<li>对样本做了数据增强</li>
+</ul>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><p>论文给出了YOLO与Fast RCNN的对比图，YOLO的定位准确率相对于fast rcnn比较差。但是YOLO对背景的误判率比Fast RCNN的误判率低很多。这说明了YOLO中把物体检测的思路转成回归问题的思路有较好的准确率，但是bounding box的定位不是很好。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/b99dJJ524k.png?imageslim" alt="mark"></p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>YOLO有如下特点：</p>
+<ul>
+<li>速度快。YOLO将物体检测作为回归问题进行求解，使用单个网络完成整个检测过程。</li>
+<li>召回率低，表现为背景误检率低。YOLO可以get到图像的整体信息，相比于region proposal等方法，有着更广阔的“视野”。</li>
+<li>泛化能力强，对其他类的东西，训练后效果也是挺好的。</li>
+</ul>
+<hr>
+<hr>
+<h1 id="YOLO2"><a href="#YOLO2" class="headerlink" title="YOLO2"></a>YOLO2</h1><p>YOLO2是YOLO的升级版本，在YOLO的基础上用到了很多trick，尤其是结合了anchor box。  <a href="https://arxiv.org/abs/1612.08242" target="_blank" rel="external">论文:YOLO9000:Better, Faster, Stronger</a></p>
+<p>我个人觉得YOLO2是在YOLO的基础上，把多种物体检测网络(例:Faster R-CNN)和分类网络(ResNet,GoogleNet)的优点揉入进去，并且很酷炫的使用例如ImageNet一样的分类数据集训练了最终物体分类部分，使用例如COCO一样的检测数据集训练检测定位部分，这种联合训练方式感觉很有搞头。</p>
+<h2 id="Introduction-1"><a href="#Introduction-1" class="headerlink" title="Introduction"></a>Introduction</h2><p>论文主要工作有两部分：</p>
+<ul>
+<li>改进YOLO的多个部分，整出一个YOLOv2</li>
+<li>提出了一种层次性联合训练方法，可以使用ImageNet分类数据集和COCO检测数据集同时对模型训练，最终整出来个YOLO9000，可以识别9000多种物体.</li>
+</ul>
+<p>正如标题一样，论文从Better，Faster，Stronger三个方面介绍了对YOLO的改进，我们也就从这三个方面总结YOLO2。</p>
+<h2 id="Better"><a href="#Better" class="headerlink" title="Better"></a>Better</h2><h3 id="Batch-Normalization"><a href="#Batch-Normalization" class="headerlink" title="Batch Normalization"></a>Batch Normalization</h3><p>Batch Normalization来自<a href="http://arxiv.org/pdf/1502.03167.pdf" target="_blank" rel="external">论文Batch Normalization: Accelerating Deep Network Training b<br>y Reducing Internal Covariate Shift</a>。使用BN的好处对数据分布做了修正，这样网络可以更快更好的学习。<br>在网络的每个卷积层后增加Batch Norm，同时弃用了dropout，网络的上升了2%mAP.</p>
+<h3 id="High-Resolution-Classifier"><a href="#High-Resolution-Classifier" class="headerlink" title="High  Resolution Classifier"></a>High  Resolution Classifier</h3><p>原本的所有的state-of-the-art检测模型都是使用ImageNet预训练的模型，比方说AlexNet训练时输入小于$256×256$，原本的YOLO是在$224×224$上预训练，在后面训练时候提升到$448×448$,这样模型需要去适应新的分辨率。</p>
+<p>YOLO2是直接使用$448×448$的输入，在ImageNet上跑了10个epochs.让模型时间去适应更高分辨率的输入。这使得模型提高了4%的mAP.</p>
+<div class="note info"><h3 id="Convolutional-With-Anchor-Boxes"><a href="#Convolutional-With-Anchor-Boxes" class="headerlink" title="Convolutional With Anchor Boxes"></a>Convolutional With Anchor Boxes</h3><p>Anchor Boxes在Faster R-CNN里面已经介绍了，<a href="http://blog.csdn.net/u011974639/article/details/78053203#anchors" target="_blank" rel="external">Faster R-CNN里anchor</a>。</p>
+<p>我们简单对比一下这个网络的特性:</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>YOLO</th>
+<th>Faster RCNN</th>
+<th>YOLO2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>结构上</td>
+<td>预测bbox值是使用FC层来整的，<strong>gird cell负责预测种类，同一个grid cell下bbox没得选。</strong></td>
+<td>在feature map的基础上，使用不同形状的anchor boxes,然后计算出Proposal。</td>
+<td>去掉YOLO的FC层，同时去掉YOLO的最后一个pool层，增加feature map的分辨率，修改网络的输入，保证feature map有一个中心点，这样可提高效率。<strong>并且是以每个anchor box来预测物体种类的</strong></td>
+</tr>
+<tr>
+<td>预测框</td>
+<td>将图片分成$7×7$个grid cell，每个grid cell预测2个bbox，一共也就98个。对于物体数量多且密集的图片很无力啊</td>
+<td>在$M×N$feature map上每个位置使用9种anchor boxes,一共得到$9MN$个高级的特征</td>
+<td>将网络的输入调整到$416×416$,保证为多次卷积后，下采样factor为32，得到$13×13$的feature map。在这上面使用9种anchor boxes，得到$13×13×9=1521$个，这比YOLO大多了。</td>
+</tr>
+<tr>
+<td>指标</td>
+<td>69.5mAP<br>recall:81%</td>
+<td>我速度慢，不凑热闹了</td>
+<td>69.2mAP<br>recall:88%<br>精度下降一点点，召回率上了7%，还是很有效果的</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Dimension-Clusters"><a href="#Dimension-Clusters" class="headerlink" title="Dimension Clusters"></a>Dimension Clusters</h3><p>在Faster R-CNN里我们介绍过，9种不同的anchor boxes是三种面积和三种不同的长宽比组合而成的，为什么要选这样的anchor？<br>这是人工选择出来的，如果我们能用一个先验条件，找出大部分bbox的形状，设置anchor也为如此，那么模型学习起来会容易很多。</p>
+<p>所以在YOLO2中，使用了K-means聚类对数据集的ground truth聚类。一般的聚类是使用欧式距离，这会导致ground truth大的比ground truth小的更受误差的影响，而且我们在实际的评价中是使用IoU的，很自然的想到用IoU来做聚类尺度。实际的度量尺度：<br>$$  d(box,centroid) = 1 - IOU(box,centriod)$$</p>
+<p>对数据集的聚类结果如下:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/ceILAf8eF9.png?imageslim" alt="mark"></p>
+<p>左图是聚类数目与Avg IoU的关系，论文选择是$k=5$,在模型复杂度与召回率之间取一个折中值。右图是$k=5$下的anchor boxes的形状。<br>同时，论文简单的比较了一下不同方法选出来的anchor的Avg IoU对比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170929/6Li4BEFFCL.png?imageslim" alt="mark"><br>无论是$k=5$，还是$k=9$，使用聚类选出来的anchor在Avg IoU指标上都要要比手动的好。使用聚类来算anchor好处还是很明显的。</p>
+<h3 id="Direct-location-prediction"><a href="#Direct-location-prediction" class="headerlink" title="Direct location prediction"></a>Direct location prediction</h3><p>在YOLO上使用anchor boxes会遇到一个问题：模型不稳定。尤其是在早期迭代中。论文认为模型不稳定的原因来自于预测bbox的$(x,y)$。如下：</p>
+<p>$$x=(t_x*w_a)-x_a  $$ $$ y=(t_y*h_a)-y_a $$</p>
+<p>在Faster R-CNN的inference时，偏移因子$t_x,t_y$是没有限制的，模型预测的是offset，我们想让每个模型预测它附近的一个部分，在不加限制的情况下，收敛会比较慢。故论文对采用了和YOLO一样的方法，直接预测中心点，并使用Sigmoid函数将偏移量限制在0-1(这里的尺度是针对grid cell)。计算公式如下:<br>$$ b_x=\sigma(t_x)+c_x$$ $$ b_y=\sigma(t_y)+c_y$$ $$b_w=p_we^{t_w}$$ $$b_h=p_he^{t_h}$$  $$Pr(object)*IOU(b,object) = \sigma(t_o)$$</p>
+<p>$b_x,b_y,b_w,b_h$是预测的bbox的中心点坐标和宽高，中心点坐标的尺度是相对于grid cell。如下图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/J0dcmGkE7G.png?imageslim" alt="mark"></p>
+<p>经过Dimension Clusters 和Direct location prediction操作，在原有的anchor boxes版本上又提升了5%的mAP。</p></div>
+<h3 id="Fine-Grained-Features"><a href="#Fine-Grained-Features" class="headerlink" title="Fine-Grained Features"></a>Fine-Grained Features</h3><p>网络最后的feature map尺寸为$13×13$，对于检测大尺寸的目标是够的了。如果是要检测小尺寸细粒度的东西，感觉上有点勉强了。那该怎么办？</p>
+<ul>
+<li>论文琢磨着Faster R-CNN和SSD的想法，在不同层次的特征图上获取不同分辨率的Proposal。</li>
+<li>在ResNet上，是通过一个identity mapping，直接把上一层传到下一层。</li>
+</ul>
+<p>论文整出一个passthrough layer，就是把上面层的(前面$26×26$)高分辨率的feature map直接连到$13×13$的feature map上。论文中把$26×26×512$转为$13×13×2048$，这样就能接到一起了。这么整让整体性能提升1%。</p>
+<h3 id="Multi-Scale-Training"><a href="#Multi-Scale-Training" class="headerlink" title="Multi-Scale Training"></a>Multi-Scale Training</h3><p>和GoogleNet训练时一样，为了提高模型的robust，使用多尺度的输入训练。因为网络的卷积层降采样因子是32，故输入尺寸选择32的倍数${320,352,…,608 }$。论文给出了实验数据:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170929/5gbbhadG3b.png?imageslim" alt="mark"></p>
+<p>当网络在小尺度输入时，速度能达到90FPS,mAP也能达到Faster R-CNN的水平。使用大尺寸输入时，速度降到了40FPS，mAP上升到了78.6%.达到了state-of-the-art的水准。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/170929/i2e6E71G3e.png?imageslim" alt="mark"><br>各个模型之间性能的对比图。</p>
+<h2 id="Faster"><a href="#Faster" class="headerlink" title="Faster"></a>Faster</h2><h3 id="DarkNet-19"><a href="#DarkNet-19" class="headerlink" title="DarkNet-19"></a>DarkNet-19</h3><p>大多数detection的框架是建立在VGG-16上的，VGG-16在ImageNet上能达到90%的top-5，但是单张图片需要30.69 billion 浮点运算，YOLO2是依赖于DarkNet-19的结构，这个模型在ImageNet上能达到91%的top-5，并且单张图片只需要5.58 billion 浮点运算。DarkNet的结构图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/329H9A25hg.png?imageslim" alt="mark"></p>
+<p>可以看到DarkNet也是大量使用了$3×3$和$1×1$的小卷积核，YOLO2在DarkNet的基础上添加了Batch Norm保证模型稳定，加速了模型收敛。</p>
+<h3 id="Training-for-classification"><a href="#Training-for-classification" class="headerlink" title="Training for classification"></a>Training for classification</h3><p>论文以Darknet-19为模型在ImageNet上用SGD跑了160epochs。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>learning rate</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>polynomial rate decay</td>
+<td>4</td>
+</tr>
+<tr>
+<td>weight decay</td>
+<td>0.00005</td>
+</tr>
+<tr>
+<td>momentum</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>data augmentation数据增强</td>
+<td>random crops, rotations等tricks</td>
+</tr>
+</tbody>
+</table>
+<p>跑完了160 epochs后，把输入尺寸从$224×224$上调为$448×448$，这时候lr调到0.001，再跑了10 epochs，这时候DarkNet达到了top-1准确率76.5%，top-5准确率93.3%。</p>
+<h3 id="Training-for-dectection"><a href="#Training-for-dectection" class="headerlink" title="Training for dectection"></a>Training for dectection</h3><p>在上面训练好的DarkNet-19的基础上，把分类网络改成detect网络，去掉原先网络的最后一个卷积层，取而代之的是使用3个$3×3x1024$的卷积层，并且每个新增的卷积层后面接$1×1$的卷积层，数量是我们要detection的数量。</p>
+<p>定义新的detectin模型，该训练了：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练次数</td>
+<td>160 epochs</td>
+</tr>
+<tr>
+<td>learning rate</td>
+<td>起始0.001,在60和90 epochs时衰减10倍</td>
+</tr>
+<tr>
+<td>weight decay</td>
+<td>0.0005</td>
+</tr>
+<tr>
+<td>momentum</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td>data augmentation</td>
+<td>random crops,color shifting,etc</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Stronger"><a href="#Stronger" class="headerlink" title="Stronger"></a>Stronger</h2><p>论文提出了一种联合训练的机制：使用detection数据集训练模型detection相关parts，使用classification数据集训练模型classification相关parts。</p>
+<p>这样训练会有一些问题:detection datasets的标签更为“上层”,例如狗，船啊啥的。而对应的classification datasets的标签就“下层”了很多，比如狗就有很多种，例如“Norfolk terrier”, “Yorkshire terrier”, and “Bedlington terrier”等等。</p>
+<p>而我们一般在模型中分类使用的是softmax，softmax计算所有种类的最终的概率分布。softmax会假设所有种类之间是互斥的，但是，实际过程中，“上层”和“下层”之间是有对应的关系的。(例如中华田园犬，博美都属于狗)，照着这样的思路，论文整出了一个层次性的标签结构。</p>
+<h3 id="Hierarchical-classification"><a href="#Hierarchical-classification" class="headerlink" title="Hierarchical classification"></a>Hierarchical classification</h3><p><a href="https://zhuanlan.zhihu.com/p/25167153" target="_blank" rel="external">引用晓雷笔记</a>。</p>
+<p>ImageNet的标签的来源是WordNet(一个语言数据库)。WordNet是由<code>directed struct</code>组成，但是<code>directed struct</code>较为复杂，这里采用另一个方式表示<code>WordTree</code>。</p>
+<p><code>WordTree</code>是一种多层级的Tree结构，数据来源于WordNet。在ImageNet中一个类别的标签在WordNet中到根节点的路径，如果存在多条则选择最短的一条。遍历将所有的类别标签都提取，最终得到<code>WordTree</code>，使用链式法则计算任意节点的概率值。</p>
+<p>创建层次树的步骤是：</p>
+<ul>
+<li>遍历ImageNet的所有视觉名词</li>
+<li>对每一个名词，在WordNet上找到从它所在位置到根节点（“physical object”）的路径。 许多同义词集只有一条路径。所以先把这些路径加入层次树结构。</li>
+<li>然后迭代检查剩下的名词，得到路径，逐个加入到层次树。路径选择办法是：如果一个名词有两条路径到根节点，其中一条需要添加3个边到层次树，另一条仅需添加一条边，那么就选择添加边数少的那条路径。</li>
+</ul>
+<p>最终结果是一颗 WordTree （视觉名词组成的层次结构模型）。用WordTree执行分类时，预测每个节点的条件概率。例如： 在“terrier”节点会预测：<br>$$Pr(Norfolk  terrier|terrier) \\<br>Pr(Yorkshire  terrier|terrier) \\<br>Pr(Bedlington  terrier|terrier) \\<br>… $$</p>
+<p>分类时假设图片包含物体：Pr(physical object) = 1.</p>
+<p>为了验证这种方法作者在WordTree（用1000类别的ImageNet创建）上训练了Darknet-19模型。为了创建WordTree1k作者添加了很多中间节点，把标签由1000扩展到1369。</p>
+<p><strong>训练过程中ground truth标签要顺着向根节点的路径传播。</strong>例如:如果一张图片被标记为“Norfolk terrier”它也被标记为“dog” 和“mammal”等。为了计算条件概率，模型预测了一个包含1369个元素的向量，并基于所有“同义词集”计算softmax，其中“同义词集”是同一概念的下位词。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171003/AmAhKjjKDb.png?imageslim" alt="mark"></p>
+<p>使用相同的训练参数，层次式Darknet-19获得71.9%的top-1精度和90.4%top-5精度。尽管添加了369个额外概念，且让网络去预测树形结构，精度只有略微降低。按照这种方式执行分类有一些好处，当遇到新的或未知物体类别 这种方法的好处是在对未知或者新的物体进行分类时，性能降低的很优雅（gracefully）。例如：如果网络看到一张狗的图片，但是不确定狗的类别，网络预测为狗的置信度依然很高，但是，狗的下位词（哈士奇/金毛）的置信度就比较低。</p>
+<p>有了这种映射机制，WordTree就可以将不同的数据集结合起来，由于WordTree本身变化多端，所以可以将大多数的数据集结合起来。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171003/2bJG6CEK3f.png?imageslim" alt="mark"></p>
+<h3 id="Joint-classification-and-detection"><a href="#Joint-classification-and-detection" class="headerlink" title="Joint classification and detection"></a>Joint classification and detection</h3><table>
+<thead>
+<tr>
+<th>细节</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>样本</td>
+<td>使用WordTree混合了COCO与ImageNet数据集后，混合数据集对应的WordTree包含9418类。由于ImageNet数据集跟COCO比太大了，产生了样本倾斜的问题，因此作者将COCO过采样，使得COCO与ImageNet的比例为1: 4。</td>
+</tr>
+<tr>
+<td>anchor box</td>
+<td>YOLO9000的训练基于YOLO v2的架构。anchor box数量由5调整为3用以限制输出大小。</td>
+</tr>
+<tr>
+<td>训练时遇到检测数据集样本</td>
+<td>正常地反方向传播</td>
+</tr>
+<tr>
+<td>训练时遇到分类数据集样本</td>
+<td>在该类别对应的所有bounding box中找到一个置信度最高的（作为预测坐标），同样只反向传播该类及其路径以上对应节点的类别损失。反向传播objectness损失基于如下假设：预测box与ground truth box的重叠度至少0.3 IOU。</td>
+</tr>
+</tbody>
+</table>
+<p>采用这种联合训练，YOLO9000从COCO检测数据集中学习如何在图片中寻找物体，从ImageNet数据集中学习更广泛的物体分类。</p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>YOLO2在YOLO的基础上提出了许多改进，比如Convolutional With Anchor Boxes, Dimension Clusters, Direct location prediction等等。YOLOv2/YOLO9000是现目标检测领域的state-of-the-art。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Object-Detection/" rel="tag"># Object Detection</a>
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/YOLO/" rel="tag"># YOLO</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/02/物体检测论文-Faster-R-CNN/" rel="next" title="物体检测论文-Faster R-CNN">
+                <i class="fa fa-chevron-left"></i> 物体检测论文-Faster R-CNN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/14/物体检测论文-SSD和FPN/" rel="prev" title="物体检测论文-SSD和FPN">
+                物体检测论文-SSD和FPN <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLO"><span class="nav-text">YOLO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Detection-System"><span class="nav-text">Detection System</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分成单元格"><span class="nav-text">分成单元格</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#每个单元格需要做三件事"><span class="nav-text">每个单元格需要做三件事:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单元格数据"><span class="nav-text">单元格数据</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#x-y-到底代表啥意思"><span class="nav-text">$(x,y)$到底代表啥意思?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#w-h-又是啥意思"><span class="nav-text">$(w,h)$又是啥意思?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Confidence"><span class="nav-text">$Confidence$ </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#C-个种类的概率值"><span class="nav-text">$C$个种类的概率值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单元格输出"><span class="nav-text">单元格输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#YOLO检测物体的流程"><span class="nav-text">YOLO检测物体的流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLO的架构"><span class="nav-text">YOLO的架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#预训练"><span class="nav-text">预训练</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLO的训练"><span class="nav-text">YOLO的训练</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#损失函数"><span class="nav-text">损失函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#训练细节"><span class="nav-text">训练细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-text">优点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLO2"><span class="nav-text">YOLO2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction-1"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Better"><span class="nav-text">Better</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Batch-Normalization"><span class="nav-text">Batch Normalization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#High-Resolution-Classifier"><span class="nav-text">High  Resolution Classifier</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Convolutional-With-Anchor-Boxes"><span class="nav-text">Convolutional With Anchor Boxes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dimension-Clusters"><span class="nav-text">Dimension Clusters</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Direct-location-prediction"><span class="nav-text">Direct location prediction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fine-Grained-Features"><span class="nav-text">Fine-Grained Features</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multi-Scale-Training"><span class="nav-text">Multi-Scale Training</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Faster"><span class="nav-text">Faster</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DarkNet-19"><span class="nav-text">DarkNet-19</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Training-for-classification"><span class="nav-text">Training for classification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Training-for-dectection"><span class="nav-text">Training for dectection</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stronger"><span class="nav-text">Stronger</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hierarchical-classification"><span class="nav-text">Hierarchical classification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Joint-classification-and-detection"><span class="nav-text">Joint classification and detection</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结-1"><span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Object Detection,Deep Convolutional NetWork,SSD,FPN," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="SSD是第一个利用多尺度feature map来做物体检测，在速度上和准确率上都很棒，非常好的一篇论文。FPN是Kaiming He男神和Rbg大神的又一力作，其思想和SSD非常相似，也是在多尺度feature map基础上做物体检测。">
+<meta name="keywords" content="Object Detection,Deep Convolutional NetWork,SSD,FPN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="物体检测论文-SSD和FPN">
+<meta property="og:url" content="http://hfut-fan.github.io/2017/10/14/物体检测论文-SSD和FPN/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="SSD是第一个利用多尺度feature map来做物体检测，在速度上和准确率上都很棒，非常好的一篇论文。FPN是Kaiming He男神和Rbg大神的又一力作，其思想和SSD非常相似，也是在多尺度feature map基础上做物体检测。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171006/cBlDILIIbH.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171015/41E24AJgkj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171015/G157CmJ5bk.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171006/701jaHGGHf.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171015/m8EemDklLc.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171015/m1HFAI9dgC.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171015/3KKbimbaI8.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171015/BEb92JgIc5.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171010/A0cEiAKk1E.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171010/D6a0jLk4JK.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171011/FkFJchjLg5.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171015/k1Eg1784gj.png?imageslim">
+<meta property="og:updated_time" content="2018-01-29T02:49:04.647Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="物体检测论文-SSD和FPN">
+<meta name="twitter:description" content="SSD是第一个利用多尺度feature map来做物体检测，在速度上和准确率上都很棒，非常好的一篇论文。FPN是Kaiming He男神和Rbg大神的又一力作，其思想和SSD非常相似，也是在多尺度feature map基础上做物体检测。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/171006/cBlDILIIbH.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2017/10/14/物体检测论文-SSD和FPN/"/>
+
+
+
+
+
+  <title>物体检测论文-SSD和FPN | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2017/10/14/物体检测论文-SSD和FPN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">物体检测论文-SSD和FPN</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-14T21:12:33+08:00">
+                2017-10-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  SSD是第一个利用多尺度feature map来做物体检测，在速度上和准确率上都很棒，非常好的一篇论文。<br>FPN是Kaiming He男神和Rbg大神的又一力作，其思想和SSD非常相似，也是在多尺度feature map基础上做物体检测。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="SSD"><a href="#SSD" class="headerlink" title="SSD"></a>SSD</h1><h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>基于“Proposal + Classification” 的 Object Detection 的方法，R-CNN 系列取得了非常好的结果，但是在速度方面离实时引用还差的比较多。前面讲的YOLO虽然能够达到实时的效果，但是在准确度上与the-state-of-art 的结果有很大的差距。YOLO 的问题在于：每个网格只预测一个物体，容易造成漏检；对于物体的尺度相对比较敏感，对于尺度变化较大的物体泛化能力较差。</p>
+<p>针对 YOLO 中的这些不足，该论文提出的SSD模型在这两方面都有所改进，同时兼顾了准确率和实时性的要求。(YOLO2还在SSD后，现在YOLO2是the-state-of-art)</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171006/cBlDILIIbH.png?imageslim" alt="mark"></p>
+<div class="note info"><p>SSD的特点在于:</p>
+<ul>
+<li>从YOLO中继承了将detection转化为regression的思路，同时一次即可完成网络训练</li>
+<li>基于Faster RCNN中的anchor，提出了相似的prior box；</li>
+<li>加入基于特征金字塔（Pyramidal Feature Hierarchy）的检测方式，相当于半个FPN思路</li>
+</ul></div>
+<h2 id="SSD架构"><a href="#SSD架构" class="headerlink" title="SSD架构"></a>SSD架构</h2><p>论文采用VGG16的基础网络结构，使用前面的五个CONV层作为特征提取，然后利用<code>astrous 算法</code>将FC6和FC7转化成CONV6和CONV7层。再增加3个卷积层，和一个average pool层。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171015/41E24AJgkj.png?imageslim" alt="mark"></p>
+<p>不同层次的feature map分别用于预测default box的偏移以及不同类别得分，最后通过 nms得到检测结果。</p>
+<p>上图的下部分是YOLO结构，在卷积层后接全连接层，检测时只利用了最高层的feature maps(Faster R-CNN也是如此)，而SSD采用了特征金字塔结构进行检测，即检测时用了conv4_3,conv_7，conv8_2,conv7_2,conv8_2,conv9_2,conv10_2,conv11_2这些大小不同的feature maps，在多个feature maps上同时进行softmax分类和位置回归，如下图:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171015/G157CmJ5bk.png?imageslim" alt="mark"></p>
+<p>SSD上增加的卷积层的 feature maps的大小变化比较大，允许能够检测出不同尺度下的物体： <strong> 在低层的feature map,感受野比较小，高层的感受野比较大，在不同的feature map进行卷积，可以达到多尺度的目的。</strong></p>
+<p>观察YOLO，后面存在两个全连接层，全连接层以后，每一个输出都会观察到整幅图像，并不是很合理。但是SSD去掉了全连接层，每一个输出只会感受到目标周围的信息，包括上下文。这样来做就增加了合理性。并且不同的feature map,预测不同宽高比的图像，这样比YOLO增加了预测更多的比例的box。</p>
+<h2 id="Default-boxes-and-aspect-ratios"><a href="#Default-boxes-and-aspect-ratios" class="headerlink" title="Default boxes and aspect ratios"></a>Default boxes and aspect ratios</h2><p>在SSD中引入了Defalut Box，实际上与<a href="http://hellodfan.com/2017/10/02/%E7%89%A9%E4%BD%93%E6%A3%80%E6%B5%8B%E8%AE%BA%E6%96%87-Faster-R-CNN/" target="_blank" rel="external">Faster R-CNN里的anchor box机制</a>非常类似，就是预设一些目标预选框，后续通过softmax分类+bounding box regression获得真实目标的位置。</p>
+<p>对于不同尺度feature map(上图中$ 38×38×512，$$19×19×512，$$10×10×512,$ $5×5×512,$ $3×3×512,$$ 1×1×256$)的上的所有特征点上是使用不同的Default boxes，下图是整个预测图的展开图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171006/701jaHGGHf.png?imageslim" alt="mark"></p>
+<p>以$5×5×256$为例， 它的Defalut boxes = 6(以3来计算)：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171015/m8EemDklLc.png?imageslim" alt="mark"></p>
+<p>在$5×5×256$的feature map网络pipeline分为了3条线路：</p>
+<ul>
+<li>经batch norm+卷积，生成了[1, 4*default box, layer_height, layer_width]大小的feature用于bounding box regression（即每个点一组[dxmin，dymin，dxmax，dymax]，参考Faster RCNN ）</li>
+<li><p>经batch norm+卷积，生成了[1, num_class*default box, layer_height, layer_width]大小的feature用于softmax分类目标和非目标（其中num_class是目标类别，SSD 300中num_class = 21)</p>
+</li>
+<li><p>生成了[1, 2, 4*default box]大小的default box blob，其中2个channel分别存储default box的4个点坐标和对应的4个variance<br>缩进后续通过softmax分类+bounding box regression即可从default box中预测到目标。其实pribox box的与Faster RCNN中的anchor非常类似，都是目标的预设框，没有本质的差异。区别是每个位置的prior box一般是4~6个，少于Faster RCNN默认的9个anchor；同时prior box是设置在不同尺度的feature maps上的，而且大小不同。</p>
+</li>
+</ul>
+<p>缩进还有一个细节就是上面prototxt中的4个variance，这实际上是一种bounding regression中的权重。在图4线路(2)中，网络输出[dxmin，dymin，dxmax，dymax]，即对应下面代码中bbox；然后利用如下方法进行针对prior box的位置回归：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171015/m1HFAI9dgC.png?imageslim" alt="mark"></p>
+<div class="note danger"><p>SSD按照如下规则生成Defalut box：</p>
+<ul>
+<li><p>以feature map上每个点的中点为中心（offset=0.5），生成一些列同心的Defalut box（然后中心点的坐标会乘以step，相当于从feature map位置映射回原图位置）</p>
+</li>
+<li><p>使用m(SSD300中m=6)个不同大小的feature map 来做预测，最底层的 feature map 的 scale 值为 $s_{min} = 0.2$，最高层的为 $s_{max} = 0.95$，其他层通过下面公式计算得到：<br>$$s_k=s_{min}+\frac{s_{max}-s_{min}} {m-1}(k-1)$$</p>
+</li>
+</ul>
+<ul>
+<li>使用不同的 ratio值$\alpha_r∈{ 1,2,\frac{1}{2},3,\frac{1}{3}}$,计算 default box 的宽度和高度：$w_k^{a} = s_k\sqrt{a_r}，h_k^{a} = s_k/\sqrt{a_r}。$另外对于 ratio = 1 的情况，额外再指定 scale 为$s_k{‘} = \sqrt{s_ks_{k+1}} $也就是总共有 6 中不同的 default box</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171015/3KKbimbaI8.png?imageslim" alt="mark"></p></div>
+<h2 id="训练策略"><a href="#训练策略" class="headerlink" title="训练策略"></a>训练策略</h2><p>监督学习的训练关键是人工标注的label。对于包含default box(在Faster R-CNN中叫做anchor)的网络模型（如： YOLO,Faster R-CNN, MultiBox）关键点就是如何把 标注信息(ground true box,ground true category)映射到（default box上）</p>
+<div class="note warming"><h3 id="训练目标"><a href="#训练目标" class="headerlink" title="训练目标"></a>训练目标</h3><p>和常见的 Object Detection模型的目标函数相同，整个目标函数分为两部分：计算相应的default box与目标类别的confidence loss以及相应的回归结果（位置回归）。</p>
+<p>$$L(x,c,l,g)= \frac{1}{N}(L_{conf}(x,c) + \alpha L_{loc}(x,l,g)) $$</p>
+<p>其中N是match到Ground Truth的default box数量；而$α$参数用于调整confidence loss和location loss之间的比例，默认$α=1$。</p>
+<ul>
+<li><p>位置回归则是采用 Smooth L1 loss，目标函数为：<br>  $$ L_{loc}(x,l,g)=\sum_{i∈Pos}^N\sum_{m∈{cx,cy,w,h}}x_{ij}^k smooth_{L1}(l_i^m-\hat{g}_j^m)$$<br>$$\hat{g}_j^{cx}=(g_j^{cx}-d_i^{cx})/d_i^{w} \ \hat{g}_j^{cy}=(g_j^{cy}-d_i^{cy})/d_i^{h}  \\<br>\hat{g}_j^{w}=log(\frac{g_j^{w}}{d_i^{w}}) \\<br>\hat{g}_j^{h}=log(\frac{g_j^{h}}{d_i^{h}}) $$</p>
+</li>
+<li><p>confidence loss是典型的softmax loss<br>$$L_{conf}(x,c)=-\sum_{i∈Pos}^Nx_{ij}^plog(\hat{c_i^p})-\sum_{i∈Neg}log(\hat{c_i}^0) \ where     \hat{c}_i^p=\frac{exp(c_i^p)}{\sum_pexp(c_i^p)}$$</p>
+</li>
+</ul></div>
+<div class="note success"><h3 id="训练样本"><a href="#训练样本" class="headerlink" title="训练样本"></a>训练样本</h3><h4 id="Matching-strategy-正负样本"><a href="#Matching-strategy-正负样本" class="headerlink" title="Matching strategy(正负样本)"></a>Matching strategy(正负样本)</h4><p>在训练时，ground truth 与 default boxes按照如下方式进行配对：</p>
+<ul>
+<li><p>首先，寻找与每一个ground truth有最大的IoU的default box，这样就能保证ground truth至少有default box匹配。</p>
+</li>
+<li><p>SSD之后又将剩余还没有配对的default box与任意一个ground truth尝试配对，只要两者之间的IoU大于阈值（SSD 300 阈值为0.5），就认为match。</p>
+</li>
+<li><p>配对到ground truth的default box就是positive，没有配对的default box就是negative。</p>
+</li>
+</ul>
+<p>一个ground truth可能对应多个positive default box，而不再像MultiBox那样只取一个IoU最大的default box。其他的作为负样本（每个default box要么是正样本box要么是负样本box）。</p>
+<h4 id="Hard-negative-mining"><a href="#Hard-negative-mining" class="headerlink" title="Hard negative mining"></a>Hard negative mining</h4><p>一般情况下negative default boxes数量是远大于positive default boxes数量，如果随机选取样本训练会导致网络过于重视负样本，从而loss不稳定。所以需要平衡样本：<strong>依据confidience score排序default box，挑选其中confidience高的box进行训练，控制positive：negative=1：3</strong></p>
+<h4 id="Data-augmentation"><a href="#Data-augmentation" class="headerlink" title="Data augmentation"></a>Data augmentation</h4><p>为了增强模型的鲁棒性，采取输入可变size和shape，每个训练图片按照以下规则随机处理:</p>
+<ul>
+<li>是用原图</li>
+<li>采样一个patch，IoU值为:0.1，0.3，0.5，0.7 or 0.9</li>
+<li>随机采样一个patch</li>
+</ul>
+<p>采样的patch是原始图像大小比例是$[0.1,1]$，aspect ratio在1/2与2之间。当 ground truth的中心在采样的patch中时，保留重叠部分。在这些采样步骤之后，每一个采样的patch被resize到固定的大小，并且以0.5的概率随机的水平翻转（horizontally flipped）。</p></div>
+<h3 id="训练细节"><a href="#训练细节" class="headerlink" title="训练细节"></a>训练细节</h3><p>该论文是在ImageNet分类和定位问题上的已经训练好的VGG16模型基础上fine-tuning 得到的。下表是部分训练细节：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方法</td>
+<td>SGD</td>
+</tr>
+<tr>
+<td>batch size</td>
+<td>32</td>
+</tr>
+<tr>
+<td>learning rate</td>
+<td>$10^{-3}$ 会有调整</td>
+</tr>
+<tr>
+<td>momentum</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td>weight decay</td>
+<td>0.0005</td>
+</tr>
+</tbody>
+</table>
+<h2 id="SSD网络结构优劣分析"><a href="#SSD网络结构优劣分析" class="headerlink" title="SSD网络结构优劣分析"></a>SSD网络结构优劣分析</h2><p>SSD算法的优点应该很明显：运行速度可以和YOLO媲美，检测精度可以和Faster RCNN媲美。这里谈谈缺点：</p>
+<ul>
+<li><p>需要人工设置prior box的min_size，max_size和aspect_ratio值。网络中default box的基础大小和形状不能直接通过学习获得，而是需要手工设置。而网络中每一层feature使用的default box大小和形状恰好都不一样，导致调试过程非常依赖经验。(相比之下，YOLO2使用聚类找出大部分的anchor box形状，这个思想能直接套在SSD上)</p>
+</li>
+<li><p>虽然采用了pyramdial feature hierarchy的思路，但是对小目标的recall依然一般，并没有达到碾压Faster RCNN的级别。可能是因为SSD使用conv4_3低级feature去检测小目标，而低级特征卷积层数少，存在特征提取不充分的问题。</p>
+</li>
+</ul>
+<hr>
+<hr>
+<h1 id="FPN"><a href="#FPN" class="headerlink" title="FPN"></a>FPN</h1><p>FPN(Feature Pyramid Networks)是Kaiming He男神和Rgb大神联手的又一力作。主要使用特征金字塔网络来融合多层特征，将底层和高层的特征融合，再利用融合后的特征进行分类和定位。FPN曾在COCO数据集上测试结果排名第一。</p>
+<p>原论文地址:  <a href="https://arxiv.org/pdf/1612.03144.pdf" target="_blank" rel="external">Feature Pyramid Networks for Object Detection</a></p>
+<div class="note danger"><h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In Computer Vision中,利用不同尺度来做目标识别一直是个大坑(fundamental challenge)。</p>
+<h3 id="Featureized-image-pyramids"><a href="#Featureized-image-pyramids" class="headerlink" title="Featureized image pyramids"></a>Featureized image pyramids</h3><p>featureized image pyramids(Feature pyramids built upon image pyramids)是一个基本处理方法。示意图如下:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171015/BEb92JgIc5.png?imageslim" alt="mark"></p>
+<p>Featureized image pyramids需要以下操作：</p>
+<ul>
+<li>先做image pyramid，展成不同尺度的image</li>
+<li>提取不同尺寸的image的feature map</li>
+</ul>
+<p>知道如何整Featureized image pyramids，也就很明白这个方法的问题所在：<strong>慢！</strong></p>
+<p>提取不同尺寸的feature map需要大量时间，这也从根本上扼杀了这个方法$\rightarrow$不能实用。退一万步来说，现在我们就要这么整，如果想训练一个end-to-end的模型，内存也不支持，总不能再像R-CNN一样存到disk来整了吧。</p>
+<p>Featureized image pyramids不好使，先排除掉。我们就想其他办法</p>
+<h3 id="ConvNet提取feature-maps"><a href="#ConvNet提取feature-maps" class="headerlink" title="ConvNet提取feature maps　"></a>ConvNet提取feature maps　</h3><p>在实用ConvNet提取图片特征时，每个layer都是在提取feature maps，因为subsampling的存在，整个ConvNet天生就存在multi-scale的feature maps，也就是我们说的pyramidal shape。</p>
+<p>但是这样的底层和高层的feature maps很难组合到一起用，为什么？因为ConvNet提取过程中，底层高分辨率的feature map和高层的feature maps的通道数(depth)不同,这直接导致了极大的语义间隔(large sementic gaps)。</p>
+<h3 id="SSD"><a href="#SSD" class="headerlink" title="SSD"></a>SSD</h3><p>SSD是第一个吃螃蟹的，即使用ConvNet’s pyramidal feature hierarchy。SSD复用了不同layer上的feature maps(前馈网络已经计算了，没有额外的计算)。但是SSD只是从较为高层的feature maps开始计算的(论文是$Conv4_3$)，并添加了几个CONV层提取特征。</p>
+<p>SSD与传统方法的对比如下:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171010/A0cEiAKk1E.png?imageslim" alt="mark"></p>
+<p>SSD的问题在于没有充分利用不同尺度的feature maps，尤其是底层高分辨率的feature maps，这些high-resolution的feature maps对small objects的检测尤为的重要。</p>
+<h3 id="FPN思路"><a href="#FPN思路" class="headerlink" title="FPN思路"></a>FPN思路</h3><p>FPN的思路是:ConvNet的多个layer提取出的不同尺度的feature maps，这形成一个pyramid hierarchy，从上到下建立一个top-down pathway and lateral connections。(这个top-down的path就是用高层的特征来弥补底层的特征，从而得到高分辨率、强语义的预测，也就是弥补了上面不同尺度feature map之间通道不同存在的large segmantic gaps)</p>
+<p>FPN和SSD和一些其他方法<a href="http://www.arxiv.org/pdf/1406.4729.pdf" target="_blank" rel="external">[1]</a>,<a href="https://arxiv.org/abs/1603.08695" target="_blank" rel="external">[2]</a>的比较如下:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171010/D6a0jLk4JK.png?imageslim" alt="mark"></p></div>
+<h2 id="Feature-Pyramid-Networks"><a href="#Feature-Pyramid-Networks" class="headerlink" title="Feature Pyramid Networks"></a>Feature Pyramid Networks</h2><p>FPN的目标是：ConvNet’s的pyramidal feature hierarchy是有着low to high levels 的语义的，利用这样的hierarchy构建一个高语义的feature pyramid。</p>
+<div class="note success"><h3 id="Bottom-up-pathway"><a href="#Bottom-up-pathway" class="headerlink" title="Bottom-up pathway"></a>Bottom-up pathway</h3><p>ConvNet’s的forward计算是自下而上的，特征图经过卷积核计算，会以成倍的比例缩小(pooling layer的原因)。但同时有需多卷积层输出的feature map的尺寸是一样的，针对输出一样大小的feature map的卷积层我们统称为<code>stage</code>。</p>
+<p>以<code>stage</code>为单位，我们在构建feature pyramid时，以每个’stage’为一个pyramid level，取每个<code>stage</code>最后layer输出的feature map作为pyramid level。至于为什么会这么取？论文说是:这样取是理所当然的，因为靠后的layer有着更强壮的feature。</p>
+<h3 id="Top-down-pathway-and-lateral-connections"><a href="#Top-down-pathway-and-lateral-connections" class="headerlink" title="Top-down pathway and lateral  connections"></a>Top-down pathway and lateral  connections</h3><h4 id="如何实现Top-down-pathway？"><a href="#如何实现Top-down-pathway？" class="headerlink" title="如何实现Top-down pathway？"></a>如何实现Top-down pathway？</h4><p>前面我们得到了一个高语义的feature pyramid。 高层的feature map有着强语义，大感受野的的特性，底层的feature map有着high-resolution，并且保留对small object的语义。在构建好的feature pyramid上，要设法连接高层和底层，充分利用不同层feature map的特性。那么该怎么连接？</p>
+<p>FPN的做法是: 将高层的feature map上采样得到高分辨率的feature map，再与其在pyramid内下一个level的feature map做横向连接(lateral connections)。这样可以让高层特征得到加强。同时保证横向连接的两层特征在空间尺寸上要相同。这样做是为了利用底层的high-resolution的特性。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171011/FkFJchjLg5.png?imageslim" alt="mark"></p>
+<p>上图是构建top-down pathway的细节：</p>
+<ul>
+<li>高层feature上采样，采用最邻近上采样法(用这个方法是图简便)，spatial resolution放大2倍。处理后的feature map记为$map_{up}$</li>
+<li>底层feature经过$1×1$的卷积layer,让feature的通道数和高层的feature map相同。处理后的feature map记为$map_{down}$(论文中说的是reduce通道数，难道不是增加吗？)</li>
+<li>将$map_{up}$和$map_{down}$做像素相加(element-wise addition)，迭代直到产生finest resolution map</li>
+<li>迭代后，在每个合并的feature map上使用$3×3$卷积得到最终map。（为了减少上采样过程中混叠效应）</li>
+</ul></div>
+<h3 id="这里整Top-down-pathway的道理是啥？"><a href="#这里整Top-down-pathway的道理是啥？" class="headerlink" title="这里整Top-down pathway的道理是啥？"></a>这里整Top-down pathway的道理是啥？</h3><p>这里直接贴出作者在CVPR上的QA：</p>
+<h4 id="不同深度的-feature-map-为什么可以经过upsample后直接相加？"><a href="#不同深度的-feature-map-为什么可以经过upsample后直接相加？" class="headerlink" title="不同深度的 feature map 为什么可以经过upsample后直接相加？"></a>不同深度的 feature map 为什么可以经过upsample后直接相加？</h4><p>作者解释说这个原因在于我们做了end-to-end的 training，因为不同层的参数不是固定的，不同层同时给监督做 end-to-end training，所以相加训练出来的东西能够更有效地融合浅层和深层的信息。</p>
+<h4 id="为什么-FPN-相比去掉深层特征-upsample-bottom-up-pyramid-对于小物体检测提升明显？（RPN步骤AR从30-5到44-9，Fast-RCNN-步骤AP从24-9到33-9）"><a href="#为什么-FPN-相比去掉深层特征-upsample-bottom-up-pyramid-对于小物体检测提升明显？（RPN步骤AR从30-5到44-9，Fast-RCNN-步骤AP从24-9到33-9）" class="headerlink" title="为什么 FPN 相比去掉深层特征 upsample(bottom-up pyramid) 对于小物体检测提升明显？（RPN步骤AR从30.5到44.9，Fast RCNN 步骤AP从24.9到33.9）"></a>为什么 FPN 相比去掉深层特征 upsample(bottom-up pyramid) 对于小物体检测提升明显？（RPN步骤AR从30.5到44.9，Fast RCNN 步骤AP从24.9到33.9）</h4><p><img src="http://owv7la1di.bkt.clouddn.com/blog/171015/k1Eg1784gj.png?imageslim" alt="mark"></p>
+<p>对于小物体，一方面我们需要高分辨率的 feature map 更多关注小区域信息，另一方面，如图中的挎包一样，需要更全局的信息更准确判断挎包的存在及位置。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://blog.csdn.net/zy1034092330/article/details/72862030" target="_blank" rel="external">CNN目标检测与分割（三）：SSD详解</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/24954433" target="_blank" rel="external">晓雷-SSD</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Object-Detection/" rel="tag"># Object Detection</a>
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/SSD/" rel="tag"># SSD</a>
+          
+            <a href="/tags/FPN/" rel="tag"># FPN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/11/物体检测论文-YOLO系列/" rel="next" title="物体检测论文-YOLO系列">
+                <i class="fa fa-chevron-left"></i> 物体检测论文-YOLO系列
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/19/图像分类论文-DenseNet/" rel="prev" title="图像分类论文-DenseNet">
+                图像分类论文-DenseNet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SSD"><span class="nav-text">SSD</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSD架构"><span class="nav-text">SSD架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Default-boxes-and-aspect-ratios"><span class="nav-text">Default boxes and aspect ratios</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#训练策略"><span class="nav-text">训练策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#训练目标"><span class="nav-text">训练目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#训练样本"><span class="nav-text">训练样本</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Matching-strategy-正负样本"><span class="nav-text">Matching strategy(正负样本)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hard-negative-mining"><span class="nav-text">Hard negative mining</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Data-augmentation"><span class="nav-text">Data augmentation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#训练细节"><span class="nav-text">训练细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSD网络结构优劣分析"><span class="nav-text">SSD网络结构优劣分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FPN"><span class="nav-text">FPN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Featureized-image-pyramids"><span class="nav-text">Featureized image pyramids</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ConvNet提取feature-maps"><span class="nav-text">ConvNet提取feature maps　</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSD"><span class="nav-text">SSD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FPN思路"><span class="nav-text">FPN思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Feature-Pyramid-Networks"><span class="nav-text">Feature Pyramid Networks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bottom-up-pathway"><span class="nav-text">Bottom-up pathway</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Top-down-pathway-and-lateral-connections"><span class="nav-text">Top-down pathway and lateral  connections</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何实现Top-down-pathway？"><span class="nav-text">如何实现Top-down pathway？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#这里整Top-down-pathway的道理是啥？"><span class="nav-text">这里整Top-down pathway的道理是啥？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#不同深度的-feature-map-为什么可以经过upsample后直接相加？"><span class="nav-text">不同深度的 feature map 为什么可以经过upsample后直接相加？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么-FPN-相比去掉深层特征-upsample-bottom-up-pyramid-对于小物体检测提升明显？（RPN步骤AR从30-5到44-9，Fast-RCNN-步骤AP从24-9到33-9）"><span class="nav-text">为什么 FPN 相比去掉深层特征 upsample(bottom-up pyramid) 对于小物体检测提升明显？（RPN步骤AR从30.5到44.9，Fast RCNN 步骤AP从24.9到33.9）</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

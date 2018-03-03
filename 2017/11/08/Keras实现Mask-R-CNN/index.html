@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Object Detection,Mask R-CNN,Keras," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Mask R-CNN是ICCV2017最佳论文，依旧是Kaiming He和Rgb大神的合作。">
+<meta name="keywords" content="Object Detection,Mask R-CNN,Keras">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Keras实现Mask R-CNN">
+<meta property="og:url" content="http://hfut-fan.github.io/2017/11/08/Keras实现Mask-R-CNN/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="Mask R-CNN是ICCV2017最佳论文，依旧是Kaiming He和Rgb大神的合作。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/LcGIh32hIB.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/DLmE5kJ56k.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/Cj5E17G2Kh.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/5J742G9cG7.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/1BJ2IFEB0g.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/djfmJE0HFg.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/E4cF3J308a.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/k4LL4ADhKK.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/i10Ac9aKb8.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/hfJ6jAb3LJ.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/3b8lFi230K.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/i1l0EBadLH.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/gAaG6G6Jb3.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/hm5e5e72Lj.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/m8lFDdfFd1.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/C1H82i2LdI.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/d8hcDF332c.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/7mlijAADBH.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/C9BIGKhcB9.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/0aLLiDiE0j.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/bmgkGaBmb6.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/e0hIkbi09K.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/mieG8FKc4k.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/0Dk6GfajF2.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/d825l6E4Af.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/FF4kg3c01i.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/8bCmf18fgl.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/4497Clm5fi.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/IAlKia3aGI.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/Fcg29JDGCh.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/jaFf21JEAE.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/9mC4aD3iGA.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/C9kLI1ELck.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/km1lCIejjd.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/bIed2Fl21C.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/HhDjDdGljI.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/4dDIgL2meC.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171109/ghlAg0gK9k.png">
+<meta property="og:updated_time" content="2018-01-29T02:45:58.150Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Keras实现Mask R-CNN">
+<meta name="twitter:description" content="Mask R-CNN是ICCV2017最佳论文，依旧是Kaiming He和Rgb大神的合作。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/171108/LcGIh32hIB.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2017/11/08/Keras实现Mask-R-CNN/"/>
+
+
+
+
+
+  <title>Keras实现Mask R-CNN | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2017/11/08/Keras实现Mask-R-CNN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Keras实现Mask R-CNN</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-08T21:19:54+08:00">
+                2017-11-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Mask R-CNN是ICCV2017最佳论文，依旧是Kaiming He和Rgb大神的合作。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/LcGIh32hIB.png" alt="mark"></p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>论文地址：<a href="https://arxiv.org/abs/1703.06870" target="_blank" rel="external">Mask R-CNN</a><br>源代码：<a href="https://github.com/matterport/Mask_RCNN" target="_blank" rel="external">matterport - github</a></p>
+<p>代码源于matterport的工作组，可以在github上fork它们组的工作。</p>
+<h2 id="软件必备"><a href="#软件必备" class="headerlink" title="软件必备"></a>软件必备</h2><p>复现的Mask R-CNN是<strong>基于Python3，Keras，TensorFlow</strong>。</p>
+<ul>
+<li>Python 3.4+</li>
+<li>TensorFlow 1.3+</li>
+<li>Keras 2.0.8+</li>
+<li>Jupyter Notebook</li>
+<li>Numpy, skimage, scipy</li>
+</ul>
+<p>建议配置一个高版本的Anaconda3+TensorFlow-GPU版本。</p>
+<hr>
+<hr>
+<h1 id="Mask-R-CNN论文回顾"><a href="#Mask-R-CNN论文回顾" class="headerlink" title="Mask R-CNN论文回顾"></a>Mask R-CNN论文回顾</h1><p>Mask R-CNN(简称MRCNN)是基于R-CNN系列、FPN、FCIS等工作之上的，MRCNN的思路很简洁：Faster R-CNN针对每个候选区域有两个输出：种类标签和bbox的偏移量。那么MRCNN就在Faster R-CNN的基础上通过增加一个分支进而再增加一个输出，即物体掩膜(<code>object mask</code>)。</p>
+<p>先回顾一下Faster R-CNN， Faster R-CNN主要由两个阶段组成：区域候选网络(Region Proposal Network,RPN)和基础的Fast R-CNN模型。</p>
+<ul>
+<li>RPN用于产生候选区域<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/DLmE5kJ56k.png" alt="mark"></li>
+</ul>
+<ul>
+<li>Fast R-CNN通过RoIPool层对每个候选区域提取特征，从而实现目标分类和bbox回归<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/Cj5E17G2Kh.png" alt="mark"></li>
+</ul>
+<p>MRCNN采用和Faster R-CNN相同的两个阶段，具有相同的第一层(即RPN)，第二阶段，除了预测种类和bbox回归，并且并行的对每个RoI预测了对应的二值掩膜(<code>binary mask</code>)。示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/5J742G9cG7.png" alt="mark"></p>
+<p>这样做可以将整个任务简化为mulit-stage pipeline，解耦了多个子任务的关系，现阶段来看，这样做好处颇多。</p>
+<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a>主要工作</h2><h3 id="损失函数的定义"><a href="#损失函数的定义" class="headerlink" title="损失函数的定义"></a><strong>损失函数的定义</strong></h3><p>依旧采用的是多任务损失函数，针对每个每个RoI定义为$$L=L_{cls}+L_{box}+L_{mask}$$$L_{cls}，L_{box}$与Faster R-CNN的定义类似，这里主要看$L_{mask}$。</p>
+<p>掩膜分支针对每个RoI产生一个$Km^2$的输出，<strong>即K个分辨率为$m×m$的二值的掩膜</strong>，$K$为分类物体的种类数目。依据预测类别分支预测的类型$i$，只将第$i$的二值掩膜输出记为$L_{mask}$。<br>掩膜分支的损失计算如下示意图：</p>
+<ol>
+<li>mask branch 预测$K$个种类的$m×m$二值掩膜输出</li>
+<li>依据种类预测分支(Faster R-CNN部分)预测结果：当前RoI的物体种类为$i$</li>
+<li>第$i$个二值掩膜输出就是该RoI的损失$L_{mask}$</li>
+</ol>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/1BJ2IFEB0g.png" alt="mark"></p>
+<p>对于预测的二值掩膜输出，我们对每个像素点应用sigmoid函数，整体损失定义为平均二值交叉损失熵。<br><strong>引入预测$K$个输出的机制，允许每个类都生成独立的掩膜，避免类间竞争。这样做解耦了掩膜和种类预测</strong>。不像是FCN的方法，在每个像素点上应用softmax函数，整体采用的多任务交叉熵，这样会导致类间竞争，最终导致分割效果差。</p>
+<h3 id="掩膜表示到RoIAlign层"><a href="#掩膜表示到RoIAlign层" class="headerlink" title="掩膜表示到RoIAlign层"></a><strong>掩膜表示到RoIAlign层</strong></h3><p>在Faster R-CNN上预测物体标签或bbox偏移量是将feature map压缩到FC层最终输出vector，压缩的过程丢失了空间上(平面结构)的信息，而掩膜是对输入目标做空间上的编码，直接用卷积形式表示像素点之间的对应关系那是最好的了。</p>
+<p>输出掩膜的操作是不需要压缩输出vector，所以可以使用FCN(Full Convolutional Network)，不仅效率高，而且参数量还少。为了更好的表示出RoI输入和FCN输出的feature之间的像素对应关系，提出了RoIAlign层。</p>
+<p>先回顾一下RoIPool层：</p>
+<p>其核心思想是将不同大小的RoI输入到RoIPool层，RoIPool层将RoI量化成不同粒度的特征图（量化成一个一个bin），在此基础上使用池化操作提取特征。</p>
+<p>下图是SPPNet内对RoI的操作，在Faster R-CNN中只使用了一种粒度的特征图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/djfmJE0HFg.png" alt="mark"></p>
+<p>平面示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/E4cF3J308a.png" alt="mark"></p>
+<p>这里面存在一些问题，在上面量操作上，实际计算中是使用的是$[x/16]$，$16$的量化的步长，$[·]$是舍入操作(<code>rounding</code>)。这套量化舍入操作在提取特征时有着较好的鲁棒性(检测物体具有平移不变性等)，但是这很不利于掩膜定位，有较大负面效果。</p>
+<p>针对这个问题，提出了RoIAlign层：避免了对RoI边界或bin的量化操作，在扩展feature map时使用双线性插值算法。这里实现的架构要看FPN论文：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/k4LL4ADhKK.png" alt="mark"></p>
+<p>一开始的Faster R-CNN是基于最上层的特征映射做分割和预测的，这会丢失高分辨下的信息，直观的影响就是丢失小目标检测，对细节部分丢失不敏感。受到SSD的启发，FPN也使用了多层特征做预测。这里使用的top-down的架构，是将高层的特征反卷积带到低层的特征(即有了语义，也有精度)，而在MRCNN论文里面说的双线性差值算法就是这里的top-down反卷积是用的插值算法。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>MRCNN有着优异的效果，除去了掩膜分支的作用，很大程度上是因为基础特征网络的增强，论文使用的是ResNeXt101+FPN的top-down组合，有着极强的特征学习能力，并且在实验中夹杂这多种工程调优技巧。</p>
+<p>但是吧，MRCNN的缺点也很明显，需要大的计算能力并且速度慢，这离实际应用还是有很长的路，坐等大神们发力！</p>
+<hr>
+<hr>
+<h1 id="如何使用代码"><a href="#如何使用代码" class="headerlink" title="如何使用代码"></a>如何使用代码</h1><p>项目的源代码地址为:<a href="https://github.com/matterport/Mask_RCNN" target="_blank" rel="external">github/Mask R-CNN</a></p>
+<ol>
+<li>满足运行环境</li>
+</ol>
+<ul>
+<li>Python 3.4+</li>
+<li>TensorFlow 1.3+</li>
+<li>Keras 2.0.8+</li>
+<li>Jupyter Notebook</li>
+<li>Numpy, skimage, scipy, Pillow（安装Anaconda3直接完事）</li>
+<li>cv2</li>
+</ul>
+<ol>
+<li><p>下载代码</p>
+<ul>
+<li>linux环境下直接clone到本地<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/matterport/Mask_RCNN.git</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>Windows下下载代码即可，地址在上面</li>
+</ul>
+<ol>
+<li>下载模型在COCO数据集上预训练权重（<code>mask_rcnn_coco.h5</code>），下载地址<a href="https://github.com/matterport/Mask_RCNN/releases" target="_blank" rel="external">releasses Page</a>.</li>
+</ol>
+<ol>
+<li>如果需要在COCO数据集上训练或测试，需要安装<code>pycocotools</code>， <code>clone</code>下来，<code>make</code>生成对应的文件，拷贝下工程目录下即可(方法可参考下面repos内的<code>README.md</code>文件)。</li>
+</ol>
+<ul>
+<li>Linux: <a href="https://github.com/waleedka/coco" target="_blank" rel="external">https://github.com/waleedka/coco</a></li>
+<li>Windows: <a href="https://github.com/philferriere/cocoapi" target="_blank" rel="external">https://github.com/philferriere/cocoapi</a>. You must have the Visual C++ 2015 build tools on your path (see the repo for additional details)</li>
+</ul>
+<ol>
+<li>如果使用COCO数据集，需要：</li>
+</ol>
+<ul>
+<li>pycocotools (即第4条描述的)</li>
+<li>MS COCO Dataset。<a href="http://cocodataset.org/#home" target="_blank" rel="external">2014的训练集数据</a></li>
+<li>COCO子数据集，5K的<a href="http://download.csdn.net/download/u011974639/10108860" target="_blank" rel="external">minival</a>和35K的<a href="http://download.csdn.net/download/u011974639/10108901" target="_blank" rel="external">validation-minus-minival</a>。（这两个数据集下载比较慢，没有贴原地址，而是我的CSDN地址，分不够下载的可以私信我~）</li>
+</ul>
+<p>下面的代码分析运行环境都是jupyter。</p>
+<hr>
+<hr>
+<h1 id="代码分析-数据预处理"><a href="#代码分析-数据预处理" class="headerlink" title="代码分析-数据预处理"></a>代码分析-数据预处理</h1><p>项目源代码：<a href="https://github.com/matterport/Mask_RCNN" target="_blank" rel="external">matterport - github</a></p>
+<p> <a href="https://github.com/matterport/Mask_RCNN/blob/master/inspect_data.ipynb" target="_blank" rel="external">inspect_data.ipynb</a>展示了准备训练数据的预处理步骤.</p>
+<h2 id="导包"><a href="#导包" class="headerlink" title="导包"></a>导包</h2><p>导入的coco包需要从<a href="https://github.com/waleedka/coco/tree/master/PythonAPI" target="_blank" rel="external">coco/PythonAPI</a>上下载操作数据代码，并在本地使用<code>make</code>指令编译.将生成的<code>pycocotools</code>拷贝至工程的主目录下，即和该<code>inspect_data.ipynb</code>文件同一目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">import os</div><div class="line">import sys</div><div class="line">import itertools</div><div class="line">import math</div><div class="line">import logging</div><div class="line">import json</div><div class="line">import re</div><div class="line">import random</div><div class="line">from collections import OrderedDict</div><div class="line">import numpy as np</div><div class="line">import matplotlib</div><div class="line">import matplotlib.pyplot as plt</div><div class="line">import matplotlib.patches as patches</div><div class="line">import matplotlib.lines as lines</div><div class="line">from matplotlib.patches import Polygon</div><div class="line"></div><div class="line">import utils</div><div class="line">import visualize</div><div class="line">from visualize import display_images</div><div class="line">import model as modellib</div><div class="line">from model import log</div><div class="line"></div><div class="line">%matplotlib inline </div><div class="line"></div><div class="line">ROOT_DIR = os.getcwd()</div><div class="line"></div><div class="line"># 选择任意一个代码块 </div><div class="line"># import shapes</div><div class="line"># config = shapes.ShapesConfig()    # 使用代码创建数据集，后面会有介绍</div><div class="line"></div><div class="line"># MS COCO 数据集</div><div class="line">import coco</div><div class="line">config = coco.CocoConfig()</div><div class="line">COCO_DIR = &quot;/root/模型复现/Mask_RCNN-master/coco&quot;  # COCO数据存放位置</div></pre></td></tr></table></figure>
+<h2 id="加载数据集"><a href="#加载数据集" class="headerlink" title="加载数据集"></a>加载数据集</h2><p>COCO数据集的训练集内有82081张图片，共81类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"># 这里使用的是COCO</div><div class="line">if config.NAME == &apos;shapes&apos;:</div><div class="line">    dataset = shapes.ShapesDataset()</div><div class="line">    dataset.load_shapes(500, config.IMAGE_SHAPE[0], config.IMAGE_SHAPE[1])</div><div class="line">elif config.NAME == &quot;coco&quot;:</div><div class="line">    dataset = coco.CocoDataset()</div><div class="line">    dataset.load_coco(COCO_DIR, &quot;train&quot;)</div><div class="line"></div><div class="line"># Must call before using the dataset</div><div class="line">dataset.prepare()</div><div class="line"></div><div class="line">print(&quot;Image Count: &#123;&#125;&quot;.format(len(dataset.image_ids)))</div><div class="line">print(&quot;Class Count: &#123;&#125;&quot;.format(dataset.num_classes))</div><div class="line">for i, info in enumerate(dataset.class_info):</div><div class="line">    print(&quot;&#123;:3&#125;. &#123;:50&#125;&quot;.format(i, info[&apos;name&apos;]))</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">loading annotations into memory...</div><div class="line">Done (t=7.68s)</div><div class="line">creating index...</div><div class="line">index created!</div><div class="line">Image Count: 82081</div><div class="line">Class Count: 81</div><div class="line">  0. BG                                                </div><div class="line">  1. person                                            </div><div class="line">  2. bicycle   </div><div class="line"> ...</div><div class="line"> 77. scissors                                          </div><div class="line"> 78. teddy bear                                        </div><div class="line"> 79. hair drier                                        </div><div class="line"> 80. toothbrush</div></pre></td></tr></table></figure>
+<p>随机找几张照片看看：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 加载和展示随机几张照片和对应的mask</span></div><div class="line">image_ids = np.random.choice(dataset.image_ids, <span class="number">4</span>)</div><div class="line"><span class="keyword">for</span> image_id <span class="keyword">in</span> image_ids:</div><div class="line">    image = dataset.load_image(image_id)</div><div class="line">    mask, class_ids = dataset.load_mask(image_id)</div><div class="line">    visualize.display_top_masks(image, mask, class_ids, dataset.class_names)</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/i10Ac9aKb8.png" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/hfJ6jAb3LJ.png" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/3b8lFi230K.png" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/i1l0EBadLH.png" alt="mark"></p>
+<h2 id="Bounding-Boxes-bbox"><a href="#Bounding-Boxes-bbox" class="headerlink" title="Bounding Boxes(bbox)"></a>Bounding Boxes(bbox)</h2><p>这里我们不使用数据集本身提供的bbox坐标数据，取而代之的是<strong>通过mask计算出bbox，这样可以在不同的数据集下对bbox使用相同的处理方法</strong>。因为我们是从mask上计算bbox，相比与从图片计算bbox转换来说，更便于放缩，旋转，裁剪图像。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"># Load random image and mask.</div><div class="line">image_id = random.choice(dataset.image_ids)</div><div class="line">image = dataset.load_image(image_id)</div><div class="line">mask, class_ids = dataset.load_mask(image_id)</div><div class="line"># Compute Bounding box</div><div class="line">bbox = utils.extract_bboxes(mask)</div><div class="line"></div><div class="line"># Display image and additional stats</div><div class="line">print(&quot;image_id &quot;, image_id, dataset.image_reference(image_id))</div><div class="line">log(&quot;image&quot;, image)</div><div class="line">log(&quot;mask&quot;, mask)</div><div class="line">log(&quot;class_ids&quot;, class_ids)</div><div class="line">log(&quot;bbox&quot;, bbox)</div><div class="line"># Display image and instances</div><div class="line">visualize.display_instances(image, bbox, mask, class_ids, dataset.class_names)</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">image_id  41194 http://cocodataset.org/#explore?id=190360</div><div class="line">image                    shape: (428, 640, 3)         min:    0.00000  max:  255.00000</div><div class="line">mask                     shape: (428, 640, 5)         min:    0.00000  max:    1.00000</div><div class="line">class_ids                shape: (5,)                  min:    1.00000  max:   59.00000</div><div class="line">bbox                     shape: (5, 4)                min:    1.00000  max:  640.00000</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/gAaG6G6Jb3.png" alt="mark"></p>
+<h2 id="调整图片大小"><a href="#调整图片大小" class="headerlink" title="调整图片大小"></a>调整图片大小</h2><p>因为训练时是批量处理的，每次batch要处理多张图片，模型需要一个固定的输入大小。故将训练集的图片放缩到一个固定的大小<code>(1024×1024)</code>，放缩的过程要<strong>保持不变的宽高比，如果照片本身不是正方形，那边就在边缘填充0.(这在<a href="http://blog.csdn.net/u011974639/article/details/78053203#selective-search" target="_blank" rel="external">R-CNN论文</a>里面论证过)</strong>。</p>
+<p>需要注意的是：<strong>原图片做了放缩，对应的mask也需要放缩</strong>，因为我们的bbox是依据mask计算出来的，这样省了修改程序了~</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"># Load random image and mask.</div><div class="line">image_id = np.random.choice(dataset.image_ids, 1)[0]</div><div class="line">image = dataset.load_image(image_id)</div><div class="line">mask, class_ids = dataset.load_mask(image_id)</div><div class="line">original_shape = image.shape</div><div class="line"># 调整到固定大小</div><div class="line">image, window, scale, padding = utils.resize_image(</div><div class="line">    image, </div><div class="line">    min_dim=config.IMAGE_MIN_DIM, </div><div class="line">    max_dim=config.IMAGE_MAX_DIM,</div><div class="line">    padding=config.IMAGE_PADDING)</div><div class="line">mask = utils.resize_mask(mask, scale, padding) # mask也要放缩</div><div class="line"># Compute Bounding box</div><div class="line">bbox = utils.extract_bboxes(mask)</div><div class="line"></div><div class="line"># Display image and additional stats</div><div class="line">print(&quot;image_id: &quot;, image_id, dataset.image_reference(image_id))</div><div class="line">print(&quot;Original shape: &quot;, original_shape)</div><div class="line">log(&quot;image&quot;, image)</div><div class="line">log(&quot;mask&quot;, mask)</div><div class="line">log(&quot;class_ids&quot;, class_ids)</div><div class="line">log(&quot;bbox&quot;, bbox)</div><div class="line"># Display image and instances</div><div class="line">visualize.display_instances(image, bbox, mask, class_ids, dataset.class_names)</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">image_id:  6104 http://cocodataset.org/#explore?id=139889</div><div class="line">Original shape:  (426, 640, 3)</div><div class="line">image                    shape: (1024, 1024, 3)       min:    0.00000  max:  255.00000</div><div class="line">mask                     shape: (1024, 1024, 2)       min:    0.00000  max:    1.00000</div><div class="line">class_ids                shape: (2,)                  min:   24.00000  max:   24.00000</div><div class="line">bbox                     shape: (2, 4)                min:  169.00000  max:  917.00000</div></pre></td></tr></table></figure>
+<p>原图片从<code>(426, 640, 3)</code>放大到<code>(1024, 1024, 3)</code>,图片的上下两端都填充了0(黑色的部分)：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/hm5e5e72Lj.png" alt="mark"></p>
+<h2 id="Mini-Mask"><a href="#Mini-Mask" class="headerlink" title="Mini Mask"></a>Mini Mask</h2><p>训练高分辨率的图片时，表示每个目标的二值mask也会非常大。例如，训练一张<code>1024×1024</code>的图片，其目标物体对应的mask需要1MB的内存(用boolean变量表示单点)，如果1张图片有100个目标物体就需要100MB。讲道理，如果是五颜六色就算了，但实际上表示mask的图像矩阵上大部分都是0，很浪费空间。</p>
+<p>为了节省空间同时提升训练速度，我们优化mask的表示方式，不直接存储那么多0，而是通过存储有值坐标的相对位置来压缩表示数据的内存，原理和压缩算法差类似。</p>
+<ul>
+<li>我们<strong>存储在对象边界框内(bbox内)的mask像素</strong>，而不是存储整张图片的mask像素，大多数物体相对比于整张图片是较小的，节省存储空间是通过少存储目标周围的0实现的。</li>
+<li>将mask调整到小尺寸<code>56×56</code>，对于大尺寸的物体会丢失一些精度，但是大多数对象的注解并不是很准确，所以大多数情况下这些损失是可以忽略的。（可以在config类中设置mini mask的size。）</li>
+</ul>
+<p>说白了就是在处理数据的时候，我们先利用标注的mask信息计算出对应的bbox框，而后利用计算的bbox框反过来改变mask的表示方法，目的就是操作规范化，同时降低存储空间和计算复杂度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">image_id = np.random.choice(dataset.image_ids, <span class="number">1</span>)[<span class="number">0</span>]</div><div class="line"><span class="comment"># 使用load_image_gt方法获取bbox和mask</span></div><div class="line">image, image_meta, bbox, mask = modellib.load_image_gt(</div><div class="line">    dataset, config, image_id, use_mini_mask=<span class="keyword">False</span>)</div><div class="line"></div><div class="line">log(<span class="string">"image"</span>, image)</div><div class="line">log(<span class="string">"image_meta"</span>, image_meta)</div><div class="line">log(<span class="string">"bbox"</span>, bbox)</div><div class="line">log(<span class="string">"mask"</span>, mask)</div><div class="line"></div><div class="line">display_images([image]+[mask[:,:,i] <span class="keyword">for</span> i <span class="keyword">in</span> range(min(mask.shape[<span class="number">-1</span>], <span class="number">7</span>))])</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">image                    shape: (<span class="number">1024</span>, <span class="number">1024</span>, <span class="number">3</span>)       min:    <span class="number">0.00000</span>  max:  <span class="number">252.00000</span></div><div class="line">image_meta               shape: (<span class="number">89</span>,)                 min:    <span class="number">0.00000</span>  max: <span class="number">66849.00000</span></div><div class="line">bbox                     shape: (<span class="number">1</span>, <span class="number">5</span>)                min:   <span class="number">62.00000</span>  max:  <span class="number">987.00000</span></div><div class="line">mask                     shape: (<span class="number">1024</span>, <span class="number">1024</span>, <span class="number">1</span>)       min:    <span class="number">0.00000</span>  max:    <span class="number">1.00000</span></div></pre></td></tr></table></figure>
+<p>随机选取一张图片，可以看到图片目标相对与图片本身较小：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/m8lFDdfFd1.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">visualize.display_instances(image, bbox[:,:4], mask, bbox[:,4], dataset.class_names)</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/C1H82i2LdI.png" alt="mark"></p>
+<p>使用<code>load_image_gt</code>方法，传入<code>use_mini_mask=True</code>实现mini mask操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"># load_image_gt方法集成了mini_mask的操作</div><div class="line">image, image_meta, bbox, mask = modellib.load_image_gt(</div><div class="line">    dataset, config, image_id, augment=True, use_mini_mask=True)</div><div class="line">log(&quot;mask&quot;, mask)</div><div class="line">display_images([image]+[mask[:,:,i] for i in range(min(mask.shape[-1], 7))])</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">mask                     shape: (56, 56, 1)           min:    0.00000  max:    1.00000</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/d8hcDF332c.png" alt="mark"></p>
+<p>这里为了展现效果，将mini_mask表示方法通过<code>expand_mask</code>方法扩大到大图像下的mask，再绘制试试：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mask = utils.expand_mask(bbox, mask, image.shape)</div><div class="line">visualize.display_instances(image, bbox[:,:<span class="number">4</span>], mask, bbox[:,<span class="number">4</span>], dataset.class_names)</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/7mlijAADBH.png" alt="mark"></p>
+<p>可以看到边界是锯齿状，这也是压缩的副作用，总体来说效果还可以～</p>
+<h2 id="Anchors"><a href="#Anchors" class="headerlink" title="Anchors"></a>Anchors</h2><p>Anchors是<a href="http://blog.csdn.net/u011974639/article/details/78053203#anchors" target="_blank" rel="external">Faster R-CNN内提出的方法</a>。<br>模型在运行过程中有多层feature map，同时也会有非常多的Anchors，处理好Anchors的顺序非常重要。例如使用anchors的顺序要匹配卷积处理的顺序等规则。</p>
+<p>对于FPN网络，anchor的顺序要与卷积层的输出相匹配：</p>
+<ul>
+<li>先按金字塔等级排序，第一层的所有anchors,第二层所有anchors,etc..通过按层次可以很容易分开所有的anchors</li>
+<li>对于每个层，通过feature map处理序列来排列anchors，通常，一个卷积层处理一个feature map 是从左上角开始，向右一行一行来整</li>
+<li>对于feature map的每个cell，可为不同比例的Anchors采用随意顺序，这里我们将采用不同比例的顺序当参数传递给相应的函数</li>
+</ul>
+<p><strong>Anchor步长</strong>：在FPN架构下，前几层的feature map是高分辨率的。例如，如果输入是<code>1024×1024</code>,那么第一层的feature map大小为<code>256×256</code>，这会产生约200K的anchors(2562563),这些anchor都是<code>32×32</code>,相对于图片像素的步长为4(1024/256=4),这里面有很多重叠，如果我们能够为feature map的每个点生成独有的anchor，就会显著的降低负载，如果设置anchor的步长为2，那么anchor的数量就会下降4倍。</p>
+<p>这里我们使用的strides为<code>2</code>，这和论文不一样，在<code>Config</code>类中，我们配置了3中比例(<code>[0.5, 1, 2]</code>)的anchors，以第一层feature map举例，其大小为<code>256×256</code>,故有$\frac{feature_map^2×ratios}{stride^2}=\frac{256×256×3}{2^2}=49152$。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 生成 Anchors</span></div><div class="line">anchors = utils.generate_pyramid_anchors(config.RPN_ANCHOR_SCALES, </div><div class="line">                                          config.RPN_ANCHOR_RATIOS,</div><div class="line">                                          config.BACKBONE_SHAPES,</div><div class="line">                                          config.BACKBONE_STRIDES, </div><div class="line">                                          config.RPN_ANCHOR_STRIDE)</div><div class="line"></div><div class="line"><span class="comment"># Print summary of anchors</span></div><div class="line">print(<span class="string">"Scales: "</span>, config.RPN_ANCHOR_SCALES)</div><div class="line">print(<span class="string">"ratios: &#123;&#125;, \nAnchors_per_cell:&#123;&#125;"</span>.format(config.RPN_ANCHOR_RATIOS , len(config.RPN_ANCHOR_RATIOS)))</div><div class="line">print(<span class="string">"backbone_shapes: "</span>,config.BACKBONE_SHAPES)</div><div class="line">print(<span class="string">"backbone_strides: "</span>,config.BACKBONE_STRIDES)</div><div class="line">print(<span class="string">"rpn_anchor_stride: "</span>,config.RPN_ANCHOR_STRIDE)</div><div class="line"></div><div class="line">num_levels = len(config.BACKBONE_SHAPES)</div><div class="line">print(<span class="string">"Count: "</span>, anchors.shape[<span class="number">0</span>])</div><div class="line">print(<span class="string">"Levels: "</span>, num_levels)</div><div class="line">anchors_per_level = []</div><div class="line"><span class="keyword">for</span> l <span class="keyword">in</span> range(num_levels):</div><div class="line">    num_cells = config.BACKBONE_SHAPES[l][<span class="number">0</span>] * config.BACKBONE_SHAPES[l][<span class="number">1</span>]</div><div class="line">    anchors_per_level.append(anchors_per_cell * num_cells // config.RPN_ANCHOR_STRIDE**<span class="number">2</span>)</div><div class="line">    print(<span class="string">"Anchors in Level &#123;&#125;: &#123;&#125;"</span>.format(l, anchors_per_level[l]))</div><div class="line">    </div><div class="line">    </div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">Scales:  (<span class="number">32</span>, <span class="number">64</span>, <span class="number">128</span>, <span class="number">256</span>, <span class="number">512</span>)</div><div class="line">ratios: [<span class="number">0.5</span>, <span class="number">1</span>, <span class="number">2</span>], </div><div class="line"> anchors_per_cell:<span class="number">3</span></div><div class="line">backbone_shapes:  [[<span class="number">256</span> <span class="number">256</span>] [<span class="number">128</span> <span class="number">128</span>] [ <span class="number">64</span>  <span class="number">64</span>]  [ <span class="number">32</span>  <span class="number">32</span>]  [ <span class="number">16</span>  <span class="number">16</span>]]</div><div class="line">backbone_strides:  [<span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>, <span class="number">32</span>, <span class="number">64</span>]</div><div class="line">rpn_anchor_stride:  <span class="number">2</span></div><div class="line">Count:  <span class="number">65472</span></div><div class="line">Levels:  <span class="number">5</span></div><div class="line">Anchors <span class="keyword">in</span> Level <span class="number">0</span>: <span class="number">49152</span></div><div class="line">Anchors <span class="keyword">in</span> Level <span class="number">1</span>: <span class="number">12288</span></div><div class="line">Anchors <span class="keyword">in</span> Level <span class="number">2</span>: <span class="number">3072</span></div><div class="line">Anchors <span class="keyword">in</span> Level <span class="number">3</span>: <span class="number">768</span></div><div class="line">Anchors <span class="keyword">in</span> Level <span class="number">4</span>: <span class="number">192</span></div></pre></td></tr></table></figure>
+<p>看看位置图片中心点cell的不同层anchor表示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Load and draw random image</span></div><div class="line">image_id = np.random.choice(dataset.image_ids, <span class="number">1</span>)[<span class="number">0</span>]</div><div class="line">image, image_meta, _, _ = modellib.load_image_gt(dataset, config, image_id)</div><div class="line">fig, ax = plt.subplots(<span class="number">1</span>, figsize=(<span class="number">10</span>, <span class="number">10</span>))</div><div class="line">ax.imshow(image)</div><div class="line"></div><div class="line">levels = len(config.BACKBONE_SHAPES) <span class="comment"># 共有5层 15个anchors</span></div><div class="line"></div><div class="line"><span class="keyword">for</span> level <span class="keyword">in</span> range(levels):</div><div class="line">    colors = visualize.random_colors(levels)</div><div class="line">    <span class="comment"># Compute the index of the anchors at the center of the image</span></div><div class="line">    level_start = sum(anchors_per_level[:level]) <span class="comment"># sum of anchors of previous levels</span></div><div class="line">    level_anchors = anchors[level_start:level_start+anchors_per_level[level]]</div><div class="line">    print(<span class="string">"Level &#123;&#125;. Anchors: &#123;:6&#125;  Feature map Shape: &#123;&#125;"</span>.format(level, level_anchors.shape[<span class="number">0</span>], </div><div class="line">                                                                config.BACKBONE_SHAPES[level]))</div><div class="line">    center_cell = config.BACKBONE_SHAPES[level] // <span class="number">2</span></div><div class="line">    center_cell_index = (center_cell[<span class="number">0</span>] * config.BACKBONE_SHAPES[level][<span class="number">1</span>] + center_cell[<span class="number">1</span>])</div><div class="line">    level_center = center_cell_index * anchors_per_cell </div><div class="line">    center_anchor = anchors_per_cell * (</div><div class="line">        (center_cell[<span class="number">0</span>] * config.BACKBONE_SHAPES[level][<span class="number">1</span>] / config.RPN_ANCHOR_STRIDE**<span class="number">2</span>) \</div><div class="line">        + center_cell[<span class="number">1</span>] / config.RPN_ANCHOR_STRIDE)</div><div class="line">    level_center = int(center_anchor)</div><div class="line"></div><div class="line">    <span class="comment"># Draw anchors. Brightness show the order in the array, dark to bright.</span></div><div class="line">    <span class="keyword">for</span> i, rect <span class="keyword">in</span> enumerate(level_anchors[level_center:level_center+anchors_per_cell]):</div><div class="line">        y1, x1, y2, x2 = rect</div><div class="line">        p = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=<span class="number">2</span>, facecolor=<span class="string">'none'</span>,</div><div class="line">                              edgecolor=(i+<span class="number">1</span>)*np.array(colors[level]) / anchors_per_cell)</div><div class="line">        ax.add_patch(p)</div><div class="line"></div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">Level <span class="number">0.</span> Anchors:  <span class="number">49152</span>  Feature map Shape: [<span class="number">256</span> <span class="number">256</span>]</div><div class="line">Level <span class="number">1.</span> Anchors:  <span class="number">12288</span>  Feature map Shape: [<span class="number">128</span> <span class="number">128</span>]</div><div class="line">Level <span class="number">2.</span> Anchors:   <span class="number">3072</span>  Feature map Shape: [<span class="number">64</span> <span class="number">64</span>]</div><div class="line">Level <span class="number">3.</span> Anchors:    <span class="number">768</span>  Feature map Shape: [<span class="number">32</span> <span class="number">32</span>]</div><div class="line">Level <span class="number">4.</span> Anchors:    <span class="number">192</span>  Feature map Shape: [<span class="number">16</span> <span class="number">16</span>]</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171108/C9BIGKhcB9.png" alt="mark"></p>
+<h1 id="代码分析-在自己的数据集上训练模型"><a href="#代码分析-在自己的数据集上训练模型" class="headerlink" title="代码分析-在自己的数据集上训练模型"></a>代码分析-在自己的数据集上训练模型</h1><p>项目源代码：<a href="https://github.com/matterport/Mask_RCNN" target="_blank" rel="external">matterport - github</a></p>
+<p><a href="https://github.com/matterport/Mask_RCNN/blob/master/train_shapes.ipynb" target="_blank" rel="external">train_shapes.ipynb</a>展示了如何在自己的数据集上训练Mask R-CNN. </p>
+<p>如果想在你的个人训练集上训练模型，需要分别创建两个子类继承下面两个父类：</p>
+<ul>
+<li><code>Config</code>类，该类包含了默认的配置，子类继承该类在针对数据集定制配置。</li>
+<li><code>Dataset</code>类，该类提供了一套api，新的数据集继承该类，同时覆写相关方法即可，这样可以在不修改模型代码的情况下，使用多种数据集(包括同时使用)。</li>
+</ul>
+<p>无论是<code>Dataset</code>还是<code>Config</code>都是基类，使用是要继承并做相关定制，使用案例可参考下面的demo。</p>
+<h2 id="导包-1"><a href="#导包-1" class="headerlink" title="导包"></a>导包</h2><p>因为demo中使用的数据集是使用opencv创建出来的，故不需要另外在下载数据集了。为了保证模型运行正常，此demo依旧需要在GPU上运行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">import os</div><div class="line">import sys</div><div class="line">import random</div><div class="line">import math</div><div class="line">import re</div><div class="line">import time</div><div class="line">import numpy as np</div><div class="line">import cv2</div><div class="line">import matplotlib</div><div class="line">import matplotlib.pyplot as plt</div><div class="line"></div><div class="line">from config import Config</div><div class="line">import utils</div><div class="line">import model as modellib</div><div class="line">import visualize</div><div class="line">from model import log</div><div class="line"></div><div class="line">%matplotlib inline </div><div class="line"></div><div class="line">ROOT_DIR = os.getcwd()  # Root directory of the project</div><div class="line">MODEL_DIR = os.path.join(ROOT_DIR, &quot;logs&quot;) # Directory to save logs and trained model</div><div class="line">COCO_MODEL_PATH = os.path.join(ROOT_DIR, &quot;mask_rcnn_coco.h5&quot;) # Path to COCO trained weights</div></pre></td></tr></table></figure>
+<h2 id="构建个人数据集"><a href="#构建个人数据集" class="headerlink" title="构建个人数据集"></a>构建个人数据集</h2><p>这里直接使用opencv创建一个数据集，数据集是由画布和简单的几何形状(三角形，正方形，圆形)组成。</p>
+<p>构造的数据集需要继承<code>utils.Dataset</code>类，使用<code>load_shapes()</code>方法向外提供加载数据的方法，并需要重写下面的方法：</p>
+<ul>
+<li>load_image()</li>
+<li>load_mask()</li>
+<li>image_reference()</li>
+</ul>
+<p>构造数据集的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div></pre></td><td class="code"><pre><div class="line">class ShapesDataset(utils.Dataset):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    生成一个数据集，数据集由简单的(三角形，正方形，圆形)放置在空白画布的图片组成。</div><div class="line">    &quot;&quot;&quot;</div><div class="line"></div><div class="line">    def load_shapes(self, count, height, width):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        产生对应数目的固定大小图片</div><div class="line">        count: 生成数据的数量</div><div class="line">        height, width: 产生图片的大小</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        # 添加种类信息</div><div class="line">        self.add_class(&quot;shapes&quot;, 1, &quot;square&quot;)</div><div class="line">        self.add_class(&quot;shapes&quot;, 2, &quot;circle&quot;)</div><div class="line">        self.add_class(&quot;shapes&quot;, 3, &quot;triangle&quot;)</div><div class="line"></div><div class="line">        # 生成随机规格形状，每张图片依据image_id指定</div><div class="line">        for i in range(count):</div><div class="line">            bg_color, shapes = self.random_image(height, width)</div><div class="line">            self.add_image(&quot;shapes&quot;, image_id=i, path=None,</div><div class="line">                           width=width, height=height,</div><div class="line">                           bg_color=bg_color, shapes=shapes)</div><div class="line"></div><div class="line">    def load_image(self, image_id):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        依据给定的iamge_id产生对应图片。</div><div class="line">        通常这个函数是读取文件的，这里我们是依据image_id到image_info里面查找信息，再生成图片</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        info = self.image_info[image_id]</div><div class="line">        bg_color = np.array(info[&apos;bg_color&apos;]).reshape([1, 1, 3])</div><div class="line">        image = np.ones([info[&apos;height&apos;], info[&apos;width&apos;], 3], dtype=np.uint8)</div><div class="line">        image = image * bg_color.astype(np.uint8)</div><div class="line">        for shape, color, dims in info[&apos;shapes&apos;]:</div><div class="line">            image = self.draw_shape(image, shape, dims, color)</div><div class="line">        return image</div><div class="line"></div><div class="line">    def image_reference(self, image_id):</div><div class="line">        &quot;&quot;&quot;Return the shapes data of the image.&quot;&quot;&quot;</div><div class="line">        info = self.image_info[image_id]</div><div class="line">        if info[&quot;source&quot;] == &quot;shapes&quot;:</div><div class="line">            return info[&quot;shapes&quot;]</div><div class="line">        else:</div><div class="line">            super(self.__class__).image_reference(self, image_id)</div><div class="line"></div><div class="line">    def load_mask(self, image_id):</div><div class="line">        &quot;&quot;&quot;依据给定的image_id产生相应的规格形状的掩膜&quot;&quot;&quot;</div><div class="line">        info = self.image_info[image_id]</div><div class="line">        shapes = info[&apos;shapes&apos;]</div><div class="line">        count = len(shapes)</div><div class="line">        mask = np.zeros([info[&apos;height&apos;], info[&apos;width&apos;], count], dtype=np.uint8)</div><div class="line">        for i, (shape, _, dims) in enumerate(info[&apos;shapes&apos;]):</div><div class="line">            mask[:, :, i:i+1] = self.draw_shape(mask[:, :, i:i+1].copy(),</div><div class="line">                                                shape, dims, 1)</div><div class="line">        # Handle occlusions</div><div class="line">        occlusion = np.logical_not(mask[:, :, -1]).astype(np.uint8)</div><div class="line">        for i in range(count-2, -1, -1):</div><div class="line">            mask[:, :, i] = mask[:, :, i] * occlusion</div><div class="line">            occlusion = np.logical_and(occlusion, np.logical_not(mask[:, :, i]))</div><div class="line">        # Map class names to class IDs.</div><div class="line">        class_ids = np.array([self.class_names.index(s[0]) for s in shapes])</div><div class="line">        return mask, class_ids.astype(np.int32)</div><div class="line"></div><div class="line">    def draw_shape(self, image, shape, dims, color):</div><div class="line">        &quot;&quot;&quot;绘制给定的形状.&quot;&quot;&quot;</div><div class="line">        # Get the center x, y and the size s</div><div class="line">        x, y, s = dims</div><div class="line">        if shape == &apos;square&apos;:</div><div class="line">            image = cv2.rectangle(image, (x-s, y-s), (x+s, y+s), color, -1)</div><div class="line">        elif shape == &quot;circle&quot;:</div><div class="line">            image = cv2.circle(image, (x, y), s, color, -1)</div><div class="line">        elif shape == &quot;triangle&quot;:</div><div class="line">            points = np.array([[(x, y-s),</div><div class="line">                                (x-s/math.sin(math.radians(60)), y+s),</div><div class="line">                                (x+s/math.sin(math.radians(60)), y+s),</div><div class="line">                                ]], dtype=np.int32)</div><div class="line">            image = cv2.fillPoly(image, points, color)</div><div class="line">        return image</div><div class="line"></div><div class="line">    def random_shape(self, height, width):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        依据给定的长宽边界生成随机形状</div><div class="line">        </div><div class="line">        返回一个有三个值的元组：</div><div class="line">        * shape: 形状名称(square, circle, ...)</div><div class="line">        * color: 形状颜色(a tuple of 3 values, RGB.)</div><div class="line">        * dimensions: 随机形状的中心位置和大小(center_x,center_y,size)</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        # Shape</div><div class="line">        shape = random.choice([&quot;square&quot;, &quot;circle&quot;, &quot;triangle&quot;])</div><div class="line">        # Color</div><div class="line">        color = tuple([random.randint(0, 255) for _ in range(3)])</div><div class="line">        # Center x, y</div><div class="line">        buffer = 20</div><div class="line">        y = random.randint(buffer, height - buffer - 1)</div><div class="line">        x = random.randint(buffer, width - buffer - 1)</div><div class="line">        # Size</div><div class="line">        s = random.randint(buffer, height//4)</div><div class="line">        return shape, color, (x, y, s)</div><div class="line"></div><div class="line">    def random_image(self, height, width):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        产生有多种形状的随机规格的图片</div><div class="line">        返回背景色 和 可以用于绘制图片的形状规格列表</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        # 随机生成三个通道颜色</div><div class="line">        bg_color = np.array([random.randint(0, 255) for _ in range(3)])</div><div class="line">        # 生成一些随机形状并记录它们的bbox</div><div class="line">        shapes = []</div><div class="line">        boxes = []</div><div class="line">        N = random.randint(1, 4)</div><div class="line">        for _ in range(N):</div><div class="line">            shape, color, dims = self.random_shape(height, width)</div><div class="line">            shapes.append((shape, color, dims))</div><div class="line">            x, y, s = dims</div><div class="line">            boxes.append([y-s, x-s, y+s, x+s])</div><div class="line">        # 使用非极大值抑制避免各种形状之间覆盖  阈值为:0.3</div><div class="line">        keep_ixs = utils.non_max_suppression(np.array(boxes), np.arange(N), 0.3)</div><div class="line">        shapes = [s for i, s in enumerate(shapes) if i in keep_ixs]</div><div class="line">        return bg_color, shapes</div></pre></td></tr></table></figure>
+<p>用上面的数据类构造一组数据，看看：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 构建训练集，大小为500</span></div><div class="line">dataset_train = ShapesDataset()</div><div class="line">dataset_train.load_shapes(<span class="number">500</span>, config.IMAGE_SHAPE[<span class="number">0</span>], config.IMAGE_SHAPE[<span class="number">1</span>])</div><div class="line">dataset_train.prepare()</div><div class="line"></div><div class="line"><span class="comment"># 构建验证集，大小为50</span></div><div class="line">dataset_val = ShapesDataset()</div><div class="line">dataset_val.load_shapes(<span class="number">50</span>, config.IMAGE_SHAPE[<span class="number">0</span>], config.IMAGE_SHAPE[<span class="number">1</span>])</div><div class="line">dataset_val.prepare()</div><div class="line"></div><div class="line"><span class="comment"># 随机选取4个样本</span></div><div class="line">image_ids = np.random.choice(dataset_train.image_ids, <span class="number">4</span>)  </div><div class="line"></div><div class="line"><span class="keyword">for</span> image_id <span class="keyword">in</span> image_ids:</div><div class="line">    image = dataset_train.load_image(image_id)</div><div class="line">    mask, class_ids = dataset_train.load_mask(image_id)</div><div class="line">    visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/0aLLiDiE0j.png" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/bmgkGaBmb6.png" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/e0hIkbi09K.png" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/mieG8FKc4k.png" alt="mark"></p>
+<p>为上面构造的数据集配置一个对应的<code>ShapesConfig</code>类，该类的作用统一模型配置参数。该类需要继承<code>Config</code>类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div></pre></td><td class="code"><pre><div class="line">class ShapesConfig(Config):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    为数据集添加训练配置</div><div class="line">    继承基类Config</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    NAME = &quot;shapes&quot; # 该配置类的识别符</div><div class="line"></div><div class="line">    #Batch size is 8 (GPUs * images/GPU).</div><div class="line">    GPU_COUNT = 1 # GPU数量</div><div class="line">    IMAGES_PER_GPU = 8 # 单GPU上处理图片数(这里我们构造的数据集图片小，可以多处理几张) </div><div class="line"></div><div class="line">    # 分类种类数目 (包括背景)</div><div class="line">    NUM_CLASSES = 1 + 3  # background + 3 shapes</div><div class="line"></div><div class="line">    # 使用小图片可以更快的训练</div><div class="line">    IMAGE_MIN_DIM = 128 # 图片的小边长</div><div class="line">    IMAGE_MAX_DIM = 128 # 图片的大边长</div><div class="line"></div><div class="line">    # 使用小的anchors，因为数据图片和目标都小</div><div class="line">    RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)  # anchor side in pixels</div><div class="line"></div><div class="line">    # 减少训练每张图片上的ROIs，因为图片很小且目标很少，</div><div class="line">    # Aim to allow ROI sampling to pick 33% positive ROIs.</div><div class="line">    TRAIN_ROIS_PER_IMAGE = 32</div><div class="line"></div><div class="line">    STEPS_PER_EPOCH = 100     # 因为数据简单，使用小的epoch</div><div class="line"></div><div class="line">    VALIDATION_STPES = 5    # 因为epoch较小，使用小的交叉验证步数</div><div class="line">    </div><div class="line">config = ShapesConfig()</div><div class="line">config.print()</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line"></div><div class="line">Configurations:</div><div class="line">BACKBONE_SHAPES                [[32 32]</div><div class="line"> [16 16]</div><div class="line"> [ 8  8]</div><div class="line"> [ 4  4]</div><div class="line"> [ 2  2]]</div><div class="line">BACKBONE_STRIDES               [4, 8, 16, 32, 64]</div><div class="line">BATCH_SIZE                     8</div><div class="line">BBOX_STD_DEV                   [ 0.1  0.1  0.2  0.2]</div><div class="line">DETECTION_MAX_INSTANCES        100</div><div class="line">DETECTION_MIN_CONFIDENCE       0.7</div><div class="line">DETECTION_NMS_THRESHOLD        0.3</div><div class="line">GPU_COUNT                      1</div><div class="line">IMAGES_PER_GPU                 8</div><div class="line">IMAGE_MAX_DIM                  128</div><div class="line">IMAGE_MIN_DIM                  128</div><div class="line">IMAGE_PADDING                  True</div><div class="line">IMAGE_SHAPE                    [128 128   3]</div><div class="line">LEARNING_MOMENTUM              0.9</div><div class="line">LEARNING_RATE                  0.002</div><div class="line">MASK_POOL_SIZE                 14</div><div class="line">MASK_SHAPE                     [28, 28]</div><div class="line">MAX_GT_INSTANCES               100</div><div class="line">MEAN_PIXEL                     [ 123.7  116.8  103.9]</div><div class="line">MINI_MASK_SHAPE                (56, 56)</div><div class="line">NAME                           shapes</div><div class="line">NUM_CLASSES                    4</div><div class="line">POOL_SIZE                      7</div><div class="line">POST_NMS_ROIS_INFERENCE        1000</div><div class="line">POST_NMS_ROIS_TRAINING         2000</div><div class="line">ROI_POSITIVE_RATIO             0.33</div><div class="line">RPN_ANCHOR_RATIOS              [0.5, 1, 2]</div><div class="line">RPN_ANCHOR_SCALES              (8, 16, 32, 64, 128)</div><div class="line">RPN_ANCHOR_STRIDE              2</div><div class="line">RPN_BBOX_STD_DEV               [ 0.1  0.1  0.2  0.2]</div><div class="line">RPN_TRAIN_ANCHORS_PER_IMAGE    256</div><div class="line">STEPS_PER_EPOCH                100</div><div class="line">TRAIN_ROIS_PER_IMAGE           32</div><div class="line">USE_MINI_MASK                  True</div><div class="line">USE_RPN_ROIS                   True</div><div class="line">VALIDATION_STPES               5</div><div class="line">WEIGHT_DECAY                   0.0001</div></pre></td></tr></table></figure>
+<h2 id="加载模型并训练"><a href="#加载模型并训练" class="headerlink" title="加载模型并训练"></a>加载模型并训练</h2><p>上面配置好了个人数据集和对应的Config了，下面加载预训练模型：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"># 模型有两种模式: training inference</div><div class="line"># 创建模型并设置training模式</div><div class="line">model = modellib.MaskRCNN(mode=&quot;training&quot;, config=config,</div><div class="line">                          model_dir=MODEL_DIR)</div><div class="line"></div><div class="line"># 选择权重类型，这里我们的预训练权重是COCO的</div><div class="line">init_with = &quot;coco&quot;  # imagenet, coco, or last</div><div class="line"></div><div class="line">if init_with == &quot;imagenet&quot;:</div><div class="line">    model.load_weights(model.get_imagenet_weights(), by_name=True)</div><div class="line">elif init_with == &quot;coco&quot;:</div><div class="line">    # 载入在MS COCO上的预训练模型,跳过不一样的分类数目层</div><div class="line">    model.load_weights(COCO_MODEL_PATH, by_name=True,</div><div class="line">                       exclude=[&quot;mrcnn_class_logits&quot;, &quot;mrcnn_bbox_fc&quot;, </div><div class="line">                                &quot;mrcnn_bbox&quot;, &quot;mrcnn_mask&quot;])</div><div class="line">elif init_with == &quot;last&quot;:</div><div class="line">    # 载入你最后训练的模型，继续训练</div><div class="line">    model.load_weights(model.find_last()[1], by_name=True)</div></pre></td></tr></table></figure>
+<h3 id="训练模型"><a href="#训练模型" class="headerlink" title="训练模型"></a>训练模型</h3><p>我们前面基础层是加载预训练模型的，在预训练模型的基础上再训练，分为两步：</p>
+<ul>
+<li>只训练head部分，为了不破坏基础层的提取能力，我们<strong>冻结所有backbone layers</strong>,只训练随机初始化的层，为了达成只训练head部分，训练时需要向<code>train()</code>方法传入<code>layers=&#39;heads&#39;</code>参数。</li>
+<li>Fine-tune所有层，上面训练了一会head部分，为了更好的适配新的数据集，需要fine-tune，使用<code>layers=&#39;all&#39;</code>参数。</li>
+</ul>
+<p>这两个步骤也是做迁移学习的必备套路了~</p>
+<p><strong>1. 训练head部分</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment"># 通过传入参数layers="heads" 冻结处理head部分的所有层。可以通过传入一个正则表达式选择要训练的层</span></div><div class="line">model.train(dataset_train, dataset_val, </div><div class="line">            learning_rate=config.LEARNING_RATE, </div><div class="line">            epochs=<span class="number">1</span>, </div><div class="line">            layers=<span class="string">'heads'</span>)</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">Starting at epoch <span class="number">0.</span> LR=<span class="number">0.002</span></div><div class="line"></div><div class="line">Checkpoint Path: /root/Mask_RCNNmaster/logs/shapes20171103T2047/mask_rcnn_shapes_&#123;epoch:<span class="number">04</span>d&#125;.h5</div><div class="line">Selecting layers to train</div><div class="line">fpn_c5p5               (Conv2D)</div><div class="line">fpn_c4p4               (Conv2D)</div><div class="line">fpn_c3p3               (Conv2D)</div><div class="line">fpn_c2p2               (Conv2D)</div><div class="line">fpn_p5                 (Conv2D)</div><div class="line">fpn_p2                 (Conv2D)</div><div class="line">fpn_p3                 (Conv2D)</div><div class="line">fpn_p4                 (Conv2D)</div><div class="line">In model:  rpn_model</div><div class="line">    rpn_conv_shared        (Conv2D)</div><div class="line">    rpn_class_raw          (Conv2D)</div><div class="line">    rpn_bbox_pred          (Conv2D)</div><div class="line">mrcnn_mask_conv1       (TimeDistributed)</div><div class="line">...</div><div class="line">mrcnn_mask_conv4       (TimeDistributed)</div><div class="line">mrcnn_mask_bn4         (TimeDistributed)</div><div class="line">mrcnn_bbox_fc          (TimeDistributed)</div><div class="line">mrcnn_mask_deconv      (TimeDistributed)</div><div class="line">mrcnn_class_logits     (TimeDistributed)</div><div class="line">mrcnn_mask             (TimeDistributed)</div><div class="line"></div><div class="line">Epoch <span class="number">1</span>/<span class="number">1</span></div><div class="line"><span class="number">100</span>/<span class="number">100</span> [==============================] - <span class="number">37</span>s <span class="number">371</span>ms/step - loss: <span class="number">2.5472</span> - rpn_class_loss: <span class="number">0.0244</span> - rpn_bbox_loss: <span class="number">1.1118</span> - mrcnn_class_loss: <span class="number">0.3692</span> - mrcnn_bbox_loss: <span class="number">0.3783</span> - mrcnn_mask_loss: <span class="number">0.3223</span> - val_loss: <span class="number">1.7634</span> - val_rpn_class_loss: <span class="number">0.0143</span> - val_rpn_bbox_loss: <span class="number">0.9989</span> - val_mrcnn_class_loss: <span class="number">0.1673</span> - val_mrcnn_bbox_loss: <span class="number">0.0857</span> - val_mrcnn_mask_loss: <span class="number">0.1559</span></div></pre></td></tr></table></figure>
+<p><strong>2. Fine tune 所有层</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"># 通过传入参数layers=&quot;all&quot;所有层</div><div class="line">model.train(dataset_train, dataset_val, </div><div class="line">            learning_rate=config.LEARNING_RATE / 10,</div><div class="line">            epochs=2, </div><div class="line">            layers=&quot;all&quot;)</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line"></div><div class="line">Starting at epoch 1. LR=0.0002</div><div class="line"></div><div class="line">Checkpoint Path: /root/Mask_RCNN-master/logs/shapes20171103T2047/mask_rcnn_shapes_&#123;epoch:04d&#125;.h5</div><div class="line">Selecting layers to train</div><div class="line">conv1                  (Conv2D)</div><div class="line">bn_conv1               (BatchNorm)</div><div class="line">res2a_branch2a         (Conv2D)</div><div class="line">bn2a_branch2a          (BatchNorm)</div><div class="line">res2a_branch2b         (Conv2D)</div><div class="line">...</div><div class="line">...</div><div class="line">res5c_branch2c         (Conv2D)</div><div class="line">bn5c_branch2c          (BatchNorm)</div><div class="line">fpn_c5p5               (Conv2D)</div><div class="line">fpn_c4p4               (Conv2D)</div><div class="line">fpn_c3p3               (Conv2D)</div><div class="line">fpn_c2p2               (Conv2D)</div><div class="line">fpn_p5                 (Conv2D)</div><div class="line">fpn_p2                 (Conv2D)</div><div class="line">fpn_p3                 (Conv2D)</div><div class="line">fpn_p4                 (Conv2D)</div><div class="line">In model:  rpn_model</div><div class="line">    rpn_conv_shared        (Conv2D)</div><div class="line">    rpn_class_raw          (Conv2D)</div><div class="line">    rpn_bbox_pred          (Conv2D)</div><div class="line">mrcnn_mask_conv1       (TimeDistributed)</div><div class="line">mrcnn_mask_bn1         (TimeDistributed)</div><div class="line">mrcnn_mask_conv2       (TimeDistributed)</div><div class="line">mrcnn_class_conv1      (TimeDistributed)</div><div class="line">mrcnn_mask_bn2         (TimeDistributed)</div><div class="line">mrcnn_class_bn1        (TimeDistributed)</div><div class="line">mrcnn_mask_conv3       (TimeDistributed)</div><div class="line">mrcnn_mask_bn3         (TimeDistributed)</div><div class="line">mrcnn_class_conv2      (TimeDistributed)</div><div class="line">mrcnn_class_bn2        (TimeDistributed)</div><div class="line">mrcnn_mask_conv4       (TimeDistributed)</div><div class="line">mrcnn_mask_bn4         (TimeDistributed)</div><div class="line">mrcnn_bbox_fc          (TimeDistributed)</div><div class="line">mrcnn_mask_deconv      (TimeDistributed)</div><div class="line">mrcnn_class_logits     (TimeDistributed)</div><div class="line">mrcnn_mask             (TimeDistributed)</div><div class="line"></div><div class="line">Epoch 2/2</div><div class="line">100/100 [==============================] - 38s 381ms/step - loss: 11.4351 - rpn_class_loss: 0.0190 - rpn_bbox_loss: 0.9108 - mrcnn_class_loss: 0.2085 - mrcnn_bbox_loss: 0.1606 - mrcnn_mask_loss: 0.2198 - val_loss: 11.2957 - val_rpn_class_loss: 0.0173 - val_rpn_bbox_loss: 0.8740 - val_mrcnn_class_loss: 0.1590 - val_mrcnn_bbox_loss: 0.0997 - val_mrcnn_mask_loss: 0.2296</div></pre></td></tr></table></figure></p>
+<h2 id="模型预测"><a href="#模型预测" class="headerlink" title="模型预测"></a>模型预测</h2><p>模型预测也需要配置一个类<code>InferenceConfig</code>类，大部分配置和train相同：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">InferenceConfig</span><span class="params">(ShapesConfig)</span>:</span></div><div class="line">    GPU_COUNT = <span class="number">1</span></div><div class="line">    IMAGES_PER_GPU = <span class="number">1</span></div><div class="line"></div><div class="line">inference_config = InferenceConfig()</div><div class="line"></div><div class="line"><span class="comment"># 重新创建模型设置为inference模式</span></div><div class="line">model = modellib.MaskRCNN(mode=<span class="string">"inference"</span>, </div><div class="line">                          config=inference_config,</div><div class="line">                          model_dir=MODEL_DIR)</div><div class="line"></div><div class="line"><span class="comment"># 获取保存的权重，或者手动指定目录位置</span></div><div class="line"><span class="comment"># model_path = os.path.join(ROOT_DIR, ".h5 file name here")</span></div><div class="line">model_path = model.find_last()[<span class="number">1</span>]</div><div class="line"></div><div class="line"><span class="comment"># 加载权重</span></div><div class="line"><span class="keyword">assert</span> model_path != <span class="string">""</span>, <span class="string">"Provide path to trained weights"</span></div><div class="line">print(<span class="string">"Loading weights from "</span>, model_path)</div><div class="line">model.load_weights(model_path, by_name=<span class="keyword">True</span>)</div><div class="line"></div><div class="line"><span class="comment"># 测试随机图片</span></div><div class="line">image_id = random.choice(dataset_val.image_ids)</div><div class="line">original_image, image_meta, gt_bbox, gt_mask =\</div><div class="line">    modellib.load_image_gt(dataset_val, inference_config, </div><div class="line">                           image_id, use_mini_mask=<span class="keyword">False</span>)</div><div class="line"></div><div class="line">log(<span class="string">"original_image"</span>, original_image)</div><div class="line">log(<span class="string">"image_meta"</span>, image_meta)</div><div class="line">log(<span class="string">"gt_bbox"</span>, gt_bbox)</div><div class="line">log(<span class="string">"gt_mask"</span>, gt_mask)</div><div class="line"></div><div class="line">visualize.display_instances(original_image, gt_bbox[:,:<span class="number">4</span>], gt_mask, gt_bbox[:,<span class="number">4</span>], </div><div class="line">                            dataset_train.class_names, figsize=(<span class="number">8</span>, <span class="number">8</span>))</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">original_image           shape: (<span class="number">128</span>, <span class="number">128</span>, <span class="number">3</span>)         min:   <span class="number">18.00000</span>  max:  <span class="number">231.00000</span></div><div class="line">image_meta               shape: (<span class="number">12</span>,)                 min:    <span class="number">0.00000</span>  max:  <span class="number">128.00000</span></div><div class="line">gt_bbox                  shape: (<span class="number">2</span>, <span class="number">5</span>)                min:    <span class="number">1.00000</span>  max:  <span class="number">115.00000</span></div><div class="line">gt_mask                  shape: (<span class="number">128</span>, <span class="number">128</span>, <span class="number">2</span>)         min:    <span class="number">0.00000</span>  max:    <span class="number">1.00000</span></div></pre></td></tr></table></figure>
+<p>随机几张验证集图片看看:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/0Dk6GfajF2.png" alt="mark"></p>
+<p>使用模型预测：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">def get_ax(rows=1, cols=1, size=8):</div><div class="line">    &quot;&quot;&quot;返回Matplotlib Axes数组用于可视化.提供中心点控制图形大小&quot;&quot;&quot;</div><div class="line">    _, ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))</div><div class="line">    return ax</div><div class="line"></div><div class="line">results = model.detect([original_image], verbose=1) # 预测</div><div class="line"></div><div class="line">r = results[0]</div><div class="line">visualize.display_instances(original_image, r[&apos;rois&apos;], r[&apos;masks&apos;], r[&apos;class_ids&apos;], </div><div class="line">                            dataset_val.class_names, r[&apos;scores&apos;], ax=get_ax())</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">Processing 1 images</div><div class="line">image                    shape: (128, 128, 3)         min:   18.00000  max:  231.00000</div><div class="line">molded_images            shape: (1, 128, 128, 3)      min:  -98.80000  max:  127.10000</div><div class="line">image_metas              shape: (1, 12)               min:    0.00000  max:  128.00000</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/d825l6E4Af.png" alt="mark"></p>
+<p><strong>计算ap值：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Compute VOC-Style mAP @ IoU=0.5</span></div><div class="line"><span class="comment"># Running on 10 images. Increase for better accuracy.</span></div><div class="line">image_ids = np.random.choice(dataset_val.image_ids, <span class="number">10</span>)</div><div class="line">APs = []</div><div class="line"><span class="keyword">for</span> image_id <span class="keyword">in</span> image_ids:</div><div class="line">    <span class="comment"># 加载数据</span></div><div class="line">    image, image_meta, gt_bbox, gt_mask =\</div><div class="line">        modellib.load_image_gt(dataset_val, inference_config,</div><div class="line">                               image_id, use_mini_mask=<span class="keyword">False</span>)</div><div class="line">    molded_images = np.expand_dims(modellib.mold_image(image, inference_config), <span class="number">0</span>)</div><div class="line">    <span class="comment"># Run object detection</span></div><div class="line">    results = model.detect([image], verbose=<span class="number">0</span>)</div><div class="line">    r = results[<span class="number">0</span>]</div><div class="line">    <span class="comment"># Compute AP</span></div><div class="line">    AP, precisions, recalls, overlaps =\</div><div class="line">        utils.compute_ap(gt_bbox[:,:<span class="number">4</span>], gt_bbox[:,<span class="number">4</span>],</div><div class="line">                         r[<span class="string">"rois"</span>], r[<span class="string">"class_ids"</span>], r[<span class="string">"scores"</span>])</div><div class="line">    APs.append(AP)</div><div class="line">    </div><div class="line">print(<span class="string">"mAP: "</span>, np.mean(APs))</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">mAP:  <span class="number">0.9</span></div></pre></td></tr></table></figure>
+<hr>
+<hr>
+<h1 id="代码分析-Mask-R-CNN-模型分析"><a href="#代码分析-Mask-R-CNN-模型分析" class="headerlink" title="代码分析-Mask R-CNN 模型分析"></a>代码分析-Mask R-CNN 模型分析</h1><p>测试，调试和评估Mask R-CNN模型。</p>
+<h2 id="导包-2"><a href="#导包-2" class="headerlink" title="导包"></a>导包</h2><p>这里会用到自定义的COCO子数据集，5K的<a href="http://download.csdn.net/download/u011974639/10108860" target="_blank" rel="external">minival</a>和35K的<a href="http://download.csdn.net/download/u011974639/10108901" target="_blank" rel="external">validation-minus-minival</a>。（这两个数据集下载比较慢，没有贴原地址，而是我的CSDN地址，分不够下载的可以私信我~）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div></pre></td><td class="code"><pre><div class="line">import os</div><div class="line">import sys</div><div class="line">import random</div><div class="line">import math</div><div class="line">import re</div><div class="line">import time</div><div class="line">import numpy as np</div><div class="line">import scipy.misc</div><div class="line">import tensorflow as tf</div><div class="line">import matplotlib</div><div class="line">import matplotlib.pyplot as plt</div><div class="line">import matplotlib.patches as patches</div><div class="line"></div><div class="line">import utils</div><div class="line">import visualize</div><div class="line">from visualize import display_images</div><div class="line">import model as modellib</div><div class="line">from model import log</div><div class="line"></div><div class="line">%matplotlib inline </div><div class="line"></div><div class="line">ROOT_DIR = os.getcwd()  # Root directory of the project</div><div class="line">MODEL_DIR = os.path.join(ROOT_DIR, &quot;logs&quot;) # Directory to save logs and trained model</div><div class="line">COCO_MODEL_PATH = os.path.join(ROOT_DIR, &quot;coco/mask_rcnn_coco.h5&quot;)  # Path to trained weights file</div><div class="line">SHAPES_MODEL_PATH = os.path.join(ROOT_DIR, &quot;log/shapes20171103T2047/mask_rcnn_shapes_0002.h5&quot;) # Path to Shapes trained weights</div><div class="line"></div><div class="line"># Shapes toy dataset</div><div class="line"># import shapes</div><div class="line"># config = shapes.ShapesConfig()</div><div class="line"></div><div class="line"># MS COCO Dataset</div><div class="line">import coco</div><div class="line">config = coco.CocoConfig()</div><div class="line">COCO_DIR = os.path.join(ROOT_DIR, &quot;coco&quot;)  # TODO: enter value here</div><div class="line"></div><div class="line">def get_ax(rows=1, cols=1, size=16):</div><div class="line">    &quot;&quot;&quot;控制绘图大小&quot;&quot;&quot;</div><div class="line">    _, ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))</div><div class="line">    return ax</div><div class="line"></div><div class="line"># 创建一个预测配置类InferenceConfig，用于测试预训练模型</div><div class="line">class InferenceConfig(config.__class__):</div><div class="line">    # Run detection on one image at a time</div><div class="line">    GPU_COUNT = 1</div><div class="line">    IMAGES_PER_GPU = 1</div><div class="line"></div><div class="line">config = InferenceConfig()</div><div class="line">DEVICE = &quot;/cpu:0&quot;  # /cpu:0 or /gpu:0</div><div class="line">TEST_MODE = &quot;inference&quot; # values: &apos;inference&apos; or &apos;training&apos;</div><div class="line"></div><div class="line"># 加载验证集 </div><div class="line">if config.NAME == &apos;shapes&apos;:</div><div class="line">    dataset = shapes.ShapesDataset()</div><div class="line">    dataset.load_shapes(500, config.IMAGE_SHAPE[0], config.IMAGE_SHAPE[1])</div><div class="line">elif config.NAME == &quot;coco&quot;:</div><div class="line">    dataset = coco.CocoDataset()</div><div class="line">    dataset.load_coco(COCO_DIR, &quot;minival&quot;)</div><div class="line"></div><div class="line"># Must call before using the dataset</div><div class="line">dataset.prepare()</div><div class="line"></div><div class="line"># 创建模型并设置inference mode</div><div class="line">with tf.device(DEVICE):</div><div class="line">    model = modellib.MaskRCNN(mode=&quot;inference&quot;, model_dir=MODEL_DIR,</div><div class="line">                              config=config)</div><div class="line"></div><div class="line"># Set weights file path</div><div class="line">if config.NAME == &quot;shapes&quot;:</div><div class="line">    weights_path = SHAPES_MODEL_PATH</div><div class="line">elif config.NAME == &quot;coco&quot;:</div><div class="line">    weights_path = COCO_MODEL_PATH</div><div class="line"># Or, uncomment to load the last model you trained</div><div class="line"># weights_path = model.find_last()[1]</div><div class="line"></div><div class="line"># Load weights</div><div class="line">print(&quot;Loading weights &quot;, weights_path)</div><div class="line">model.load_weights(weights_path, by_name=True)</div><div class="line"></div><div class="line"></div><div class="line">image_id = random.choice(dataset.image_ids)</div><div class="line">image, image_meta, gt_bbox, gt_mask =\</div><div class="line">    modellib.load_image_gt(dataset, config, image_id, use_mini_mask=False)</div><div class="line">info = dataset.image_info[image_id]</div><div class="line">print(&quot;image ID: &#123;&#125;.&#123;&#125; (&#123;&#125;) &#123;&#125;&quot;.format(info[&quot;source&quot;], info[&quot;id&quot;], image_id, </div><div class="line">                                       dataset.image_reference(image_id)))</div><div class="line">gt_class_id = gt_bbox[:, 4]</div><div class="line"></div><div class="line"># Run object detection</div><div class="line">results = model.detect([image], verbose=1)</div><div class="line"></div><div class="line"># Display results</div><div class="line">ax = get_ax(1)</div><div class="line">r = results[0]</div><div class="line"># visualize.display_instances(image, gt_bbox[:,:4], gt_mask, gt_bbox[:,4], </div><div class="line">#                             dataset.class_names, ax=ax[0], title=&quot;Ground Truth&quot;)</div><div class="line">visualize.display_instances(image, r[&apos;rois&apos;], r[&apos;masks&apos;], r[&apos;class_ids&apos;], </div><div class="line">                            dataset.class_names, r[&apos;scores&apos;], ax=ax,</div><div class="line">                            title=&quot;Predictions&quot;)</div><div class="line">log(&quot;gt_class_id&quot;, gt_class_id)</div><div class="line">log(&quot;gt_bbox&quot;, gt_bbox)</div><div class="line">log(&quot;gt_mask&quot;, gt_mask)</div></pre></td></tr></table></figure>
+<p>随机在数据集中选张照片看看：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/FF4kg3c01i.png" alt="mark"></p>
+<h2 id="区域候选网络-Region-Proposal-Network-RPN"><a href="#区域候选网络-Region-Proposal-Network-RPN" class="headerlink" title="区域候选网络(Region Proposal Network,RPN)"></a>区域候选网络(Region Proposal Network,RPN)</h2><p>RPN网络的任务就是做目标区域推荐，从R-CNN中使用的<a href="http://blog.csdn.net/u011974639/article/details/78053203#selective-search" target="_blank" rel="external">Selective Search</a>方法到Faster R-CNN中使用的<a href="http://blog.csdn.net/u011974639/article/details/78053203#anchors" target="_blank" rel="external">Anchor</a>方法，目的就是用更快的方法产生更好的RoI。</p>
+<p>RPN在图像上创建大量的boxes(anchors)，并在anchors上运行一个轻量级的二值分类器返回有目标/无目标的分数。具有高分数的anchors(positive anchors，正样本)会被传到下一阶段用于分类。</p>
+<p>通常<strong>，positive anchors也不会完全覆盖目标，所以RPN在对anchor打分的同时会回归一个偏移量和放缩值，用于修正anchors位置和大小</strong>。</p>
+<h3 id="RPN-Target"><a href="#RPN-Target" class="headerlink" title="RPN Target"></a>RPN Target</h3><p>RPN Target是需要找到有目标的anchor，传递到模型后面用于分类等任务。RPN会在一个完整的图片上覆盖多种不同形状的anchors，通过计算anchors与标注的ground truth(GT box)的IoU，认为IoU≥0.7为正样本，IoU≤0.3为负样本，卡在中间的丢弃为中立样本，训练模型不使用。</p>
+<p>上面提到了训练RPN的同时会回归一个偏移量和放缩值，目的就是用来修正anchor的位置和大小，最终更好的与ground truth相cover。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 生成RPN trainig targets</span></div><div class="line"><span class="comment"># target_rpn_match 值为1代表positive anchors, -1代表negative，0代表neutral.</span></div><div class="line">target_rpn_match, target_rpn_bbox = modellib.build_rpn_targets(</div><div class="line">    image.shape, model.anchors, gt_bbox, model.config)</div><div class="line"></div><div class="line">log(<span class="string">"target_rpn_match"</span>, target_rpn_match)</div><div class="line">log(<span class="string">"target_rpn_bbox"</span>, target_rpn_bbox)</div><div class="line"></div><div class="line"><span class="comment"># 分类所有anchor</span></div><div class="line">positive_anchor_ix = np.where(target_rpn_match[:] == <span class="number">1</span>)[<span class="number">0</span>]</div><div class="line">negative_anchor_ix = np.where(target_rpn_match[:] == <span class="number">-1</span>)[<span class="number">0</span>]</div><div class="line">neutral_anchor_ix = np.where(target_rpn_match[:] == <span class="number">0</span>)[<span class="number">0</span>]</div><div class="line"></div><div class="line">positive_anchors = model.anchors[positive_anchor_ix]</div><div class="line">negative_anchors = model.anchors[negative_anchor_ix]</div><div class="line">neutral_anchors = model.anchors[neutral_anchor_ix]</div><div class="line">log(<span class="string">"positive_anchors"</span>, positive_anchors)</div><div class="line">log(<span class="string">"negative_anchors"</span>, negative_anchors)</div><div class="line">log(<span class="string">"neutral anchors"</span>, neutral_anchors)</div><div class="line"></div><div class="line"><span class="comment"># 对positive anchor做修正</span></div><div class="line">refined_anchors = utils.apply_box_deltas(</div><div class="line">    positive_anchors,</div><div class="line">    target_rpn_bbox[:positive_anchors.shape[<span class="number">0</span>]] * model.config.RPN_BBOX_STD_DEV)</div><div class="line">log(<span class="string">"refined_anchors"</span>, refined_anchors, )</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">target_rpn_match         shape: (<span class="number">65472</span>,)              min:   <span class="number">-1.00000</span>  max:    <span class="number">1.00000</span></div><div class="line">target_rpn_bbox          shape: (<span class="number">256</span>, <span class="number">4</span>)              min:   <span class="number">-3.66348</span>  max:    <span class="number">7.29204</span></div><div class="line">positive_anchors         shape: (<span class="number">19</span>, <span class="number">4</span>)               min:  <span class="number">-53.01934</span>  max: <span class="number">1030.62742</span></div><div class="line">negative_anchors         shape: (<span class="number">237</span>, <span class="number">4</span>)              min:  <span class="number">-90.50967</span>  max: <span class="number">1038.62742</span></div><div class="line">neutral anchors          shape: (<span class="number">65216</span>, <span class="number">4</span>)            min: <span class="number">-362.03867</span>  max: <span class="number">1258.03867</span></div><div class="line">refined_anchors          shape: (<span class="number">19</span>, <span class="number">4</span>)               min:   <span class="number">-0.00000</span>  max: <span class="number">1024.00000</span></div></pre></td></tr></table></figure>
+<p>看看positive anchors和修正后的positive anchors:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">visualize.draw_boxes(image, boxes=positive_anchors, refined_boxes=refined_anchors, ax=get_ax())</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/8bCmf18fgl.png" alt="mark"></p>
+<h3 id="RPN-Prediction"><a href="#RPN-Prediction" class="headerlink" title="RPN Prediction"></a>RPN Prediction</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"># Run RPN sub-graph</div><div class="line">pillar = model.keras_model.get_layer(&quot;ROI&quot;).output  # node to start searching from</div><div class="line">rpn = model.run_graph([image], [</div><div class="line">    (&quot;rpn_class&quot;, model.keras_model.get_layer(&quot;rpn_class&quot;).output),</div><div class="line">    (&quot;pre_nms_anchors&quot;, model.ancestor(pillar, &quot;ROI/pre_nms_anchors:0&quot;)),</div><div class="line">    (&quot;refined_anchors&quot;, model.ancestor(pillar, &quot;ROI/refined_anchors:0&quot;)),</div><div class="line">    (&quot;refined_anchors_clipped&quot;, model.ancestor(pillar, &quot;ROI/refined_anchors_clipped:0&quot;)),</div><div class="line">    (&quot;post_nms_anchor_ix&quot;, model.ancestor(pillar, &quot;ROI/rpn_non_max_suppression:0&quot;)),</div><div class="line">    (&quot;proposals&quot;, model.keras_model.get_layer(&quot;ROI&quot;).output),</div><div class="line">])</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">rpn_class                shape: (1, 65472, 2)         min:    0.00000  max:    1.00000</div><div class="line">pre_nms_anchors          shape: (1, 10000, 4)         min: -362.03867  max: 1258.03870</div><div class="line">refined_anchors          shape: (1, 10000, 4)         min: -1030.40588  max: 2164.92578</div><div class="line">refined_anchors_clipped  shape: (1, 10000, 4)         min:    0.00000  max: 1024.00000</div><div class="line">post_nms_anchor_ix       shape: (1000,)               min:    0.00000  max: 1879.00000</div><div class="line">proposals                shape: (1, 1000, 4)          min:    0.00000  max:    1.00000</div></pre></td></tr></table></figure>
+<p>看看高分的anchors（没有修正前):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">limit = 100</div><div class="line">sorted_anchor_ids = np.argsort(rpn[&apos;rpn_class&apos;][:,:,1].flatten())[::-1]</div><div class="line">visualize.draw_boxes(image, boxes=model.anchors[sorted_anchor_ids[:limit]], ax=get_ax())</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/4497Clm5fi.png" alt="mark"></p>
+<p>看看修正后的高分anchors，超过的图片边界的会被截止:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">limit = 50</div><div class="line">ax = get_ax(1, 2)</div><div class="line">visualize.draw_boxes(image, boxes=rpn[&quot;pre_nms_anchors&quot;][0, :limit], </div><div class="line">           refined_boxes=rpn[&quot;refined_anchors&quot;][0, :limit], ax=ax[0])</div><div class="line">visualize.draw_boxes(image, refined_boxes=rpn[&quot;refined_anchors_clipped&quot;][0, :limit], ax=ax[1])</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/IAlKia3aGI.png" alt="mark"></p>
+<p>对上面的anchors做非极大值抑制:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">limit = 50</div><div class="line">ixs = rpn[&quot;post_nms_anchor_ix&quot;][:limit]</div><div class="line">visualize.draw_boxes(image, refined_boxes=rpn[&quot;refined_anchors_clipped&quot;][0, ixs], ax=get_ax())</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/Fcg29JDGCh.png" alt="mark"></p>
+<p>最终的proposal和上面的步骤一致，只是在坐标上做了归一化操作:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">limit = 50</div><div class="line"># Convert back to image coordinates for display</div><div class="line">h, w = config.IMAGE_SHAPE[:2]</div><div class="line">proposals = rpn[&apos;proposals&apos;][0, :limit] * np.array([h, w, h, w])</div><div class="line">visualize.draw_boxes(image, refined_boxes=proposals, ax=get_ax())</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/jaFf21JEAE.png" alt="mark"></p>
+<p>测量RPN的召回率(目标被anchors覆盖的比例)，这里我们计算召回率有三种方法：</p>
+<ul>
+<li>所有的 anchors</li>
+<li>所有修正的anchors</li>
+<li>经过极大值抑制后的修正Anchors</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">iou_threshold = 0.7</div><div class="line"></div><div class="line">recall, positive_anchor_ids = utils.compute_recall(model.anchors, gt_bbox, iou_threshold)</div><div class="line">print(&quot;All Anchors (&#123;:5&#125;)       Recall: &#123;:.3f&#125;  Positive anchors: &#123;&#125;&quot;.format(</div><div class="line">    model.anchors.shape[0], recall, len(positive_anchor_ids)))</div><div class="line"></div><div class="line">recall, positive_anchor_ids = utils.compute_recall(rpn[&apos;refined_anchors&apos;][0], gt_bbox, iou_threshold)</div><div class="line">print(&quot;Refined Anchors (&#123;:5&#125;)   Recall: &#123;:.3f&#125;  Positive anchors: &#123;&#125;&quot;.format(</div><div class="line">    rpn[&apos;refined_anchors&apos;].shape[1], recall, len(positive_anchor_ids)))</div><div class="line"></div><div class="line">recall, positive_anchor_ids = utils.compute_recall(proposals, gt_bbox, iou_threshold)</div><div class="line">print(&quot;Post NMS Anchors (&#123;:5&#125;)  Recall: &#123;:.3f&#125;  Positive anchors: &#123;&#125;&quot;.format(</div><div class="line">    proposals.shape[0], recall, len(positive_anchor_ids)))</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">All Anchors (65472)       Recall: 0.263  Positive anchors: 5</div><div class="line">Refined Anchors (10000)   Recall: 0.895  Positive anchors: 126</div><div class="line">Post NMS Anchors (   50)  Recall: 0.526  Positive anchors: 12</div></pre></td></tr></table></figure>
+<h2 id="Proposal-分类"><a href="#Proposal-分类" class="headerlink" title="Proposal 分类"></a>Proposal 分类</h2><p>前面RPN Target是生成region proposal，这里就要对其分类了~</p>
+<h3 id="Proposal-Classification"><a href="#Proposal-Classification" class="headerlink" title="Proposal Classification"></a>Proposal Classification</h3><p>将RPN推选出来的Proposal送到分类部分，最终生成种类概率分布和bbox回归。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Get input and output to classifier and mask heads.</span></div><div class="line">mrcnn = model.run_graph([image], [</div><div class="line">    (<span class="string">"proposals"</span>, model.keras_model.get_layer(<span class="string">"ROI"</span>).output),</div><div class="line">    (<span class="string">"probs"</span>, model.keras_model.get_layer(<span class="string">"mrcnn_class"</span>).output),</div><div class="line">    (<span class="string">"deltas"</span>, model.keras_model.get_layer(<span class="string">"mrcnn_bbox"</span>).output),</div><div class="line">    (<span class="string">"masks"</span>, model.keras_model.get_layer(<span class="string">"mrcnn_mask"</span>).output),</div><div class="line">    (<span class="string">"detections"</span>, model.keras_model.get_layer(<span class="string">"mrcnn_detection"</span>).output),</div><div class="line">])</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">proposals                shape: (<span class="number">1</span>, <span class="number">1000</span>, <span class="number">4</span>)          min:    <span class="number">0.00000</span>  max:    <span class="number">1.00000</span></div><div class="line">probs                    shape: (<span class="number">1</span>, <span class="number">1000</span>, <span class="number">81</span>)         min:    <span class="number">0.00000</span>  max:    <span class="number">0.99825</span></div><div class="line">deltas                   shape: (<span class="number">1</span>, <span class="number">1000</span>, <span class="number">81</span>, <span class="number">4</span>)      min:   <span class="number">-3.31265</span>  max:    <span class="number">2.86541</span></div><div class="line">masks                    shape: (<span class="number">1</span>, <span class="number">100</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">81</span>)  min:    <span class="number">0.00003</span>  max:    <span class="number">0.99986</span></div><div class="line">detections               shape: (<span class="number">1</span>, <span class="number">100</span>, <span class="number">6</span>)           min:    <span class="number">0.00000</span>  max:  <span class="number">930.00000</span></div></pre></td></tr></table></figure>
+<p>获取检测种类，除去填充的0部分:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">det_class_ids = mrcnn[<span class="string">'detections'</span>][<span class="number">0</span>, :, <span class="number">4</span>].astype(np.int32)</div><div class="line">det_count = np.where(det_class_ids == <span class="number">0</span>)[<span class="number">0</span>][<span class="number">0</span>]</div><div class="line">det_class_ids = det_class_ids[:det_count]</div><div class="line">detections = mrcnn[<span class="string">'detections'</span>][<span class="number">0</span>, :det_count]</div><div class="line"></div><div class="line">print(<span class="string">"&#123;&#125; detections: &#123;&#125;"</span>.format(</div><div class="line">    det_count, np.array(dataset.class_names)[det_class_ids]))</div><div class="line"></div><div class="line">captions = [<span class="string">"&#123;&#125; &#123;:.3f&#125;"</span>.format(dataset.class_names[int(c)], s) <span class="keyword">if</span> c &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="string">""</span></div><div class="line">            <span class="keyword">for</span> c, s <span class="keyword">in</span> zip(detections[:, <span class="number">4</span>], detections[:, <span class="number">5</span>])]</div><div class="line">visualize.draw_boxes(</div><div class="line">    image, </div><div class="line">    refined_boxes=detections[:, :<span class="number">4</span>],</div><div class="line">    visibilities=[<span class="number">2</span>] * len(detections),</div><div class="line">    captions=captions, title=<span class="string">"Detections"</span>,</div><div class="line">    ax=get_ax())</div><div class="line">    </div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line"><span class="number">11</span> detections: [<span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'orange'</span> <span class="string">'person'</span> <span class="string">'orange'</span></div><div class="line"> <span class="string">'dog'</span> <span class="string">'handbag'</span> <span class="string">'apple'</span>]</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/9mC4aD3iGA.png" alt="mark"></p>
+<h3 id="Step-by-Step-Detection"><a href="#Step-by-Step-Detection" class="headerlink" title="Step by Step Detection"></a>Step by Step Detection</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Proposals是标准坐标， 放缩回图片坐标</span></div><div class="line">h, w = config.IMAGE_SHAPE[:<span class="number">2</span>]</div><div class="line">proposals = np.around(mrcnn[<span class="string">"proposals"</span>][<span class="number">0</span>] * np.array([h, w, h, w])).astype(np.int32)</div><div class="line"></div><div class="line"><span class="comment"># Class ID, score, and mask per proposal</span></div><div class="line">roi_class_ids = np.argmax(mrcnn[<span class="string">"probs"</span>][<span class="number">0</span>], axis=<span class="number">1</span>)</div><div class="line">roi_scores = mrcnn[<span class="string">"probs"</span>][<span class="number">0</span>, np.arange(roi_class_ids.shape[<span class="number">0</span>]), roi_class_ids]</div><div class="line">roi_class_names = np.array(dataset.class_names)[roi_class_ids]</div><div class="line">roi_positive_ixs = np.where(roi_class_ids &gt; <span class="number">0</span>)[<span class="number">0</span>]</div><div class="line"></div><div class="line"><span class="comment"># How many ROIs vs empty rows?</span></div><div class="line">print(<span class="string">"&#123;&#125; Valid proposals out of &#123;&#125;"</span>.format(np.sum(np.any(proposals, axis=<span class="number">1</span>)), proposals.shape[<span class="number">0</span>]))</div><div class="line">print(<span class="string">"&#123;&#125; Positive ROIs"</span>.format(len(roi_positive_ixs)))</div><div class="line"></div><div class="line"><span class="comment"># Class counts</span></div><div class="line">print(list(zip(*np.unique(roi_class_names, return_counts=<span class="keyword">True</span>))))</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line"><span class="number">1000</span> Valid proposals out of <span class="number">1000</span></div><div class="line"><span class="number">106</span> Positive ROIs</div><div class="line">[(<span class="string">'BG'</span>, <span class="number">894</span>), (<span class="string">'apple'</span>, <span class="number">25</span>), (<span class="string">'cup'</span>, <span class="number">2</span>), (<span class="string">'dog'</span>, <span class="number">4</span>), (<span class="string">'handbag'</span>, <span class="number">2</span>), (<span class="string">'orange'</span>, <span class="number">36</span>), (<span class="string">'person'</span>, <span class="number">36</span>), (<span class="string">'sandwich'</span>, <span class="number">1</span>)]</div></pre></td></tr></table></figure>
+<p>看一些随机取出的proposal样本，BG的不做显示，主要看有类别的，还有其对应的分数:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">limit = 200</div><div class="line">ixs = np.random.randint(0, proposals.shape[0], limit)</div><div class="line">captions = [&quot;&#123;&#125; &#123;:.3f&#125;&quot;.format(dataset.class_names[c], s) if c &gt; 0 else &quot;&quot;</div><div class="line">            for c, s in zip(roi_class_ids[ixs], roi_scores[ixs])]</div><div class="line">visualize.draw_boxes(image, boxes=proposals[ixs],</div><div class="line">                     visibilities=np.where(roi_class_ids[ixs] &gt; 0, 2, 1),</div><div class="line">                     captions=captions, title=&quot;ROIs Before Refinment&quot;,</div><div class="line">                     ax=get_ax())</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/C9kLI1ELck.png" alt="mark"></p>
+<p><strong>做bbox修正:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"># Class-specific bounding box shifts.</div><div class="line">roi_bbox_specific = mrcnn[&quot;deltas&quot;][0, np.arange(proposals.shape[0]), roi_class_ids]</div><div class="line">log(&quot;roi_bbox_specific&quot;, roi_bbox_specific)</div><div class="line"></div><div class="line"># Apply bounding box transformations</div><div class="line"># Shape: [N, (y1, x1, y2, x2)]</div><div class="line">refined_proposals = utils.apply_box_deltas(</div><div class="line">    proposals, roi_bbox_specific * config.BBOX_STD_DEV).astype(np.int32)</div><div class="line">log(&quot;refined_proposals&quot;, refined_proposals)</div><div class="line"></div><div class="line"># Show positive proposals</div><div class="line"># ids = np.arange(roi_boxes.shape[0])  # Display all</div><div class="line">limit = 5</div><div class="line">ids = np.random.randint(0, len(roi_positive_ixs), limit)  # Display random sample</div><div class="line">captions = [&quot;&#123;&#125; &#123;:.3f&#125;&quot;.format(dataset.class_names[c], s) if c &gt; 0 else &quot;&quot;</div><div class="line">            for c, s in zip(roi_class_ids[roi_positive_ixs][ids], roi_scores[roi_positive_ixs][ids])]</div><div class="line">visualize.draw_boxes(image, boxes=proposals[roi_positive_ixs][ids],</div><div class="line">                     refined_boxes=refined_proposals[roi_positive_ixs][ids],</div><div class="line">                     visibilities=np.where(roi_class_ids[roi_positive_ixs][ids] &gt; 0, 1, 0),</div><div class="line">                     captions=captions, title=&quot;ROIs After Refinment&quot;,</div><div class="line">                     ax=get_ax())</div><div class="line">                     </div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">roi_bbox_specific        shape: (1000, 4)             min:   -3.31265  max:    2.86541</div><div class="line">refined_proposals        shape: (1000, 4)             min:   -1.00000  max: 1024.00000</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/km1lCIejjd.png" alt="mark"></p>
+<p><strong>滤掉低分的检测目标:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"># Remove boxes classified as background</div><div class="line">keep = np.where(roi_class_ids &gt; 0)[0]</div><div class="line">print(&quot;Keep &#123;&#125; detections:\n&#123;&#125;&quot;.format(keep.shape[0], keep))</div><div class="line"></div><div class="line"># Remove low confidence detections</div><div class="line">keep = np.intersect1d(keep, np.where(roi_scores &gt;= config.DETECTION_MIN_CONFIDENCE)[0])</div><div class="line">print(&quot;Remove boxes below &#123;&#125; confidence. Keep &#123;&#125;:\n&#123;&#125;&quot;.format(</div><div class="line">    config.DETECTION_MIN_CONFIDENCE, keep.shape[0], keep))</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">Keep 106 detections:</div><div class="line">[  0   1   2   3   4   5   6   7   9  10  11  12  13  14  15  16  17  18</div><div class="line">  19  22  23  24  25  26  27  28  31  34  35  36  37  38  41  43  47  51</div><div class="line">  56  65  66  67  68  71  73  75  82  87  91  92 101 102 105 109 110 115</div><div class="line"> 117 120 123 138 156 164 171 175 177 184 197 205 241 253 258 263 265 280</div><div class="line"> 287 325 367 430 451 452 464 469 491 514 519 527 554 597 610 686 697 712</div><div class="line"> 713 748 750 780 815 871 911 917 933 938 942 947 949 953 955 981]</div><div class="line"></div><div class="line">Remove boxes below 0.7 confidence. Keep 44:</div><div class="line">[  0   1   2   3   4   5   6   9  12  13  14  17  19  26  31  34  38  41</div><div class="line">  43  47  67  75  82  87  92 120 123 164 171 175 177 205 258 325 452 469</div><div class="line"> 519 697 713 815 871 911 917 949]</div></pre></td></tr></table></figure>
+<p>做非极大值抑制操作:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"># Apply per-class non-max suppression</div><div class="line">pre_nms_boxes = refined_proposals[keep]</div><div class="line">pre_nms_scores = roi_scores[keep]</div><div class="line">pre_nms_class_ids = roi_class_ids[keep]</div><div class="line"></div><div class="line">nms_keep = []</div><div class="line">for class_id in np.unique(pre_nms_class_ids):</div><div class="line">    # Pick detections of this class</div><div class="line">    ixs = np.where(pre_nms_class_ids == class_id)[0]</div><div class="line">    # Apply NMS</div><div class="line">    class_keep = utils.non_max_suppression(pre_nms_boxes[ixs], </div><div class="line">                                            pre_nms_scores[ixs],</div><div class="line">                                            config.DETECTION_NMS_THRESHOLD)</div><div class="line">    # Map indicies</div><div class="line">    class_keep = keep[ixs[class_keep]]</div><div class="line">    nms_keep = np.union1d(nms_keep, class_keep)</div><div class="line">    print(&quot;&#123;:22&#125;: &#123;&#125; -&gt; &#123;&#125;&quot;.format(dataset.class_names[class_id][:20], </div><div class="line">                                   keep[ixs], class_keep))</div><div class="line"></div><div class="line">keep = np.intersect1d(keep, nms_keep).astype(np.int32)</div><div class="line">print(&quot;\nKept after per-class NMS: &#123;&#125;\n&#123;&#125;&quot;.format(keep.shape[0], keep))</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">person                : [  0   1   2   3   5   9  12  13  14  19  26  41  43  47  82  92 120 123</div><div class="line"> 175 177 258 452 469 519 871 911 917] -&gt; [ 5 12  1  2  3 19]</div><div class="line">dog                   : [  6  75 171] -&gt; [75]</div><div class="line">handbag               : [815] -&gt; [815]</div><div class="line">apple                 : [38] -&gt; [38]</div><div class="line">orange                : [  4  17  31  34  67  87 164 205 325 697 713 949] -&gt; [ 4 87]</div><div class="line"></div><div class="line">Kept after per-class NMS: 11</div><div class="line">[  1   2   3   4   5  12  19  38  75  87 815]</div></pre></td></tr></table></figure>
+<p>看看最后的结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">ixs = np.arange(len(keep))  # Display all</div><div class="line"># ixs = np.random.randint(0, len(keep), 10)  # Display random sample</div><div class="line">captions = [&quot;&#123;&#125; &#123;:.3f&#125;&quot;.format(dataset.class_names[c], s) if c &gt; 0 else &quot;&quot;</div><div class="line">            for c, s in zip(roi_class_ids[keep][ixs], roi_scores[keep][ixs])]</div><div class="line">visualize.draw_boxes(</div><div class="line">    image, boxes=proposals[keep][ixs],</div><div class="line">    refined_boxes=refined_proposals[keep][ixs],</div><div class="line">    visibilities=np.where(roi_class_ids[keep][ixs] &gt; 0, 1, 0),</div><div class="line">    captions=captions, title=&quot;Detections after NMS&quot;,</div><div class="line">    ax=get_ax())</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/bIed2Fl21C.png" alt="mark"></p>
+<h2 id="生成Mask"><a href="#生成Mask" class="headerlink" title="生成Mask"></a>生成Mask</h2><p>在上一阶段产生的实例基础上，通过mask head为每个实例产生分割mask。</p>
+<h3 id="Mask-Target"><a href="#Mask-Target" class="headerlink" title="Mask Target"></a>Mask Target</h3><p>即Mask分支的训练目标:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">display_images(np.transpose(gt_mask, [2, 0, 1]), cmap=&quot;Blues&quot;)</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/HhDjDdGljI.png" alt="mark"></p>
+<h3 id="Predicted-Masks"><a href="#Predicted-Masks" class="headerlink" title="Predicted Masks"></a>Predicted Masks</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Get predictions of mask head</span></div><div class="line">mrcnn = model.run_graph([image], [</div><div class="line">    (<span class="string">"detections"</span>, model.keras_model.get_layer(<span class="string">"mrcnn_detection"</span>).output),</div><div class="line">    (<span class="string">"masks"</span>, model.keras_model.get_layer(<span class="string">"mrcnn_mask"</span>).output),</div><div class="line">])</div><div class="line"></div><div class="line"><span class="comment"># Get detection class IDs. Trim zero padding.</span></div><div class="line">det_class_ids = mrcnn[<span class="string">'detections'</span>][<span class="number">0</span>, :, <span class="number">4</span>].astype(np.int32)</div><div class="line">det_count = np.where(det_class_ids == <span class="number">0</span>)[<span class="number">0</span>][<span class="number">0</span>]</div><div class="line">det_class_ids = det_class_ids[:det_count]</div><div class="line"></div><div class="line">print(<span class="string">"&#123;&#125; detections: &#123;&#125;"</span>.format(</div><div class="line">    det_count, np.array(dataset.class_names)[det_class_ids]))</div><div class="line">    </div><div class="line"><span class="comment"># Masks</span></div><div class="line">det_boxes = mrcnn[<span class="string">"detections"</span>][<span class="number">0</span>, :, :<span class="number">4</span>].astype(np.int32)</div><div class="line">det_mask_specific = np.array([mrcnn[<span class="string">"masks"</span>][<span class="number">0</span>, i, :, :, c] </div><div class="line">                              <span class="keyword">for</span> i, c <span class="keyword">in</span> enumerate(det_class_ids)])</div><div class="line">det_masks = np.array([utils.unmold_mask(m, det_boxes[i], image.shape)</div><div class="line">                      <span class="keyword">for</span> i, m <span class="keyword">in</span> enumerate(det_mask_specific)])</div><div class="line">log(<span class="string">"det_mask_specific"</span>, det_mask_specific)</div><div class="line">log(<span class="string">"det_masks"</span>, det_masks)</div><div class="line"></div><div class="line">display_images(det_mask_specific[:<span class="number">4</span>] * <span class="number">255</span>, cmap=<span class="string">"Blues"</span>, interpolation=<span class="string">"none"</span>)</div><div class="line"></div><div class="line">&gt;&gt;&gt;</div><div class="line">&gt;&gt;&gt;</div><div class="line">detections               shape: (<span class="number">1</span>, <span class="number">100</span>, <span class="number">6</span>)           min:    <span class="number">0.00000</span>  max:  <span class="number">930.00000</span></div><div class="line">masks                    shape: (<span class="number">1</span>, <span class="number">100</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">81</span>)  min:    <span class="number">0.00003</span>  max:    <span class="number">0.99986</span></div><div class="line"><span class="number">11</span> detections: [<span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'person'</span> <span class="string">'orange'</span> <span class="string">'person'</span> <span class="string">'orange'</span></div><div class="line"> <span class="string">'dog'</span> <span class="string">'handbag'</span> <span class="string">'apple'</span>]</div><div class="line"></div><div class="line">det_mask_specific        shape: (<span class="number">11</span>, <span class="number">28</span>, <span class="number">28</span>)          min:    <span class="number">0.00016</span>  max:    <span class="number">0.99985</span></div><div class="line">det_masks                shape: (<span class="number">11</span>, <span class="number">1024</span>, <span class="number">1024</span>)      min:    <span class="number">0.00000</span>  max:    <span class="number">1.00000</span></div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/4dDIgL2meC.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">display_images(det_masks[:4] * 255, cmap=&quot;Blues&quot;, interpolation=&quot;none&quot;)</div></pre></td></tr></table></figure>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171109/ghlAg0gK9k.png" alt="mark"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Object-Detection/" rel="tag"># Object Detection</a>
+          
+            <a href="/tags/Mask-R-CNN/" rel="tag"># Mask R-CNN</a>
+          
+            <a href="/tags/Keras/" rel="tag"># Keras</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/19/图像分类论文-DenseNet/" rel="next" title="图像分类论文-DenseNet">
+                <i class="fa fa-chevron-left"></i> 图像分类论文-DenseNet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/10/语义分割论文-SegNet/" rel="prev" title="语义分割论文-SegNet">
+                语义分割论文-SegNet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#软件必备"><span class="nav-text">软件必备</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mask-R-CNN论文回顾"><span class="nav-text">Mask R-CNN论文回顾</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主要工作"><span class="nav-text">主要工作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#损失函数的定义"><span class="nav-text">损失函数的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#掩膜表示到RoIAlign层"><span class="nav-text">掩膜表示到RoIAlign层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何使用代码"><span class="nav-text">如何使用代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码分析-数据预处理"><span class="nav-text">代码分析-数据预处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#导包"><span class="nav-text">导包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载数据集"><span class="nav-text">加载数据集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bounding-Boxes-bbox"><span class="nav-text">Bounding Boxes(bbox)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调整图片大小"><span class="nav-text">调整图片大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mini-Mask"><span class="nav-text">Mini Mask</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Anchors"><span class="nav-text">Anchors</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码分析-在自己的数据集上训练模型"><span class="nav-text">代码分析-在自己的数据集上训练模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#导包-1"><span class="nav-text">导包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#构建个人数据集"><span class="nav-text">构建个人数据集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载模型并训练"><span class="nav-text">加载模型并训练</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#训练模型"><span class="nav-text">训练模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模型预测"><span class="nav-text">模型预测</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码分析-Mask-R-CNN-模型分析"><span class="nav-text">代码分析-Mask R-CNN 模型分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#导包-2"><span class="nav-text">导包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#区域候选网络-Region-Proposal-Network-RPN"><span class="nav-text">区域候选网络(Region Proposal Network,RPN)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RPN-Target"><span class="nav-text">RPN Target</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPN-Prediction"><span class="nav-text">RPN Prediction</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Proposal-分类"><span class="nav-text">Proposal 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Proposal-Classification"><span class="nav-text">Proposal Classification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-by-Step-Detection"><span class="nav-text">Step by Step Detection</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成Mask"><span class="nav-text">生成Mask</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mask-Target"><span class="nav-text">Mask Target</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Predicted-Masks"><span class="nav-text">Predicted Masks</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

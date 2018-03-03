@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,SegNet," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Semantic Segmentation - SegNet，代表性的Encoder-Decoder结构，创新之处在于使用Encoder下采样时池化索引来做Decoder上采样的指引.">
+<meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,SegNet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文-SegNet">
+<meta property="og:url" content="http://hfut-fan.github.io/2017/11/10/语义分割论文-SegNet/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="Semantic Segmentation - SegNet，代表性的Encoder-Decoder结构，创新之处在于使用Encoder下采样时池化索引来做Decoder上采样的指引.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/I5D0gIh51E.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/FhHKB3fKKL.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/EiA7efdHhb.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/EED98d16b1.gif">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/466mCebfID.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/5I5l1bJK5K.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/dj98fH0fHJ.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/KjgC10kd12.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/I7aE32djAj.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/5fH0ah3A0e.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/2529Dmcl0k.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/0254HhGL0a.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/1k09hJIbKm.png">
+<meta property="og:updated_time" content="2018-01-29T02:47:22.697Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文-SegNet">
+<meta name="twitter:description" content="Semantic Segmentation - SegNet，代表性的Encoder-Decoder结构，创新之处在于使用Encoder下采样时池化索引来做Decoder上采样的指引.">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/171227/I5D0gIh51E.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2017/11/10/语义分割论文-SegNet/"/>
+
+
+
+
+
+  <title>语义分割论文-SegNet | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2017/11/10/语义分割论文-SegNet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文-SegNet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-10T16:58:36+08:00">
+                2017-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Semantic Segmentation - SegNet，代表性的Encoder-Decoder结构，创新之处在于使用Encoder下采样时池化索引来做Decoder上采样的指引.
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="Semantic-Segmentation简介"><a href="#Semantic-Segmentation简介" class="headerlink" title="Semantic Segmentation简介"></a>Semantic Segmentation简介</h1><p>在解读论文之前，先看看Semantic Segmentation这个topic是干啥的。</p>
+<p>这里引用知乎的一个提问答案：<a href="https://www.zhihu.com/question/51704852" target="_blank" rel="external">Semantic Segmentation–知乎-周博磊</a></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/I5D0gIh51E.png" alt="mark"><br>    图1.image classification, object detection, semantic segmentation, instance segmentation之间的关系. 摘自<a href="https://arxiv.org/pdf/1405.0312.pdf" target="_blank" rel="external">COCO dataset</a> </p>
+<p>Semantic Segmentation的目的是在一张图里分割聚类出不同物体的像素(pixel). 目前的主流框架都是基于FCN的(即<a href="https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf" target="_blank" rel="external">Fully Convolutional Neural Networks</a>)．FCN区别于物体识别网络诸如AlexNet最主要的差别是逐像素预测(pixel-wise prediction)，即每个像素点都有个probability, 而AlexNet是一张图一个prediction．</p>
+<p>Semantic Segmentation的其他典型代表还有诸如<a href="http://mi.eng.cam.ac.uk/projects/segnet/" target="_blank" rel="external">SegNet</a>,<a href="https://github.com/fyu/dilation" target="_blank" rel="external">Dilated Convolution Net</a> ,<a href="https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Noh_Learning_Deconvolution_Network_ICCV_2015_paper.pdf" target="_blank" rel="external">deconvolutionNet</a>等。 这其中牵涉到deconvolution, dilated convolution, atrous convolution这几个概念的争论（可参考<a href="http://www.inference.vc/dilated-convolutions-and-kronecker-factorisation/" target="_blank" rel="external">Dilated Convolutions and Kronecker Factored Convolutions介绍</a>）．</p>
+<p>Semantic Segmentation的不足在于：虽然把图片里人所在的区域分割出来了，但是本身并没有告诉这里面有多少个人，以及每个人分别的区域。而这个就跟instance segmentation联系了起来，如何把每个人的区域都分别分割出来，是比semantic segmentation要难不少的问题．基于semantic segmentation来做instance segmentation的论文，大家可以看看Jifeng Dai最近的几篇论文：<a href="https://arxiv.org/pdf/1512.04412v1.pdf" target="_blank" rel="external">1</a>，<a href="https://arxiv.org/pdf/1603.08678v1.pdf" target="_blank" rel="external">2</a>. 大致做法是在dense feature map上面整合个instance region proposal/score map/RoI, 然后再分割.</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/FhHKB3fKKL.png" alt="mark"><br>    图2. Scene Parsing (<a href="http://sceneparsing.csail.mit.edu/" target="_blank" rel="external">MIT Scene Parsing Challenge 2016</a>) from  <a href="http://groups.csail.mit.edu/vision/datasets/ADE20K/" target="_blank" rel="external">ADE20K dataset</a>. 每张图的物体以及位置都标注</p>
+<p>总结一下, instance segmentation其实是semantic segmentation和object detection殊途同归的一个结合点, 是个挺重要的研究问题. 非常期待后面能同时结合semantic segmentation和object detection两者优势的instance segmentation算法和网络结构.（Mask R-CNN等系列正在突破~~）</p>
+<p>下面回归正题，SegNet论文解读~</p>
+<hr>
+<h1 id="SegNet论文解读"><a href="#SegNet论文解读" class="headerlink" title="SegNet论文解读"></a>SegNet论文解读</h1><p>SegNet:A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation</p>
+<p>收录：PAMI2017(IEEE Transactions on Pattern Analysis and Machine Intelligence)</p>
+<p>原文地址：<a href="https://arxiv.org/abs/1511.00561" target="_blank" rel="external">SegNet</a></p>
+<p>实现代码:</p>
+<ul>
+<li><a href="https://github.com/alexgkendall/caffe-segnet" target="_blank" rel="external">github</a></li>
+<li><a href="https://github.com/tkuanlun350/Tensorflow-SegNet" target="_blank" rel="external">TensorFlow</a></li>
+</ul>
+<p>效果图<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/EiA7efdHhb.png" alt="mark"></p>
+<p>摘自<a href="http://blog.csdn.net/fate_fjh/article/details/53467948" target="_blank" rel="external">Fate-fjh Blog</a>:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/EED98d16b1.gif" alt="mark"></p>
+<hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>论文提出了一个全新的全卷积的Semantic Segmentation模型：SegNet。<br>模型主要由：编码网络(encoder network),解码网络(decoder network)和逐像素分类器(pixel-wise classification layer)组成。<strong>SegNet的新颖之处在于decoder阶段的上采样方式，具体来说，decoder时上采样使用了encoder阶段下采样的最大池化的索引(indices)</strong>。考虑到上采样是稀疏的，再配合滤波器产生最后的分割图。</p>
+<p>SegNet在inference期间占用的存储量和计算时间相比于其他模型(FCN,DeepLab,etc)效果都比较好。官方提供的教程地址<a href="http://mi.eng.cam.ac.uk/projects/segnet" target="_blank" rel="external">http://mi.eng.cam.ac.uk/projects/segnet</a>.</p>
+<hr>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Semantic Segmentation常用于道路场景分割，大多数像素属于大类，需要平滑的分割，模型要能够依据形状提取物体，这需要保留好的边界信息，从计算的角度来考虑，需要有效的存储量和计算时间。而现有的Semantic Segmentation的问题在于：最大池化和下采样会降低feature map的分辨率(即降低feature map分辨率会损失边界信息)，SegNet针对这一问题设计了将低分辨率feature map映射到高分辨率的方法(利用池化索引)，从而产生精确边界的分割结果。</p>
+<p>SegNet的encoder部分使用的是VGG16的前13层(即使用预训练的VGG16做特征提取层)，核心在于decoder部分，decoder对应encoder的每一层，decoder的上采样使用的时encoder下采样的索引，这样做有以下几个优点：</p>
+<ul>
+<li>改善边界描述</li>
+<li>减少end2end的训练参数</li>
+<li>这样的形式可用于多种encoder-decoder架构</li>
+</ul>
+<p>本文的主要贡献在于：</p>
+<ul>
+<li>对比分析SegNet的decoder和FCN</li>
+<li>在CamVid和SUN RGB-D上评估了模型</li>
+</ul>
+<hr>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>传统的Semantic Segmentation方法：用随机森林(RF),Boosting等做类别的中心预测，用SfM提取特征，配合CRF提高预测精度。但是这些方法效果都不好，总结原因是这些方法<strong>都需要提高分类特征</strong>。</p>
+<p>而近期深度卷积网络在分类问题上表现出色，考虑将深度网络应用到Semantic Segmentation上，例如：FCN，效果比传统方法好很多。有工作将RNN、条件随机场(CRF)引入配合decoder做预测，有助于提高边界描绘能力，并且指出了，<strong>CRF-RNN这一套可以附加到包括SegNet在内的任何深度分割模型。</strong></p>
+<p>现有的多尺度的深度神经网络架构的应用，常见两种形式：</p>
+<ul>
+<li>将输入放缩为多个尺度得到相应的feature map</li>
+<li>将一张图送到模型，得到不同层的feature map</li>
+</ul>
+<p><strong>这些方法的共同想法都是使用多尺度信息将高层的feature map包含的语义信息与底层的feature  map包含的精度信息融合到一起。</strong>但是，<strong>这样方法参数多，比较难训练</strong>。(16年以后的方法都是这个方法，哈哈~)</p>
+<hr>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>SegNet的网络结构如下图，总体由以下部分组成：</p>
+<ul>
+<li><strong>编码网络(encoder network)</strong>:由13个卷积层组成(使用的时预训练的VGG16的前13层)，该部分提取输入特征，用于目标分类，这就是使用预训练的VGG原理所在，至于丢弃FC层是为了保持更高的分辨率，同时也减少了参数。</li>
+<li><strong>解码网络(decoder network)</strong>:每个encoder会对应一个decoder，故decoder具有13层，将低分辨率的feature map映射回和输入一样大小分类器(mask).</li>
+<li><strong>像素分类层(pixelwise classification layer)</strong>：decoder的输出会送到分类层，最终为每个像素独立的产生类别概率</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/466mCebfID.png" alt="mark"></p>
+<ul>
+<li><p><strong>encoder network</strong><br>Encoder network分为5个block，每个block由<code>Conv+BN + MaxPooling</code>组成，<code>MaxPooling</code>实现下采样操作，核长为2，步长为2.<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/5I5l1bJK5K.png" alt="mark"></p>
+<p>  因为使用的pre-train的VGG16模型的前13层，模型的参数会减少很多(FC层没了，参数少了很多)。当然这和原始的VGG16是有区别的，如上图。卷积层使用的是<code>Conv + Batch Norm + ReLU</code>结构。</p>
+</li>
+<li><p><strong>decoder network</strong><br><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/dj98fH0fHJ.png" alt="mark"><br>模型在encoder network时使用Pooling时会记录Pooling Indices(pooling前后的对应位置)，在decoder network会用前面记录的位置还原，这也是论文的创新之处。 decoder network同样也为5个block，每个block由<code>Upsampling + Conv + BN</code>组成，需要注意的<strong>decoder阶段是没有加非线性激活的(即没有ReLU)</strong>。</p>
+</li>
+<li><p><strong>分类层</strong><br>在decoder输出上加一个卷积层，卷积核个数为分类的通道数，即每个通道代表一类分割结果</p>
+</li>
+</ul>
+<p>网络细致结构可看后面代码分析~</p>
+<h4 id="decoder变体"><a href="#decoder变体" class="headerlink" title="decoder变体"></a>decoder变体</h4><p><strong>SegNet-Basic</strong>: SegNet的较小版本，4个encoder和4个decoder，</p>
+<ul>
+<li>encoder阶段是<code>LRN + (Conv+BN +ReLU + MaxPool)x4</code> 论文给出的时卷积不使用bias</li>
+<li>decoder阶段是<code>(UpPool+Conv+ BN)x4 + Conv(分割层)</code></li>
+</ul>
+<p>卷积核大小一直使用的时$7×7$，最高层的feature map接收野是原图的$106×106$大小。</p>
+<div class="note danger"><p>这里简单讲一下接收野怎么算的(这个我在<a href="%5B%E9%93%BE%E6%8E%A5%E6%A0%87%E9%A2%98%5D%28http://blog.csdn.net/u011974639/article/details/78053203#%E6%84%9F%E5%8F%97%E9%87%8E%E7%9A%84%E8%AE%A1%E7%AE%97%29">SPPNet论文分析</a>有笔记)：</p>
+<p>对于池化层和卷积层公式为：$$S_{rf} = ((S_{rf}-1)*Stride) + K_{size} $$其中$S_{rf}$是从高层feature向底层feature迭代计算，$Stride$为步长，$K_{size}$为卷积核大小.</p>
+<p>故从最高层的feature$1×1$开始计算：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/KjgC10kd12.png" alt="mark"></p>
+<p>最终追到原图可以覆盖$106×106$大小.</p></div>
+<hr>
+<h2 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h2><h3 id="对比SegNet和FCN实现decoder"><a href="#对比SegNet和FCN实现decoder" class="headerlink" title="对比SegNet和FCN实现decoder"></a>对比SegNet和FCN实现decoder</h3><p>SegNet在UpPool时使用的是index信息，直接将数据放回对应位置,后面再接Conv训练学习。这个上采样不需要训练学习(只是占用了一些存储空间)。</p>
+<p>FCN采用<code>transposed convolutions</code>策略，即将feature 反卷积后得到upsampling，这一过程需要学习，同时将encoder阶段对应的feature做通道降维，使得通道维度和upsampling相同，这样就能做像素相加得到最终的decoder输出.</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/I7aE32djAj.png" alt="mark"></p>
+<p>这里对不同类型decoder的做了如下实验:</p>
+<p>实验设置如下表：</p>
+<table>
+<thead>
+<tr>
+<th>设置</th>
+<th>参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据集</td>
+<td>CamVid</td>
+</tr>
+<tr>
+<td>数据预处理</td>
+<td>局部对比归一化，Shuffle</td>
+</tr>
+<tr>
+<td>优化器</td>
+<td>SGD，lr=0.1,momentum=0.9</td>
+</tr>
+<tr>
+<td>batch</td>
+<td>12</td>
+</tr>
+<tr>
+<td>损失函数</td>
+<td>交叉熵损失，配合类别加权损失</td>
+</tr>
+<tr>
+<td>迭代次数</td>
+<td>iter:1000 x epoch:33</td>
+</tr>
+<tr>
+<td>实现工具</td>
+<td>Caffe</td>
+</tr>
+</tbody>
+</table>
+<p> 结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/5fH0ah3A0e.png" alt="mark"></p>
+<table>
+<thead>
+<tr>
+<th>横轴</th>
+<th>参量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>各种不同的变体</strong></td>
+<td>含义</td>
+</tr>
+<tr>
+<td>Bilinear-Interpolation</td>
+<td>上采样使用双线性插值，不需要学习，参数少，速度快，效果不是很好</td>
+</tr>
+<tr>
+<td>SegNet-Basic</td>
+<td>SegNet基础版本，4个encoder层和4个decoder层，decoder阶段每个上采样后都会通过相同通道数的$7×7$卷积核</td>
+</tr>
+<tr>
+<td>SegNet-Basic-EncoderAddition</td>
+<td>decoder阶段上采样后的feature，加上encoder对应阶段的feature，通过卷积核把通道数降下来</td>
+</tr>
+<tr>
+<td>SegNet-Basic-SingleChannelDecoder</td>
+<td>decoder阶段上采样后每个通道单独对应一个单通道的卷积核，这个参数少</td>
+</tr>
+<tr>
+<td>FCN-Basic</td>
+<td>FCN基础版，反卷积后加上encoder阶段通道降维的feature，得到最终输出</td>
+</tr>
+<tr>
+<td>FCN-Basic-NoAddition</td>
+<td>反卷积直接得到输出，不加encoder阶段的feature了</td>
+</tr>
+<tr>
+<td>FCN-Basic-NoDimReduction</td>
+<td>反卷积和加上encoder阶段不降维的feature，得到最终输出</td>
+</tr>
+<tr>
+<td>FCN-Basic-NoAddition-NoDimReduction</td>
+<td>没看懂~</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>度量标准</strong></th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全局准确率(<strong>global accuracy(G)</strong>)</td>
+<td>在数据集上总体的准确率</td>
+</tr>
+<tr>
+<td>类平均准确率(<strong>class average accuracy (C)</strong>)</td>
+<td>平均每个类别的准确率</td>
+</tr>
+<tr>
+<td>mean intersection over union (mIoU)</td>
+<td>类平均IoU</td>
+</tr>
+<tr>
+<td>BF</td>
+<td>图像的F1测量平均值</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>其他参数</strong></td>
+<td>含义</td>
+</tr>
+<tr>
+<td>$Params(M)$</td>
+<td>可训练参数大</td>
+</tr>
+<tr>
+<td>$Stroage  multiplier$</td>
+<td>feature map或index存储值</td>
+</tr>
+<tr>
+<td>$Infer  time$</td>
+<td>取50次前向时间的平均值</td>
+</tr>
+</tbody>
+</table>
+<p>上述实验结果：</p>
+<ul>
+<li>当encoder的所有feature都保存下来，即<code>FCN-Basic-NoDimReduction</code>，效果最佳。这主要体现在BF(语义轮廓描绘度量)值上.</li>
+<li>当inference的存储受限时，可适当的减少feature通道，配合decoder可得到折中的效果</li>
+<li>上采样学习是比单纯的双线性插值效果要好，这强调了学习decoder的必要性。</li>
+<li>相比于FCN，SegNet有更少的内存利用率和更高效的计算。</li>
+</ul>
+<h4 id="CamVid-amp-SUN-RGB-D"><a href="#CamVid-amp-SUN-RGB-D" class="headerlink" title="CamVid &amp; SUN RGB-D"></a>CamVid &amp; SUN RGB-D</h4><p>在CamVid上与传统方法相比:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/2529Dmcl0k.png" alt="mark"></p>
+<p>与使用CRF的方法相比，SegNet具有明显的竞争力，这显示了深层架构提取特征和映射准确平滑标签的能力。</p>
+<p>与其他深层网络相比：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/0254HhGL0a.png" alt="mark"></p>
+<p>在SUN RGB-D上与其他深层网络相比:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171227/1k09hJIbKm.png" alt="mark"></p>
+<p>效果还算可以~</p>
+<hr>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>模型主要在于decoder阶段的upsampling使用的时encoder阶段的pooling信息，这有效的提高了内存利用率，同时提高了模型分割率。但是吧，SegNet的inference相比FCN没有显著提升，这样end-to-end的模型能力还有待提升。</p>
+<p>更值得学习的是这篇paper的整体写作架构~</p>
+<hr>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>原本准备分析论文作者Alex Kendall在github上给出的<a href="https://github.com/alexgkendall/SegNet-Tutorial" target="_blank" rel="external">Caffe-SegNet</a>代码的。</p>
+<p>考虑到现在用TensorFlow的比较多，就找了一个<a href="https://github.com/mathildor/TF-SegNet" target="_blank" rel="external">TF-SegNet</a>版本(这是基于<a href="https://github.com/tkuanlun350/Tensorflow-SegNet" target="_blank" rel="external">TensorFlow-SegNet</a>改进的)。</p>
+<p><strong>注意：这里只看了SegNet-Basic版本的~</strong></p>
+<h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p>直接看<a href="https://github.com/mathildor/TF-SegNet/blob/master/AirNet/layers.py" target="_blank" rel="external">AirNet-layer.py</a>,这里实现了SegNet常用层，尤其是带index的上采样。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line">FLAGS = tf.app.flags.FLAGS</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">unpool_with_argmax</span><span class="params">(pool, ind, name = None, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>])</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">       带index的上采样</span></div><div class="line"><span class="string">       Unpooling layer after max_pool_with_argmax.</span></div><div class="line"><span class="string">       Args:</span></div><div class="line"><span class="string">           pool:   max pooled output tensor</span></div><div class="line"><span class="string">           ind:      argmax indices 下采样的index</span></div><div class="line"><span class="string">           ksize:     ksize is the same as for the pool</span></div><div class="line"><span class="string">       Return:</span></div><div class="line"><span class="string">           unpool:    unpooling tensor</span></div><div class="line"><span class="string">    """</span></div><div class="line">    <span class="keyword">with</span> tf.variable_scope(name):</div><div class="line">        input_shape = pool.get_shape().as_list()</div><div class="line">        output_shape = (input_shape[<span class="number">0</span>], input_shape[<span class="number">1</span>] * ksize[<span class="number">1</span>], input_shape[<span class="number">2</span>] * ksize[<span class="number">2</span>], input_shape[<span class="number">3</span>])</div><div class="line"></div><div class="line">        flat_input_size = np.prod(input_shape)</div><div class="line">        flat_output_shape = [output_shape[<span class="number">0</span>], output_shape[<span class="number">1</span>] * output_shape[<span class="number">2</span>] * output_shape[<span class="number">3</span>]]</div><div class="line"></div><div class="line">        pool_ = tf.reshape(pool, [flat_input_size])</div><div class="line">        batch_range = tf.reshape(tf.range(output_shape[<span class="number">0</span>], dtype=ind.dtype), shape=[input_shape[<span class="number">0</span>], <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>])</div><div class="line">        b = tf.ones_like(ind) * batch_range</div><div class="line">        b = tf.reshape(b, [flat_input_size, <span class="number">1</span>])</div><div class="line">        ind_ = tf.reshape(ind, [flat_input_size, <span class="number">1</span>])</div><div class="line">        ind_ = tf.concat([b, ind_], <span class="number">1</span>)</div><div class="line"></div><div class="line">        ret = tf.scatter_nd(ind_, pool_, shape=flat_output_shape)</div><div class="line">        ret = tf.reshape(ret, output_shape)</div><div class="line">        <span class="keyword">return</span> ret</div></pre></td></tr></table></figure>
+<p>最后的分类层:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">conv_classifier</span><span class="params">(input_layer, initializer)</span>:</span></div><div class="line">    <span class="string">'''</span></div><div class="line"><span class="string">    最后的分类层 输出的层数由FLAGS.num_class指定</span></div><div class="line"><span class="string">    # output predicted class number (2)</span></div><div class="line"><span class="string">    '''</span></div><div class="line">    <span class="comment">#all variables prefixed with "conv_classifier/"</span></div><div class="line">    <span class="keyword">with</span> tf.variable_scope(<span class="string">'conv_classifier'</span>) <span class="keyword">as</span> scope:</div><div class="line">        shape=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">64</span>, FLAGS.num_class]</div><div class="line">        kernel = _variable_with_weight_decay(<span class="string">'weights'</span>, shape=shape, initializer=initializer, wd=<span class="keyword">None</span>)</div><div class="line">        <span class="comment">#kernel = tf.get_variable('weights', shape, initializer=initializer)</span></div><div class="line">        <span class="comment"># 再卷积，每个通道对应一类分割结果</span></div><div class="line">        conv = tf.nn.conv2d(input_layer, filter=kernel, strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>)</div><div class="line">        biases = _variable_on_cpu(<span class="string">'biases'</span>, [FLAGS.num_class], tf.constant_initializer(<span class="number">0.0</span>))</div><div class="line">        conv_classifier = tf.nn.bias_add(conv, biases, name=scope.name)</div><div class="line">    <span class="keyword">return</span> conv_classifier</div></pre></td></tr></table></figure></p>
+<p><code>Conv+BN</code>组合层，<code>BN</code>层：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">conv_layer_with_bn</span><span class="params">(initializer, inputT, shape, is_training, activation=True, name=None)</span>:</span></div><div class="line">    <span class="string">'''</span></div><div class="line"><span class="string">        Conv+BN组合</span></div><div class="line"><span class="string">    '''</span></div><div class="line">    in_channel = shape[<span class="number">2</span>]</div><div class="line">    out_channel = shape[<span class="number">3</span>]</div><div class="line">    k_size = shape[<span class="number">0</span>]</div><div class="line"></div><div class="line">    <span class="keyword">with</span> tf.variable_scope(name) <span class="keyword">as</span> scope:</div><div class="line">        kernel = _variable_with_weight_decay(<span class="string">'weights'</span>, shape=shape, initializer=initializer, wd=<span class="keyword">None</span>)</div><div class="line">        <span class="comment">#kernel = tf.get_variable(scope.name, shape, initializer=initializer)</span></div><div class="line">        conv = tf.nn.conv2d(inputT, kernel, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>)</div><div class="line">        biases = tf.Variable(tf.constant(<span class="number">0.0</span>, shape=[out_channel], dtype=tf.float32),</div><div class="line">                       trainable=<span class="keyword">True</span>, name=<span class="string">'biases'</span>)</div><div class="line">        bias = tf.nn.bias_add(conv, biases)</div><div class="line"></div><div class="line">        <span class="keyword">if</span> activation <span class="keyword">is</span> <span class="keyword">True</span>: <span class="comment">#only use relu during encoder</span></div><div class="line">            conv_out = tf.nn.relu(batch_norm_layer(bias, is_training, scope.name))</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            conv_out = batch_norm_layer(bias, is_training, scope.name)</div><div class="line">    <span class="keyword">return</span> conv_out</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">batch_norm_layer</span><span class="params">(inputT, is_training, scope)</span>:</span></div><div class="line">      <span class="keyword">return</span> tf.cond(is_training,</div><div class="line">            <span class="keyword">lambda</span>: tf.contrib.layers.batch_norm(inputT, is_training=<span class="keyword">True</span>,</div><div class="line">                           center=<span class="keyword">False</span>, decay=FLAGS.moving_average_decay, scope=scope),</div><div class="line">            <span class="keyword">lambda</span>: tf.contrib.layers.batch_norm(inputT, is_training=<span class="keyword">False</span>,</div><div class="line">                           center=<span class="keyword">False</span>, reuse = <span class="keyword">True</span>, decay=FLAGS.moving_average_decay, scope=scope))</div></pre></td></tr></table></figure></p>
+<p>权重衰减和变量存储设置：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_variable_with_weight_decay</span><span class="params">(name, shape, initializer, wd)</span>:</span></div><div class="line">    <span class="string">""" Helper to create an initialized Variable with weight decay.</span></div><div class="line"><span class="string">        Note that the Variable is initialized with a truncated normal distribution.</span></div><div class="line"><span class="string">        A weight decay is added only if one is specified.</span></div><div class="line"><span class="string">    Args:</span></div><div class="line"><span class="string">        name: name of the variable</span></div><div class="line"><span class="string">        shape: list of ints</span></div><div class="line"><span class="string">        stddev: standard deviation of a truncated Gaussian</span></div><div class="line"><span class="string">        wd: add L2Loss weight decay multiplied by this float. If None, weight</span></div><div class="line"><span class="string">            decay is not added for this Variable.</span></div><div class="line"><span class="string">    Returns:</span></div><div class="line"><span class="string">        Variable Tensor</span></div><div class="line"><span class="string">    """</span></div><div class="line">    var = _variable_on_cpu(name, shape, initializer)</div><div class="line"></div><div class="line">    <span class="keyword">if</span> wd <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">        weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name=<span class="string">'weight_loss'</span>)</div><div class="line">        tf.add_to_collection(<span class="string">'losses'</span>, weight_decay)</div><div class="line">    <span class="keyword">return</span> var</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_variable_on_cpu</span><span class="params">(name, shape, initializer)</span>:</span></div><div class="line">    <span class="string">"""Helper to create a Variable stored on CPU memory.</span></div><div class="line"><span class="string">    Args:</span></div><div class="line"><span class="string">        name: name of the variable</span></div><div class="line"><span class="string">        shape: list of ints</span></div><div class="line"><span class="string">        initializer: initializer for Variable</span></div><div class="line"><span class="string">    Returns:</span></div><div class="line"><span class="string">        Variable Tensor</span></div><div class="line"><span class="string">    """</span></div><div class="line">    <span class="keyword">with</span> tf.device(<span class="string">'/cpu:0'</span>):</div><div class="line">    <span class="comment">#dtype = tf.float16 if FLAGS.use_fp16 else tf.float32 #added this after, cause it was in cifar model</span></div><div class="line">        var = tf.get_variable(name, shape, initializer=initializer)<span class="comment">#, dtype=dtype)</span></div><div class="line">    <span class="keyword">return</span> var</div></pre></td></tr></table></figure>
+<h3 id="模型定义"><a href="#模型定义" class="headerlink" title="模型定义"></a>模型定义</h3><p>SegNet网络结构定义：<a href="https://github.com/mathildor/TF-SegNet/blob/master/AirNet/inference.py" target="_blank" rel="external">inference.py</a></p>
+<p><strong>encoder部分：</strong></p>
+<p>文件的Basic版本关于encoder network:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_weight_initializer</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">if</span>(FLAGS.conv_init == <span class="string">"var_scale"</span>):</div><div class="line">        initializer = tf.contrib.layers.variance_scaling_initializer()</div><div class="line">    <span class="keyword">elif</span>(FLAGS.conv_init == <span class="string">"xavier"</span>):</div><div class="line">        initializer=tf.contrib.layers.xavier_initializer()</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">raise</span> ValueError(<span class="string">"Chosen weight initializer does not exist"</span>)</div><div class="line">    <span class="keyword">return</span> initializer</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">inference_basic</span><span class="params">(images, is_training)</span>:</span></div><div class="line">    <span class="string">""" </span></div><div class="line"><span class="string">      Args:</span></div><div class="line"><span class="string">        images: Images Tensors (placeholder with correct shape, img_h, img_w, img_d)</span></div><div class="line"><span class="string">        is_training: If the model is training or testing</span></div><div class="line"><span class="string">    """</span></div><div class="line">    initializer = get_weight_initializer()</div><div class="line">    img_d = images.get_shape().as_list()[<span class="number">3</span>]</div><div class="line">    </div><div class="line">    <span class="string">'''  encoder阶段  '''</span></div><div class="line">    norm1 = tf.nn.lrn(images, depth_radius=<span class="number">5</span>, bias=<span class="number">1.0</span>, alpha=<span class="number">0.0001</span>, beta=<span class="number">0.75</span>,</div><div class="line">                         name=<span class="string">'norm1'</span>)</div><div class="line">    conv1 = conv_layer_with_bn(initializer, norm1, [<span class="number">7</span>, <span class="number">7</span>, img_d, <span class="number">64</span>], is_training, name=<span class="string">"conv1"</span>)</div><div class="line">    pool1, pool1_indices = tf.nn.max_pool_with_argmax(conv1, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>],</div><div class="line">                            strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>, name=<span class="string">'pool1'</span>)</div><div class="line"></div><div class="line">    conv2 = conv_layer_with_bn(initializer, pool1, [<span class="number">7</span>, <span class="number">7</span>, <span class="number">64</span>, <span class="number">64</span>], is_training, name=<span class="string">"conv2"</span>)</div><div class="line">    pool2, pool2_indices = tf.nn.max_pool_with_argmax(conv2, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>],</div><div class="line">                            strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>, name=<span class="string">'pool2'</span>)</div><div class="line"></div><div class="line">    conv3 = conv_layer_with_bn(initializer, pool2, [<span class="number">7</span>, <span class="number">7</span>, <span class="number">64</span>, <span class="number">64</span>], is_training, name=<span class="string">"conv3"</span>)</div><div class="line">    pool3, pool3_indices = tf.nn.max_pool_with_argmax(conv3, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>],</div><div class="line">                            strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>, name=<span class="string">'pool3'</span>)</div><div class="line"></div><div class="line">    conv4 = conv_layer_with_bn(initializer, pool3, [<span class="number">7</span>, <span class="number">7</span>, <span class="number">64</span>, <span class="number">64</span>], is_training, name=<span class="string">"conv4"</span>)</div><div class="line">    pool4, pool4_indices = tf.nn.max_pool_with_argmax(conv4, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>],</div><div class="line">                            strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>, name=<span class="string">'pool4'</span>)</div></pre></td></tr></table></figure>
+<p>可以看到上来就是一个LRN，做数据归一化（这里想吐槽的是VGG论文里面说LRN没啥用，这encoder用的还是VGG的结构，interesting~），然后就是<code>Conv+BN+MaxPool</code>来4套，这里卷积核尺寸用的比较大，都是64个$7×7$。总的来说没啥新的东西~</p>
+<p><strong>dncoder部分：</strong></p>
+<p>关于decoder network:：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="string">"""  End of encoder - starting decoder """</span></div><div class="line">unpool_4 = unpool_with_argmax(pool4, ind=pool4_indices, name=<span class="string">'unpool_4'</span>)</div><div class="line">conv_decode4 = conv_layer_with_bn(initializer, unpool_4, [<span class="number">7</span>, <span class="number">7</span>, <span class="number">64</span>, <span class="number">64</span>], is_training, <span class="keyword">False</span>, name=<span class="string">"conv_decode4"</span>)</div><div class="line"></div><div class="line">unpool_3 = unpool_with_argmax(conv_decode4, ind=pool3_indices, name=<span class="string">'unpool_3'</span>)</div><div class="line">conv_decode3 = conv_layer_with_bn(initializer, unpool_3, [<span class="number">7</span>, <span class="number">7</span>, <span class="number">64</span>, <span class="number">64</span>], is_training, <span class="keyword">False</span>, name=<span class="string">"conv_decode3"</span>)</div><div class="line"></div><div class="line">unpool_2 = unpool_with_argmax(conv_decode3, ind=pool2_indices, name=<span class="string">'unpool_2'</span>)</div><div class="line">conv_decode2 = conv_layer_with_bn(initializer, unpool_2, [<span class="number">7</span>, <span class="number">7</span>, <span class="number">64</span>, <span class="number">64</span>], is_training, <span class="keyword">False</span>, name=<span class="string">"conv_decode2"</span>)</div><div class="line"></div><div class="line">unpool_1 = unpool_with_argmax(conv_decode2, ind=pool1_indices, name=<span class="string">'unpool_1'</span>)</div><div class="line">conv_decode1 = conv_layer_with_bn(initializer, unpool_1, [<span class="number">7</span>, <span class="number">7</span>, <span class="number">64</span>, <span class="number">64</span>], is_training, <span class="keyword">False</span>, name=<span class="string">"conv_decode1"</span>)</div><div class="line"></div><div class="line"><span class="comment"># 调用分类器</span></div><div class="line"><span class="keyword">return</span> conv_classifier(conv_decode1, initializer)</div></pre></td></tr></table></figure></p>
+<p>decoder整体上就是<code>UpPool+Conv_BN</code>的反向组合4套，配合最后的分类层，整体上还算是好理解~</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/SegNet/" rel="tag"># SegNet</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/08/Keras实现Mask-R-CNN/" rel="next" title="Keras实现Mask R-CNN">
+                <i class="fa fa-chevron-left"></i> Keras实现Mask R-CNN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/02/语义分割论文-ENet/" rel="prev" title="语义分割论文-ENet">
+                语义分割论文-ENet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Semantic-Segmentation简介"><span class="nav-text">Semantic Segmentation简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SegNet论文解读"><span class="nav-text">SegNet论文解读</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Architecture"><span class="nav-text">Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#decoder变体"><span class="nav-text">decoder变体</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#对比SegNet和FCN实现decoder"><span class="nav-text">对比SegNet和FCN实现decoder</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CamVid-amp-SUN-RGB-D"><span class="nav-text">CamVid & SUN RGB-D</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分析"><span class="nav-text">代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#准备工作"><span class="nav-text">准备工作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型定义"><span class="nav-text">模型定义</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

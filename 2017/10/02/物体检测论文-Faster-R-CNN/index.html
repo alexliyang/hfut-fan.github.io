@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Object Detection,Deep Convolutional NetWork,R-CNN," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="本次论文主要分为两个部分:Fast R-CNN和Faster R-CNN。Fast R-CNN是Rgb大神单枪匹马干出来的大作，在R-CNN的基础上再改进,基本实现了单网络训练。Faster R-CNN是Rgb大神和Kaiming He男神强强联合整出来的，完全实现了单网络训练，也刷新了物体检测的state-of-the-art。这篇是R-CNN系列的第三篇。">
+<meta name="keywords" content="Object Detection,Deep Convolutional NetWork,R-CNN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="物体检测论文-Faster R-CNN">
+<meta property="og:url" content="http://hfut-fan.github.io/2017/10/02/物体检测论文-Faster-R-CNN/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="本次论文主要分为两个部分:Fast R-CNN和Faster R-CNN。Fast R-CNN是Rgb大神单枪匹马干出来的大作，在R-CNN的基础上再改进,基本实现了单网络训练。Faster R-CNN是Rgb大神和Kaiming He男神强强联合整出来的，完全实现了单网络训练，也刷新了物体检测的state-of-the-art。这篇是R-CNN系列的第三篇。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/aLdf0h6Kh9.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/l9bH8LfH47.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/ilfcB3Ecd6.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/8Fbdb9eiJ3.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/D8EB5AbG7e.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/431LdifmGj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/15keDHd698.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/1C1e8bB305.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/8Fhgd301Ce.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/Em91CkEAij.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/3DhLFmLhmH.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/7kjg4Cdmlj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/0Ihc5FB3mJ.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/iBCig8b1C7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/8K91a059dJ.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/6bEg37DD9i.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/iF8Jl6Kgc2.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/ifFF8lgfg7.png?imageslim">
+<meta property="og:updated_time" content="2018-01-29T02:48:17.394Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="物体检测论文-Faster R-CNN">
+<meta name="twitter:description" content="本次论文主要分为两个部分:Fast R-CNN和Faster R-CNN。Fast R-CNN是Rgb大神单枪匹马干出来的大作，在R-CNN的基础上再改进,基本实现了单网络训练。Faster R-CNN是Rgb大神和Kaiming He男神强强联合整出来的，完全实现了单网络训练，也刷新了物体检测的state-of-the-art。这篇是R-CNN系列的第三篇。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/171002/aLdf0h6Kh9.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2017/10/02/物体检测论文-Faster-R-CNN/"/>
+
+
+
+
+
+  <title>物体检测论文-Faster R-CNN | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2017/10/02/物体检测论文-Faster-R-CNN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">物体检测论文-Faster R-CNN</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-02T17:18:29+08:00">
+                2017-10-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本次论文主要分为两个部分:Fast R-CNN和Faster R-CNN。<br>Fast R-CNN是Rgb大神单枪匹马干出来的大作，在R-CNN的基础上再改进,基本实现了单网络训练。<br>Faster R-CNN是Rgb大神和Kaiming He男神强强联合整出来的，完全实现了单网络训练，也刷新了物体检测的state-of-the-art。<br>这篇是R-CNN系列的第三篇。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="Fast-R-CNN"><a href="#Fast-R-CNN" class="headerlink" title="Fast R-CNN"></a>Fast R-CNN</h1><p>15年rgb大神单片匹马干出来一个<a href="https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Girshick_Fast_R-CNN_ICCV_2015_paper.pdf" target="_blank" rel="external">Fast R-CNN</a>。Fast R-CNN在SPPNet的基础再跟进，进一步提升速度和准确率，提出了RoI层代替SPP层，实现了整个物体检测模型大部分网络的end-to-end，下面细致学习一下。</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>论文首先分析了R-CNN和SPPNet存在的问题，进而提出改进办法。</p>
+<div class="note info"><h3 id="R-CNN存在的问题"><a href="#R-CNN存在的问题" class="headerlink" title="R-CNN存在的问题"></a><strong>R-CNN存在的问题</strong></h3><p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/aLdf0h6Kh9.png?imageslim" alt="mark"></p>
+<ul>
+<li><p>检测目标速度慢.<br>  在测试阶段，特征来自于每张测试图片的每个候选区域.每个候选区域都需要经过CNN的前向传播计算出特征向量。速度很慢.</p>
+</li>
+<li><p>训练分为多个阶段(multi-stage pipeline)</p>
+<ul>
+<li>第一阶段，从原始图片中使用selective search获取约2000个候选区域</li>
+<li>第二阶段，训练CNN,获取候选区域的特征向量</li>
+<li>第三阶段，训练SVM和bbox回归<br>因为是分阶段训练，训练SVM和bbox回归时无法更新前面CNN的参数，模型精度上不去。</li>
+</ul>
+</li>
+<li><p>训练花费大量的空间和时间(in space and time)<br>  候选区域经过CNN得到的特征向量要存在到disk内，然后在训练SVM和bbox回归再取出来，这需要大量的磁盘空间，并且很耗费时间。</p>
+</li>
+</ul>
+<p>R-CNN速度慢是因为每个候选区域都需要塞入CNN里面做一次前向传播，而SPPNet中，把全图塞进CNN得到一个完整的feature map，在将每个候选区域映射到feature map上，获得每个候选区域的特征向量。塞给SPP层得到固定长度的特征向量，再实现SVM分类，bbox回归等.</p>
+<h3 id="SPPNet存在的问题"><a href="#SPPNet存在的问题" class="headerlink" title="SPPNet存在的问题"></a><strong>SPPNet存在的问题</strong></h3><p>SPPNet也有很明显的缺点：</p>
+<ul>
+<li>分阶段训练网络：选取候选区域、训练CNN、训练SVM、训练bbox回归器.</li>
+<li>特征需要写入磁盘</li>
+<li>训练SVM，bbox回归时算法不能更新卷积层的参数，这会影响网络的精度</li>
+</ul></div>
+<div class="note danger"><h3 id="Fast-RNN的改进"><a href="#Fast-RNN的改进" class="headerlink" title="Fast RNN的改进"></a><strong>Fast RNN的改进</strong></h3><p>针对上述的问题，Fast R-CNN的想法是将整个模型分成两步：</p>
+<ul>
+<li>第一步是选取候选区域;</li>
+<li>第二步就是提出一个RoI层，整合了整个模型，把CNN、变换层、SVM分类器、bbox回归这几个模块整一起，大家一起训练</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/l9bH8LfH47.png?imageslim" alt="mark"></p>
+<p><strong>新的模型效果很好,因为多个训练阶段合并了，训练后面阶段的同时可以更新前面阶段的参数，模型收敛的更好了。同时因为多个阶段合并，候选区域的特征不需要在写入磁盘，一直在显存中，训练的速度大大的提升。</strong></p></div>
+<h2 id="Fast-R-CNN的架构"><a href="#Fast-R-CNN的架构" class="headerlink" title="Fast R-CNN的架构"></a>Fast R-CNN的架构</h2><p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/ilfcB3Ecd6.png?imageslim" alt="mark"></p>
+<p>Fast R-CNN模型先把一张图片的候选区域整出来，整个模型的输入是全图片和一组候选区域.和SPPNet一样，首先全图片塞进一个CNN得到一个全图的feature map.</p>
+<p>然后，把图片的候选区域映射到feature map得到对应的patch(这和SPPNet的处理类似).然后把这个patch塞给ROI层(Region of interest)得到固定大小的的特征向量(feature vector).</p>
+<p>每个特征向量会送到FC层，最后分为两个分支层:一个层是处理softmax概率，输出类别有K个类别和”背景”类;另一个层作bbox回归，输出回归的选框数据.联合一起训练整个网络。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/8Fbdb9eiJ3.png?imageslim" alt="mark"></p>
+<p>相比于SPPNet，Fast R-CNN简化了SPP层(RoI层是一个简化的SPP层)，按论文的说法，Fast R-CNN是<strong>joint training</strong>。</p>
+<p>这里我们主要关注两个问题:</p>
+<ul>
+<li>RoI层是个啥，怎么工作的？</li>
+<li>怎么就把几个阶段搞到一起的训练了？</li>
+</ul>
+<div class="note info"><h3 id="RoI层是个啥"><a href="#RoI层是个啥" class="headerlink" title="RoI层是个啥"></a>RoI层是个啥</h3><p>RoI层的作用和SPPNet中的SPP层作用类似:承上启下。</p>
+<ul>
+<li>承上: 接收在每个候选区域在feature map上投影出的特征patch，输出长度固定的特征向量。</li>
+<li>启下: 特征向量的长度固定的原因为了对付FC层的特殊要求。</li>
+</ul>
+<p>说白了就是如何把不同尺寸的侯选区域提取特征变换成为固定大小的特征向量。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/D8EB5AbG7e.png?imageslim" alt="mark"></p>
+<p><strong>RoI层是特殊的SPP层，RoI层是使用单个尺度的SPP层(为什么不用多个尺度的原因是多个尺度准确率提升不高，但是计算量成倍的翻)</strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/431LdifmGj.png?imageslim" alt="mark"></p>
+<h4 id="RoI层的Forward"><a href="#RoI层的Forward" class="headerlink" title="RoI层的Forward"></a><strong>RoI层的Forward</strong></h4><p><a href="http://blog.csdn.net/shenxiaolu1984/article/details/51036677" target="_blank" rel="external">引用shenxiaolu1984</a>.</p>
+<p>RoI层将候选区域分为$H×W$块。对每个小块做max-pooling.将候选区的局部特征映射转变为大小统一的数据，送入下一层。 </p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/15keDHd698.png?imageslim" alt="mark"></p>
+<h4 id="RoI层的Backward"><a href="#RoI层的Backward" class="headerlink" title="RoI层的Backward:"></a><strong>RoI层的Backward:</strong></h4><p>考虑到普通的的max pooling层，设$x_i$为输入层的节点，$y_i$为输出层的节点.</p>
+<p>$$<br>\frac{\partial L}{\partial x_i }=<br> \begin{cases}<br>   0   ,           \delta (i,j)=false\\<br>   \frac{\partial L}{\partial y_i } ,\delta (i,j)=true<br>   \end{cases}<br>$$</p>
+<p>其中判决函数$\delta(i,j)$表示$i$节点是否被$j$节点选为最大值输出。不被选中有两种可能：$x_i$不在$y_j$范围内，或者$x_i$不是最大值</p>
+<p>对于RoI的max pooling，一个输入节点可能和多个输出节点相连。设$x_i$为输入层的节点，$y_{rj}$为第$r$个候选区域的第$j$个输出节点。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/1C1e8bB305.png?imageslim" alt="mark"></p>
+<p>$$\frac{\partial L}{\partial x_i }=\sum_{r,j}\delta(i,r,j) \frac{\partial L}{\partial y_{rj} } $$</p>
+<p>判决函数$δ(i,r,j)$表示$i$节点是否被候选区域$r$的第$j$个节点选为最大值输出。代价对于$x_i$的梯度等于所有相关的后一层梯度之和。</p></div>
+<div class="note success"><h3 id="把几个阶段搞到一起"><a href="#把几个阶段搞到一起" class="headerlink" title="把几个阶段搞到一起"></a>把几个阶段搞到一起</h3><p>前面我们讲了RoI层的反向传播，这就让整个模型能从FC层传播到卷积层了，剩下的就是把SVM分类器和bbox回归整到一起就大功告成了。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/8Fhgd301Ce.png?imageslim" alt="mark"></p>
+<h4 id="多任务损失-Multi-task-loss"><a href="#多任务损失-Multi-task-loss" class="headerlink" title="多任务损失(Multi-task loss)"></a>多任务损失(Multi-task loss)</h4><p>Fast R-CNN在FC层后有两个分支,一个是SVM分类器，一个是bbox回归。<br>这里直接给结论，论文把这两个分支的损失弄到一起:<br>$$ L(p,u,t^u,v) = L_{cls}(p,u) + \lambda[u≥1]L_{loc}(t^u,v) $$</p>
+<p>$L_{cls}(p,u) $是一个分支softmax层输出概率分布:$p=(p_0,…,p_k)$,这是一个K个分类，加上1个背景的softmax层。</p>
+<p>$ \lambda[u≥1]L_{loc}(t^u,v)$另一个分支bbox回归的位移: $t^k=(t_x^k,t_y^k,t_w^k,t_h^k)$,k表示类别，这里对于bbox回归的loss，是一个K个输出的regressor.每个类别都会训练出一个回归器，且这里的回归器用的损失函数为:</p>
+<p>$$ L_{loc}(t^u,v) = \sum_{i∈{x,y,w,h}}smooth_{L_1}(t_i^u-v_i) $$</p>
+<p>其中</p>
+<p>$$<br>smooth_{L_1}(x)=<br> \begin{cases}<br>   0.5x^2 &amp;\mbox{if|x|&lt;1}  \\<br>    |x|-0.5 &amp;\mbox{otherwise}<br>   \end{cases}<br>$$</p>
+<p>使用$L_1$正则损失的原因是对outliers(离群点)的敏感度低，模型更具有鲁棒性。</p>
+<p>RoI层加上多任务损失函数，把除了proposal以外的整个模型整到一起了，大家可以一起训练了，没有特征存/取硬盘的操作，整个训练和测试过程又全线提速了！</p></div>
+<h2 id="Fast-R-CNN的训练技巧"><a href="#Fast-R-CNN的训练技巧" class="headerlink" title="Fast R-CNN的训练技巧"></a>Fast R-CNN的训练技巧</h2><div class="note success"><h3 id="SGD的样本选取"><a href="#SGD的样本选取" class="headerlink" title="SGD的样本选取"></a>SGD的样本选取</h3><p>这里针对fine-tuning阶段指出了SPPNet存在的问题。</p>
+<p><strong>SPPNet在使用BP算法训练效率低的原因：</strong></p>
+<ul>
+<li>每个训练样本来自于不同的图片.</li>
+<li>The inefficiency stems from the fact that each RoI may have a very large receptive field, often spanning the entire input image. Since the forward pass must process the entire receptive field, the training inputs are large (often the entire image).</li>
+</ul>
+<p>SPPNet只能微调SPP层后面的全连接层，再采用SGD方法训练的过程中，而<strong>SPPNet的会在多张图片上选取候选区域，这里在反向传播的过程中会大量耗费内存和时间</strong>。</p>
+<p><strong>在Fast R-CNN的做法:</strong></p>
+<p>Fast R-CNN采用SGD训练，每次采样在N个图片的基础上选取R个候选区域，<strong>实验选取的N=2，R=128.这样样本数据来自与2张图片，这比R-CNN和SPPNet选取的样本在训练速度上快了很多倍</strong>。</p>
+<p><strong>这里存在一个问题，训练样本大多数取自同一张图片，样本之前关联性很大，这可能会造成训练不收敛，但是在论文的实验过程中，没有出现这种情况，所以就采用这个方法了</strong>。</p>
+<h4 id="小批量采样-Mini-batch-sampling"><a href="#小批量采样-Mini-batch-sampling" class="headerlink" title="小批量采样(Mini-batch sampling)"></a>小批量采样(Mini-batch sampling)</h4><p>在网络微调，每个SGD mini-batch是由N=2，R=128，首先加入N张完整图片，而后加入从N张图片中选取的R个候选框。从object proposal中选25%的RoI，就是和ground-truth的IoU至少为0.5的。剩下的75%取IoU至少为在0.1到0.5的样本作为背景。</p>
+<p>N张完整图片以50%概率水平翻转。 R个候选框的构成方式如下：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>比例</th>
+<th>方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正例</td>
+<td>25%</td>
+<td>与Ground-Truth的IoU大于0.5</td>
+</tr>
+<tr>
+<td>反例</td>
+<td>75%</td>
+<td>与Ground-Truth的IoU在0.1到0.5之间</td>
+</tr>
+</tbody>
+</table></div>
+<div class="note info"><h3 id="使用奇异值分解为FC层提速-Truncated-SVD-for-Fast-detection"><a href="#使用奇异值分解为FC层提速-Truncated-SVD-for-Fast-detection" class="headerlink" title="使用奇异值分解为FC层提速(Truncated SVD for Fast detection)"></a>使用奇异值分解为FC层提速(Truncated SVD for Fast detection)</h3><p>在检测过程中，因为要处理的RoIs较多，几乎过半的时间都耗费在FC层的计算上了，这里是用SVD分解加速FC层的计算。</p>
+<p>我们对一组尺寸$u×v$的权重矩阵$W$可分解为:使用t个特征值.<br>$$W≈U\Sigma_tV^T=U(:,1:t) \Sigma(1:t,1:t) V(:,1:t)^T$$</p>
+<p>将原来的前向传播分为两步，降低了计算复杂度:<br>$$ y=Wx \rightarrow  y =(U\Sigma_tV^T)x=Uz $$</p>
+<p>计算复杂度从$u×v$变为$u×t+v×t$。 </p>
+<p>在实现时，相当于把一个全连接层拆分成两个，中间以一个低维数据相连。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/Em91CkEAij.png?imageslim" alt="mark"></p>
+<p>到此，Fast R-CNN的算是分析完了，论文中还有很多实验细节，有兴趣的可以看看。</p></div>
+<hr>
+<h1 id="Faster-R-CNN"><a href="#Faster-R-CNN" class="headerlink" title="Faster R-CNN"></a>Faster R-CNN</h1><p>15年，Kaiming He男神和Rgb大神强强联手，整个了这个R-CNN的最终版<a href="https://arxiv.org/pdf/1506.01497.pdf" target="_blank" rel="external">Fast R-CNN</a>。</p>
+<h2 id="Introduction-1"><a href="#Introduction-1" class="headerlink" title="Introduction"></a>Introduction</h2><p>从RCNN到Fast R-CNN，再到本文的Faster R-CNN，<strong>目标检测的四个基本步骤（候选区域生成，特征提取，分类，位置精修）终于被统一到一个深度网络框架之内。剔除了大部分的计算冗余，大部分训练过程在GPU中完成，进一步提高了运行速度。 </strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/3DhLFmLhmH.png?imageslim" alt="mark"></p>
+<div class="note danger"><h3 id="Faster-R-CNN主要用两个模块组成："><a href="#Faster-R-CNN主要用两个模块组成：" class="headerlink" title="Faster R-CNN主要用两个模块组成："></a>Faster R-CNN主要用两个模块组成：</h3><ul>
+<li>第一个模块是深层的全卷积网络用于区域推荐</li>
+<li>第二个模块是Fast R-CNN detector.</li>
+</ul>
+<p>Faster R-CNN可以看做”区域生成网络+fast R-CNN”的系统，用区域生成网络代替Fast-RCNN中的Selective Search方法，来产生一堆候选区域。</p>
+<h3 id="本篇论文着重解决了下面问题："><a href="#本篇论文着重解决了下面问题：" class="headerlink" title="本篇论文着重解决了下面问题："></a>本篇论文着重解决了下面问题：</h3><ol>
+<li>如何设计/训练 区域生成网络 </li>
+<li>如何整合区域生成网络和Fast R-CNN网络共享特征提取网络</li>
+</ol></div>
+<h2 id="侯选区域生成网络"><a href="#侯选区域生成网络" class="headerlink" title="侯选区域生成网络"></a>侯选区域生成网络</h2><h3 id="为什么要整出来侯选区域生成网络？"><a href="#为什么要整出来侯选区域生成网络？" class="headerlink" title="为什么要整出来侯选区域生成网络？"></a>为什么要整出来侯选区域生成网络？</h3><p>当前检测网络最耗时的地方在proposals选取。现在用的最多的时Selective Search,这在测试过程中会耗费较多的时间。</p>
+<p>我们可以注意到，CNN在GPU上有着计算优势，有一个很直接的想法就是候选区域算法能从CPU上移植到GPU上，这是一个好的工程想法，<strong>但是这样的做法忽略了共享计算的可能.</strong></p>
+<p>论文提出了使用CNN来推荐候选区域，称之为RPNs(Region Proposal Networks)。作者观察到<strong>区域检测器(例如Fast R-CNN)的卷积层后的特征映射(feature map)可用户RPNs生成侯选区域.在特征映射的基础上向后添加几层卷积层构成区域推荐网络</strong>。这是一个FCN(fully convolutional network,全卷积网络).</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/7kjg4Cdmlj.png?imageslim" alt="mark"></p>
+<h3 id="侯选区域生成网络架构"><a href="#侯选区域生成网络架构" class="headerlink" title="侯选区域生成网络架构"></a>侯选区域生成网络架构</h3><p>RPN网络基本设想是：在提取好的特征图上，通过一个滑动窗口获取特征向量，然后输出到两个全连接层:</p>
+<ul>
+<li>一个是box-regression layer(reg)</li>
+<li>另一个是 box-classification layer(cls).</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/0Ihc5FB3mJ.png?imageslim" alt="mark"></p>
+<p>上图中可以看到，在feature map上会有一个sliding window,这个sliding window会遍历feature map上的每一个点，并且在每个点上配置k个anchor boxes。</p>
+<p><strong>这k个anchor boxes就是用于提取feature map上的特征，</strong>但是这样提取出来效果不是很好，所以后面会接一个分类器和一个bbox回归，这样就能修正检测位置了。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/iBCig8b1C7.png?imageslim" alt="mark"></p>
+<p>侯选区域生成网络(Region Proposal Networks,RPN),RPN网络接收任意大小的图片作为输入，输出一组目标侯选矩形框，并带有目标分数.</p>
+<div class="note success"><p>下面详细介绍一下anchor boxes的概念。</p>
+<h4 id="Anchors"><a href="#Anchors" class="headerlink" title="Anchors"></a>Anchors</h4><p>在每一个滑动窗口的位置，我们同时预测k个推荐区域，故reg层有4k个输出(每个侯选区域是一个元素个数为4的元组)。cls层输出2k个得分(即对每个推荐区域是目标/非目标的估计概率)</p>
+<p>k个推荐区域对应着k个参考框的参数形式，我们称之为anchors.每个anchor以当前滑动窗口的中心为中心，并与尺度和长宽比相关。默认地我们使用3种尺度和3种长宽比，对于每个滑动位置就有k=9个anchor。对于大小为$W×H$（例如2,400）的卷积特征映射，总共有$WHk$个anchor。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/8K91a059dJ.png?imageslim" alt="mark"></p>
+<p>特征可以看做一个尺度51<em>39的256通道图像，对于该图像的每一个位置，考虑9个可能的候选窗口：三种面积${128^2,256^2,512^2 }×$ 三种长宽比例${1:1,1:2,2:1}$, 下图示出51</em>39个anchor中心，以及9种anchor示例。 </p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/6bEg37DD9i.png?imageslim" alt="mark"></p>
+<p>分类层（cls_score）输出每一个位置上，9个anchor属于前景和背景的概率；窗口回归层（bbox_pred）输出每一个位置上，9个anchor对应窗口应该平移缩放的参数。<br>对于每一个位置来说，分类层从256维特征中输出属于前景和背景的概率；窗口回归层从256维特征中输出4个平移缩放参数。</p>
+<p>就局部来说，这两层是全连接网络；就全局来说，由于网络在所有位置（共51*39个）的参数相同，所以实际用尺寸为1×1的卷积网络实现。</p>
+<p>需要注意的是：并没有显式地提取任何候选窗口，完全使用网络自身完成判断和修正。</p></div>
+<h3 id="侯选区域生成网络的训练"><a href="#侯选区域生成网络的训练" class="headerlink" title="侯选区域生成网络的训练"></a>侯选区域生成网络的训练</h3><h4 id="训练数据"><a href="#训练数据" class="headerlink" title="训练数据"></a>训练数据</h4><p>对每个anchor给定标签选项，认定两种anchors为正样本:</p>
+<ul>
+<li>anchor/anchors与ground-truth box有着最高的IoU记为正样本</li>
+<li>剩下的anchor/anchors与任何ground-truth box的IoU大于0.7记为正样本，IoU小于0.3，记为负样本</li>
+<li>剩下的anchor/anchors记为非正样本，对训练没有贡献，不使用</li>
+</ul>
+<p>同一个ground-truth可以确定多个anchors. </p>
+<h4 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h4><p>这里使用的损失函数和Fast R-CNN内的损失函数原理类似，同时最小化两种代价:<br>$$ L({p_i},{t_i})=\frac{1} {N_{cls}} \sum_iL_{cls}(p_i,p_i^l)+\lambda \frac{1} {N_{reg}}\sum_i p_{i}^l L_{reg}(t_i,t_i^l) $$</p>
+<ul>
+<li>RPN可以BP算法和SGD算法完成end-to-end训练。每个mini-batch的数据包含着一张图片上的多个正样本和负样本。</li>
+<li>在网络参数初始化上，前面的卷积层使用预训练的ImageNet的网络参数，新添加的层使用随机的高斯分布初始化权重.</li>
+<li>在前60K的mini-batch上我们使用0.001的学习率,后20K的mini-batch上我们使用0.0001的学习率,同时使用全职衰减,momentum=0.9，weight decay=0.0005.</li>
+</ul>
+<div class="note info"><h3 id="共享特征"><a href="#共享特征" class="headerlink" title="共享特征"></a>共享特征</h3><p>RPN和Fast R-CNN都需要一个原始特征提取网络（下图灰色方框）。这个网络使用ImageNet的分类库得到初始参数W0，但要如何精调参数，使其同时满足两方的需求呢？本文讲解了三种方法。 </p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/171002/iF8Jl6Kgc2.png?imageslim" alt="mark"></p>
+<ul>
+<li><p><strong>Alternating training(轮流训练)</strong></p>
+<ul>
+<li>先独立训练RPN，然后用这个RPN的网络权重对Fast-RCNN网络进行初始化并且用之前RPN输出proposal作为此时Fast-RCNN的输入训练Fast R-CNN</li>
+<li>用Fast R-CNN的网络参数去初始化RPN</li>
+<li><p>交换a,b训练过程即可 </p>
+<p>具体操作时，仅执行两次迭代(后面再迭代，效果没啥大的提升)，并在训练时冻结了部分层。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>Approximate joint training(近似联合训练)<br>  <img src="http://owv7la1di.bkt.clouddn.com/blog/171002/ifFF8lgfg7.png?imageslim" alt="mark"></p>
+<p>  直接在上图结构上训练。proposals是由中间的RPN层输出的，而不是从网络外部得到。需要注意的一点，名字中的”approximate”是因为反向传播阶段RPN产生的cls score能够获得梯度用以更新参数，但是proposal的坐标预测则直接把梯度舍弃了，这个设置可以使backward时该网络层能得到一个解析解，能将训练时间减少20%-25%。(这里照搬别人的blog，自己没看懂<a href="https://zhuanlan.zhihu.com/p/24916624" target="_blank" rel="external">晓雷</a>)。</p>
+</li>
+</ul>
+<ul>
+<li><p>Non-approximate training(联合训练)</p>
+<p>  直接在上图结构上训练，上面的Approximate joint training把proposal的坐标预测梯度直接舍弃，所以被称作approximate，那么理论上如果不舍弃是不是能更好的提升RPN部分网络的性能呢？作者把这种训练方式称为“ Non-approximate joint training”，论文没有对这个方法进行讨论。</p>
+</li>
+</ul>
+<p>后面的网络和Fast R-CNN类似了，这里就不继续讨论了。</p></div>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Faster R-CNN是R-CNN的最终版，准确度相比对R-CNN提高了很多，但是离实际应用差的还远，主要原因是计算跟不上，而在此之后，Rgb大神挖了一个新坑-YOLO，再保证准确率的同时又提高了速度，大幅度的推动了物体检测的state-of-the-art. 后面我们会继续分析。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Object-Detection/" rel="tag"># Object Detection</a>
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/R-CNN/" rel="tag"># R-CNN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/30/物体检测论文-SPPNet/" rel="next" title="物体检测论文-SPPNet">
+                <i class="fa fa-chevron-left"></i> 物体检测论文-SPPNet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/11/物体检测论文-YOLO系列/" rel="prev" title="物体检测论文-YOLO系列">
+                物体检测论文-YOLO系列 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Fast-R-CNN"><span class="nav-text">Fast R-CNN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#R-CNN存在的问题"><span class="nav-text">R-CNN存在的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPPNet存在的问题"><span class="nav-text">SPPNet存在的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-RNN的改进"><span class="nav-text">Fast RNN的改进</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fast-R-CNN的架构"><span class="nav-text">Fast R-CNN的架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RoI层是个啥"><span class="nav-text">RoI层是个啥</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RoI层的Forward"><span class="nav-text">RoI层的Forward</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RoI层的Backward"><span class="nav-text">RoI层的Backward:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#把几个阶段搞到一起"><span class="nav-text">把几个阶段搞到一起</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#多任务损失-Multi-task-loss"><span class="nav-text">多任务损失(Multi-task loss)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fast-R-CNN的训练技巧"><span class="nav-text">Fast R-CNN的训练技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SGD的样本选取"><span class="nav-text">SGD的样本选取</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#小批量采样-Mini-batch-sampling"><span class="nav-text">小批量采样(Mini-batch sampling)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用奇异值分解为FC层提速-Truncated-SVD-for-Fast-detection"><span class="nav-text">使用奇异值分解为FC层提速(Truncated SVD for Fast detection)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Faster-R-CNN"><span class="nav-text">Faster R-CNN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction-1"><span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Faster-R-CNN主要用两个模块组成："><span class="nav-text">Faster R-CNN主要用两个模块组成：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本篇论文着重解决了下面问题："><span class="nav-text">本篇论文着重解决了下面问题：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#侯选区域生成网络"><span class="nav-text">侯选区域生成网络</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要整出来侯选区域生成网络？"><span class="nav-text">为什么要整出来侯选区域生成网络？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#侯选区域生成网络架构"><span class="nav-text">侯选区域生成网络架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Anchors"><span class="nav-text">Anchors</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#侯选区域生成网络的训练"><span class="nav-text">侯选区域生成网络的训练</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#训练数据"><span class="nav-text">训练数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#损失函数"><span class="nav-text">损失函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#共享特征"><span class="nav-text">共享特征</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

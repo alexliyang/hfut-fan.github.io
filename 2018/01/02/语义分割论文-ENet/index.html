@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LightWeight Convolutional NetWork,Semantic Segmentation,ENet," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Semantic Segmentation - ENet，具有高时效性的Encoder-Decoder结构，论文有大量的架构trick.">
+<meta name="keywords" content="LightWeight Convolutional NetWork,Semantic Segmentation,ENet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文-ENet">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/01/02/语义分割论文-ENet/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="Semantic Segmentation - ENet，具有高时效性的Encoder-Decoder结构，论文有大量的架构trick.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/fcL74E9AdJ.gif">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/3AJIhjjLjD.gif">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/gi77Ck35GB.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/jI6EfC2589.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/9adhlJKl24.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/D5CCL9mi4K.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/3iiadGjJje.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/IEJBAFh4BI.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/gDGge7dFB1.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/mJHJe84jE0.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/l0eG3d7ied.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/Hb10AFHcJI.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/CA3L4eFccG.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/43b9F5h0Cm.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/47mJLgcIEc.png">
+<meta property="og:updated_time" content="2018-01-29T02:44:48.629Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文-ENet">
+<meta name="twitter:description" content="Semantic Segmentation - ENet，具有高时效性的Encoder-Decoder结构，论文有大量的架构trick.">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180102/fcL74E9AdJ.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/01/02/语义分割论文-ENet/"/>
+
+
+
+
+
+  <title>语义分割论文-ENet | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/01/02/语义分割论文-ENet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文-ENet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-02T20:50:02+08:00">
+                2018-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Semantic Segmentation - ENet，具有高时效性的Encoder-Decoder结构，论文有大量的架构trick.
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="ENet"><a href="#ENet" class="headerlink" title="ENet"></a>ENet</h1><p>ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation</p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1606.02147.pdf" target="_blank" rel="external">ENet</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/e-lab/ENet-training" target="_blank" rel="external">Introduction</a></li>
+<li><a href="https://github.com/TimoSaemann/ENet" target="_blank" rel="external">Caffe</a></li>
+<li><a href="https://github.com/kwotsin/TensorFlow-ENet" target="_blank" rel="external">TensorFlow</a></li>
+<li><a href="https://github.com/PavlosMelissinos/enet-keras" target="_blank" rel="external">Keras</a></li>
+</ul>
+<p>效果图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/fcL74E9AdJ.gif" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/3AJIhjjLjD.gif" alt="mark"></p>
+<hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>许多移动应用需要实时语义分割(Real-time Semantic Segmentation)模型,现有的深度神经网络难以实现，问题在于<strong>深度神经网络需要大量的浮点运算，导致运行时间长，从而降低了时效性</strong>。ENet即针对这一问题提出的一种新型有效的深度神经网络，相比于现有的模型，在速度加快了18×倍，浮点计算量上减少了75×，参数减少了79×，且有相似的精度。ENet在CamVid, Cityscapes and SUN datasets做了相关对比测试。</p>
+<hr>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>在Semantic Segmentation领域，已经提出了几种神经网络体系结构，如SegNet或FCN。这些模型大多基于VGG架构，相比于传统方法，虽然精度上去了，但面临着模型参数多和前向推导时间长等问题，这对于许多需要10fp且长时间运行的移动设备难以实用。</p>
+<p>本文中提出一种新的神经网络架构：ENet。优化了模型参数，保持模型的高精度和快速的前向推理时间。没有使用任何后端处理（可以配合一些后端处理，提高准确率）。在Cityscapes、CamVid、SUN dataset上做了验证，并使用NVIDIA Jetson TX1嵌入式设备和NVIDIA Titan X GPU上做了benchmark。</p>
+<hr>
+<h2 id="Related-work"><a href="#Related-work" class="headerlink" title="Related work"></a>Related work</h2><p>常见的Semantic Segmentation架构是使用两个独立的神经网络架构：一个encoder一个decoder。但是这些模型参数量太大，达不到实时要求。</p>
+<p>有一些其他的体系使用更简单的分类器，然后使用条件随机场(CRF)最为后端处理步骤进行级联，但是这个方法难以标记小目标。CNN也可以与RNN相结合，但是这个会降低速度。</p>
+<hr>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><h3 id="ENet中bottleneck-module"><a href="#ENet中bottleneck-module" class="headerlink" title="ENet中bottleneck module"></a>ENet中<strong>bottleneck module</strong></h3><p>这里的bottleneck借鉴Resnet的思想,如下图:<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/gi77Ck35GB.png" alt="mark"></p>
+<p>每个block共两条路线，学习残差.这里主要讲在encoder阶段的构成。<br>分为两种情况：</p>
+<ul>
+<li><p>下采样的bottleneck： </p>
+<ul>
+<li>主线包括三个卷积层，<ul>
+<li>先是$2 × 2$投影做降采样;</li>
+<li>然后是卷积(有三种可能，Conv普通卷积,<strong>asymmetric</strong>分解卷积，<strong>Dilated</strong>空洞卷积)</li>
+<li>后面再接一个$1 × 1$的做升维<br>注意每个卷积层后均接Batch Norm和PReLU。</li>
+</ul>
+</li>
+<li>辅线包括最大池化和Padding层<ul>
+<li>最大池化负责提取上下文信息</li>
+<li>Padding负责填充通道，达到后续的残差融合<br>融合后再接PReLU。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>非下采样的bottleneck:</p>
+<ul>
+<li>主线包括三个卷积层，<ul>
+<li>先是$1 × 1$投影;</li>
+<li>然后是卷积(有三种可能，Conv普通卷积,<strong>asymmetric</strong>分解卷积，<strong>Dilated</strong>空洞卷积)</li>
+<li>后面再接一个$1 × 1$的做升维<br>注意每个卷积层后均接Batch Norm和PReLU。</li>
+</ul>
+</li>
+<li>辅线直接恒等映射(只有下采样才会增加通道数，故这里不需要padding层)<br>融合后再接PReLU。</li>
+</ul>
+</li>
+</ul>
+<h3 id="整体的架构"><a href="#整体的架构" class="headerlink" title="整体的架构"></a>整体的架构</h3><p>ENet模型大致分为5个Stage，如下图：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/jI6EfC2589.png" alt="mark"></p>
+<ul>
+<li><strong>initial：</strong>初始化模块，如下图：<br>  <img src="http://owv7la1di.bkt.clouddn.com/blog/180102/9adhlJKl24.png" alt="mark"><br>  左边是做$3×3/str=2$的卷积，右边是做MaxPooling，将两边结果concat一起，做通道合并，这样可以上来显著减少存储空间。</li>
+<li><strong>Stage 1：</strong>encoder阶段。包括5个bottleneck，第一个bottleneck做下采样，后面4个重复的bottleneck</li>
+<li><strong>Stage 2-3：</strong>encoder阶段。stage2的bottleneck2.0做了下采样，后面有时加空洞卷积，或分解卷积。stage3没有下采样，其他都一样。</li>
+<li><strong>Stage 4~5：</strong>属于decoder阶段。比较简单，一个上采样配置两个普通的bottleneck。</li>
+</ul>
+<p><strong>模型架构在任何投影上都没有使用bias,这样可以减少内核调用和存储操作。</strong>在每个卷积操作中使用Batch Norm。encoder阶段是使用padding配合max pooling做下采样。在decoder时使用max unpooling配合空洞卷积完成上采样。</p>
+<hr>
+<h2 id="Design-choices-架构设计技巧和思想"><a href="#Design-choices-架构设计技巧和思想" class="headerlink" title="Design choices(架构设计技巧和思想)"></a>Design choices(架构设计技巧和思想)</h2><ul>
+<li><p><strong>Feature map resolution</strong><br>对图像的下采样有两个缺点：</p>
+<ul>
+<li>1、降低feature map resolution，会丢失细节信息，容易丢失边界信息。</li>
+<li><p>2、semantic segmentation输出与输入有相同的分辨率，strong downsampling对应着strong upsampling，这增加了模型的size和计算量</p>
+<p>下采样的好处在于可以获取更大的感受野，获取更多的上下文信息，便于分类。针对问题1，有两个解决方案：</p>
+</li>
+<li>FCN的解决办法是将encoder阶段的feature map塞给decoder，增加空间信息。</li>
+<li><p>SegNet的解决办法是将encoder阶段做downsampling的indices保留到decoder阶段做upsampling使用。</p>
+<p>ENet采用的是SegNet的方法，这可以减少内存需求。同时为了增加更好的上下文信息，使用<code>dilated conv(空洞卷积)</code>扩大上下文信息。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>Early downsampling</strong><br>早期处理高分辨率的输入会耗费大量计算资源，ENet的初始化模型会大大减少输入的大小。这是考虑到视觉信息在空间上是高度冗余的，可以压缩成更有效的表示方式。<br>  这里贴一下paper对于前期处理的观点：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">our intuition is that the initial network layers should not directly contribute to classification. Instead, they should rather act as good feature extractors and only preprocess the input for later portions of the network.</div></pre></td></tr></table></figure>
+<p>  <strong>网络的初始层不应该直接面向分类做贡献，而且尽可能的提取输入的特征。</strong></p>
+</li>
+</ul>
+<ul>
+<li><p><strong>Decoder size</strong><br>相比于SegNet中encoder和decoder的镜像对称，ENet的Encoder和Decoder不对称，由一个较大的Encoder和一个较小的Decoder组成。<br>  贴一下paper对于这样架构的看法：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">This is motivated by the idea that the encoder should be able to work in a similar fashion to original classification architectures, i.e. to operate on smaller resolution data and provide for information processing and filtering. Instead, the role of the the decoder, is to upsample the output of the encoder, only fine-tuning the details.</div></pre></td></tr></table></figure>
+<p>  Encoder主要进行信息处理和过滤，和流行的分类模型相似。而decoder主要是对encoder的输出做上采样，对细节做细微调整。</p>
+</li>
+</ul>
+<ul>
+<li><strong>Nonlinear operations</strong><br>一般在卷积层之前做ReLU和Batch Norm效果会好点，但是在ENet上使用ReLU却降低了精度。<br>论文分析了ReLU没有起作用的原因是<strong>网络架构深度</strong>，在类似ResNet的模型上有上百层，而ENet层数很少，较少的层需要快速过滤信息，故最终使用<strong>PReLUs</strong>。下图是权重的大概分布:<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/D5CCL9mi4K.png" alt="mark"></li>
+</ul>
+<ul>
+<li><strong>Information-preserving dimensionality changes</strong><br>在Initial Block，将Pooling操作和卷积操作并行，再concat到一起，这将inference阶段时间加速了10倍。同时在做下采样时，原来ResNet的卷积层分支会使用$1×1/str=2$的卷积，这会丢失大量的输入数据。ENet改为$2×2$的卷积核，有效的改善了信息的流动和准确率。</li>
+</ul>
+<ul>
+<li><p><strong>Factorizing filters</strong><br>将$n×n$的卷积核拆为$n×1$和$1×n$(Inception V3提出的)。可以有效的减少参数量，并提高模型感受野。(可以参考我以前写的GoogleNet笔记<a href="http://blog.csdn.net/u011974639/article/details/76460849#inception-v2" target="_blank" rel="external">Inception-V2</a>)</p>
+</li>
+<li><p><strong>Dilated convolutions</strong><br>Dilated convolutions可以有效的提高感受野。有效的使用Dilated convolutions提高了4%的IoU，使用Dilated convolutions是交叉使用，而非连续使用。</p>
+</li>
+<li><p><strong>Regularization</strong><br>因为数据集本身不大，很快会过拟合。使用L2效果不佳，使用stochastic depth还可以，但琢磨了一下stochastic depth就是Spatial Dropout的特例，故最后选择Spatial Dropout，效果相对好一点。</p>
+</li>
+</ul>
+<hr>
+<h2 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h2><p>论文评估了ENet在CamVid、Cityscapes、SUN RGB-D三个数据集上的基准表现。实验是与SegNet做对比，使用的是Torch7机器学习库和cuDNN后端。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/3iiadGjJje.png" alt="mark"></p>
+<p>ENet的推理时间很短，快了很多。同时也报告了GPU内核本身的问题，将卷积分解，但是GPU启动的成本超过了计算的成本，这严重限制了计算时间。故可以将BN层与卷积核参数融合加速提高效率。(这是有脚本的，例如<a href="https://github.com/TimoSaemann/caffe-enet/blob/2b569703f07df27a4af402d5230313f9e85b5836/scripts/BN-absorber.py" target="_blank" rel="external">BN-absorber.py</a>)</p>
+<h3 id="Benchmarks"><a href="#Benchmarks" class="headerlink" title="Benchmarks"></a>Benchmarks</h3><p>论文给了一个Benchmarks，所有的训练细节可以参考<a href="https://github.com/TimoSaemann/ENet/tree/master/Tutorial" target="_blank" rel="external">Caffe程序</a>：</p>
+<p>大致的训练细节：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优化器</td>
+<td>Adam</td>
+</tr>
+<tr>
+<td>训练策略</td>
+<td>只训练encoder，对输入做分类，再附加decoder，再分类</td>
+</tr>
+<tr>
+<td>学习率</td>
+<td>5e-4</td>
+</tr>
+<tr>
+<td>L2权重衰减</td>
+<td>2e-4</td>
+</tr>
+<tr>
+<td>batch_size</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>在CityScapes上表现：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/IEJBAFh4BI.png" alt="mark"></li>
+</ul>
+<ul>
+<li>在CamVid上表现：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/gDGge7dFB1.png" alt="mark"></li>
+</ul>
+<ul>
+<li>在SUN RGB-D上表现：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/mJHJe84jE0.png" alt="mark"></li>
+</ul>
+<hr>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>ENet模型结构并不复杂，多种trick有效的降低了模型的复杂度和计算量，这里有大量的思想值得探讨。主要看下面程序实现。</p>
+<hr>
+<h2 id="ENet程序分析"><a href="#ENet程序分析" class="headerlink" title="ENet程序分析"></a>ENet程序分析</h2><p>为了程序看起来简洁，这里ENet程序分析选择的是Keras版本<a href="https://github.com/PavlosMelissinos/enet-keras" target="_blank" rel="external">PavlosMelissinos/enet-keras</a>。</p>
+<p>直接看模型定义，这里看一个<a href="https://github.com/PavlosMelissinos/enet-keras/blob/master/src/models/enet_naive_upsampling/model.py" target="_blank" rel="external">简化版本的Enet</a>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> absolute_import, print_function</div><div class="line"></div><div class="line"><span class="keyword">from</span> keras.engine.topology <span class="keyword">import</span> Input</div><div class="line"><span class="keyword">from</span> keras.layers.core <span class="keyword">import</span> Activation, Reshape</div><div class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Model</div><div class="line"></div><div class="line"><span class="keyword">from</span> . <span class="keyword">import</span> encoder, decoder</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">transfer_weights</span><span class="params">(model, weights=None)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    Always trains from scratch; never transfers weights</span></div><div class="line"><span class="string">    :param model: </span></div><div class="line"><span class="string">    :param weights:</span></div><div class="line"><span class="string">    :return: </span></div><div class="line"><span class="string">    """</span></div><div class="line">    print(<span class="string">'ENet has found no compatible pretrained weights! Skipping weight transfer...'</span>)</div><div class="line">    <span class="keyword">return</span> model</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">build</span><span class="params">(nc, w, h,</span></span></div><div class="line"><span class="function"><span class="params">          loss=<span class="string">'categorical_crossentropy'</span>,</span></span></div><div class="line"><span class="function"><span class="params">          optimizer=<span class="string">'adam'</span>,</span></span></div><div class="line"><span class="function"><span class="params">          **kwargs)</span>:</span></div><div class="line">    data_shape = w * h <span class="keyword">if</span> <span class="keyword">None</span> <span class="keyword">not</span> <span class="keyword">in</span> (w, h) <span class="keyword">else</span> <span class="number">-1</span>  <span class="comment"># <span class="doctag">TODO:</span> -1 or None?</span></div><div class="line">    inp = Input(shape=(h, w, <span class="number">3</span>))</div><div class="line">    enet = encoder.build(inp)   <span class="comment"># encoder</span></div><div class="line">    enet = decoder.build(enet, nc=nc)   <span class="comment">#decoder</span></div><div class="line">    name = <span class="string">'enet_naive_upsampling'</span></div><div class="line"></div><div class="line">    enet = Reshape((data_shape, nc))(enet)  <span class="comment"># <span class="doctag">TODO:</span> need to remove data_shape for multi-scale training</span></div><div class="line"></div><div class="line">    enet = Activation(<span class="string">'softmax'</span>)(enet)</div><div class="line">    model = Model(inputs=inp, outputs=enet)</div><div class="line"></div><div class="line">    model.compile(optimizer=optimizer, loss=loss, metrics=[<span class="string">'accuracy'</span>, <span class="string">'mean_squared_error'</span>])</div><div class="line"></div><div class="line">    <span class="keyword">return</span> model, name</div></pre></td></tr></table></figure>
+<p>关于<a href="https://github.com/PavlosMelissinos/enet-keras/blob/master/src/models/enet_naive_upsampling/encoder.py" target="_blank" rel="external">encoder</a>的定义：</p>
+<p>初始化模块：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/l0eG3d7ied.png" alt="mark"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">from</span> keras.layers.advanced_activations <span class="keyword">import</span> PReLU</div><div class="line"><span class="keyword">from</span> keras.layers.convolutional <span class="keyword">import</span> Conv2D, ZeroPadding2D</div><div class="line"><span class="keyword">from</span> keras.layers.core <span class="keyword">import</span> SpatialDropout2D, Permute</div><div class="line"><span class="keyword">from</span> keras.layers.merge <span class="keyword">import</span> add, concatenate</div><div class="line"><span class="keyword">from</span> keras.layers.normalization <span class="keyword">import</span> BatchNormalization</div><div class="line"><span class="keyword">from</span> keras.layers.pooling <span class="keyword">import</span> MaxPooling2D</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initial_block</span><span class="params">(inp, nb_filter=<span class="number">13</span>, nb_row=<span class="number">3</span>, nb_col=<span class="number">3</span>, strides=<span class="params">(<span class="number">2</span>, <span class="number">2</span>)</span>)</span>:</span></div><div class="line">    <span class="comment"># (512-3)/2 + 1 =256(padding=same )</span></div><div class="line">    conv = Conv2D(nb_filter, (nb_row, nb_col), padding=<span class="string">'same'</span>, strides=strides)(inp)</div><div class="line">    max_pool = MaxPooling2D()(inp)</div><div class="line">    merged = concatenate([conv, max_pool], axis=<span class="number">3</span>) <span class="comment"># 直接拼接</span></div><div class="line">    <span class="keyword">return</span> merged</div></pre></td></tr></table></figure>
+<p>encoder阶段使用的bottleneck模块：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/Hb10AFHcJI.png" alt="mark"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">bottleneck</span><span class="params">(inp, output, internal_scale=<span class="number">4</span>, asymmetric=<span class="number">0</span>, dilated=<span class="number">0</span>, downsample=False, dropout_rate=<span class="number">0.1</span>)</span>:</span></div><div class="line">    <span class="comment"># main branch 主线</span></div><div class="line">    internal = output // internal_scale</div><div class="line">    encoder = inp</div><div class="line"></div><div class="line">    <span class="comment"># 1x1</span></div><div class="line">    input_stride = <span class="number">2</span> <span class="keyword">if</span> downsample <span class="keyword">else</span> <span class="number">1</span>  <span class="comment">#开始的1x1投影，如果是下采样则为2x2</span></div><div class="line">    encoder = Conv2D(internal, (input_stride, input_stride),</div><div class="line">                            <span class="comment"># padding='same',</span></div><div class="line">                            strides=(input_stride, input_stride), use_bias=<span class="keyword">False</span>)(encoder)</div><div class="line">    <span class="comment"># Batch normalization + PReLU</span></div><div class="line">    encoder = BatchNormalization(momentum=<span class="number">0.1</span>)(encoder)  <span class="comment"># enet uses momentum of 0.1, keras default is 0.99</span></div><div class="line">    encoder = PReLU(shared_axes=[<span class="number">1</span>, <span class="number">2</span>])(encoder)</div><div class="line"></div><div class="line">    <span class="comment"># conv </span></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> asymmetric <span class="keyword">and</span> <span class="keyword">not</span> dilated:</div><div class="line">        encoder = Conv2D(internal, (<span class="number">3</span>, <span class="number">3</span>), padding=<span class="string">'same'</span>)(encoder) <span class="comment"># 普通卷积</span></div><div class="line">    <span class="keyword">elif</span> asymmetric: <span class="comment"># 卷积拆分 nxn--&gt;1xn + nx1</span></div><div class="line">        encoder = Conv2D(internal, (<span class="number">1</span>, asymmetric), padding=<span class="string">'same'</span>, use_bias=<span class="keyword">False</span>)(encoder)</div><div class="line">        encoder = Conv2D(internal, (asymmetric, <span class="number">1</span>), padding=<span class="string">'same'</span>)(encoder)</div><div class="line">    <span class="keyword">elif</span> dilated:  <span class="comment"># 空洞卷积</span></div><div class="line">        encoder = Conv2D(internal, (<span class="number">3</span>, <span class="number">3</span>), dilation_rate=(dilated, dilated), padding=<span class="string">'same'</span>)(encoder)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">raise</span>(Exception(<span class="string">'You shouldn\'t be here'</span>))</div><div class="line"></div><div class="line">    encoder = BatchNormalization(momentum=<span class="number">0.1</span>)(encoder)  <span class="comment"># enet uses momentum of 0.1, keras default is 0.99</span></div><div class="line">    encoder = PReLU(shared_axes=[<span class="number">1</span>, <span class="number">2</span>])(encoder)</div><div class="line">    </div><div class="line">    <span class="comment"># 1x1</span></div><div class="line">    encoder = Conv2D(output, (<span class="number">1</span>, <span class="number">1</span>), use_bias=<span class="keyword">False</span>)(encoder)</div><div class="line"></div><div class="line">    encoder = BatchNormalization(momentum=<span class="number">0.1</span>)(encoder)  <span class="comment"># enet uses momentum of 0.1, keras default is 0.99</span></div><div class="line">    encoder = SpatialDropout2D(dropout_rate)(encoder)</div><div class="line"></div><div class="line">    other = inp</div><div class="line">    <span class="comment"># other branch 旁线</span></div><div class="line">    <span class="keyword">if</span> downsample:  <span class="comment"># 如果是下采样(只有下采样，通道数才会变化)</span></div><div class="line">        other = MaxPooling2D()(other) </div><div class="line"></div><div class="line">        other = Permute((<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>))(other)</div><div class="line">        pad_feature_maps = output - inp.get_shape().as_list()[<span class="number">3</span>]</div><div class="line">        tb_pad = (<span class="number">0</span>, <span class="number">0</span>) <span class="comment"># 填充feature map</span></div><div class="line">        lr_pad = (<span class="number">0</span>, pad_feature_maps)  <span class="comment"># 填充通道数</span></div><div class="line">        other = ZeroPadding2D(padding=(tb_pad, lr_pad))(other)</div><div class="line">        other = Permute((<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>))(other)</div><div class="line"></div><div class="line">    encoder = add([encoder, other]) <span class="comment"># 残差融合</span></div><div class="line">    encoder = PReLU(shared_axes=[<span class="number">1</span>, <span class="number">2</span>])(encoder)</div><div class="line">    <span class="keyword">return</span> encoder</div></pre></td></tr></table></figure>
+<p>构建encoder模型：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/CA3L4eFccG.png" alt="mark"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">build</span><span class="params">(inp, dropout_rate=<span class="number">0.01</span>)</span>:</span></div><div class="line">    enet = initial_block(inp)</div><div class="line">    enet = BatchNormalization(momentum=<span class="number">0.1</span>)(enet)  <span class="comment"># enet_unpooling uses momentum of 0.1, keras default is 0.99</span></div><div class="line">    enet = PReLU(shared_axes=[<span class="number">1</span>, <span class="number">2</span>])(enet)</div><div class="line">    enet = bottleneck(enet, <span class="number">64</span>, downsample=<span class="keyword">True</span>, dropout_rate=dropout_rate)  <span class="comment"># bottleneck 1.0</span></div><div class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> range(<span class="number">4</span>):</div><div class="line">        enet = bottleneck(enet, <span class="number">64</span>, dropout_rate=dropout_rate)  <span class="comment"># bottleneck 1.i</span></div><div class="line">    </div><div class="line">    enet = bottleneck(enet, <span class="number">128</span>, downsample=<span class="keyword">True</span>)  <span class="comment"># bottleneck 2.0</span></div><div class="line">    <span class="comment"># bottleneck 2.x and 3.x</span></div><div class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> range(<span class="number">2</span>):</div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>)  <span class="comment"># bottleneck 2.1</span></div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>, dilated=<span class="number">2</span>)  <span class="comment"># bottleneck 2.2</span></div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>, asymmetric=<span class="number">5</span>)  <span class="comment"># bottleneck 2.3</span></div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>, dilated=<span class="number">4</span>)  <span class="comment"># bottleneck 2.4</span></div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>)  <span class="comment"># bottleneck 2.5</span></div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>, dilated=<span class="number">8</span>)  <span class="comment"># bottleneck 2.6</span></div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>, asymmetric=<span class="number">5</span>)  <span class="comment"># bottleneck 2.7</span></div><div class="line">        enet = bottleneck(enet, <span class="number">128</span>, dilated=<span class="number">16</span>)  <span class="comment"># bottleneck 2.8</span></div><div class="line">    <span class="keyword">return</span> enet</div></pre></td></tr></table></figure>
+<p>encoder阶段程序看起来较为简单~</p>
+<p>关于<a href="https://github.com/PavlosMelissinos/enet-keras/blob/master/src/models/enet_naive_upsampling/decoder.py" target="_blank" rel="external">decoder</a>的定义：</p>
+<p>decoder中用的bottleneck模块（简化版本）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">from</span> keras.layers.convolutional <span class="keyword">import</span> Conv2D, Conv2DTranspose, UpSampling2D</div><div class="line"><span class="keyword">from</span> keras.layers.core <span class="keyword">import</span> Activation</div><div class="line"><span class="keyword">from</span> keras.layers.merge <span class="keyword">import</span> add</div><div class="line"><span class="keyword">from</span> keras.layers.normalization <span class="keyword">import</span> BatchNormalization</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">bottleneck</span><span class="params">(encoder, output, upsample=False, reverse_module=False)</span>:</span></div><div class="line">    internal = output // <span class="number">4</span>  <span class="comment"># 先把输入的通道数给降下来</span></div><div class="line"></div><div class="line">    x = Conv2D(internal, (<span class="number">1</span>, <span class="number">1</span>), use_bias=<span class="keyword">False</span>)(encoder)</div><div class="line">    x = BatchNormalization(momentum=<span class="number">0.1</span>)(x)</div><div class="line">    x = Activation(<span class="string">'relu'</span>)(x) <span class="comment"># decoder的权重均值偏向于1，使用relu</span></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> upsample:</div><div class="line">        x = Conv2D(internal, (<span class="number">3</span>, <span class="number">3</span>), padding=<span class="string">'same'</span>, use_bias=<span class="keyword">True</span>)(x)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        x = Conv2DTranspose(filters=internal, kernel_size=(<span class="number">3</span>, <span class="number">3</span>), strides=(<span class="number">2</span>, <span class="number">2</span>), padding=<span class="string">'same'</span>)(x)</div><div class="line">    x = BatchNormalization(momentum=<span class="number">0.1</span>)(x)</div><div class="line">    x = Activation(<span class="string">'relu'</span>)(x)</div><div class="line"></div><div class="line">    x = Conv2D(output, (<span class="number">1</span>, <span class="number">1</span>), padding=<span class="string">'same'</span>, use_bias=<span class="keyword">False</span>)(x) <span class="comment"># 把通道数升上去</span></div><div class="line"></div><div class="line">    other = encoder</div><div class="line">    <span class="comment"># 注意到这里上采样使用Conv2D+UpSampling2D完成的</span></div><div class="line">    <span class="keyword">if</span> encoder.get_shape()[<span class="number">-1</span>] != output <span class="keyword">or</span> upsample:</div><div class="line">        other = Conv2D(output, (<span class="number">1</span>, <span class="number">1</span>), padding=<span class="string">'same'</span>, use_bias=<span class="keyword">False</span>)(other)</div><div class="line">        other = BatchNormalization(momentum=<span class="number">0.1</span>)(other)</div><div class="line">        <span class="keyword">if</span> upsample <span class="keyword">and</span> reverse_module <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">False</span>:</div><div class="line">            other = UpSampling2D(size=(<span class="number">2</span>, <span class="number">2</span>))(other)</div><div class="line">        </div><div class="line">    <span class="keyword">if</span> upsample <span class="keyword">and</span> reverse_module <span class="keyword">is</span> <span class="keyword">False</span>:</div><div class="line">        decoder = x</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        x = BatchNormalization(momentum=<span class="number">0.1</span>)(x)</div><div class="line">        decoder = add([x, other]) <span class="comment"># 残差融合</span></div><div class="line">        decoder = Activation(<span class="string">'relu'</span>)(decoder) <span class="comment"># decoder的权重均值偏向于1，使用relu</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> decoder</div></pre></td></tr></table></figure></p>
+<p>构建decoder模型：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/43b9F5h0Cm.png" alt="mark"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">build</span><span class="params">(encoder, nc)</span>:</span></div><div class="line">    enet = bottleneck(encoder, <span class="number">64</span>, upsample=<span class="keyword">True</span>, reverse_module=<span class="keyword">True</span>)  <span class="comment"># bottleneck 4.0</span></div><div class="line">    enet = bottleneck(enet, <span class="number">64</span>)  <span class="comment"># bottleneck 4.1</span></div><div class="line">    enet = bottleneck(enet, <span class="number">64</span>)  <span class="comment"># bottleneck 4.2</span></div><div class="line">    enet = bottleneck(enet, <span class="number">16</span>, upsample=<span class="keyword">True</span>, reverse_module=<span class="keyword">True</span>)  <span class="comment"># bottleneck 5.0</span></div><div class="line">    enet = bottleneck(enet, <span class="number">16</span>)  <span class="comment"># bottleneck 5.1</span></div><div class="line"></div><div class="line">    <span class="comment"># 反卷积</span></div><div class="line">    enet = Conv2DTranspose(filters=nc, kernel_size=(<span class="number">2</span>, <span class="number">2</span>), strides=(<span class="number">2</span>, <span class="number">2</span>), padding=<span class="string">'same'</span>)(enet)</div><div class="line">    <span class="keyword">return</span> enet</div></pre></td></tr></table></figure>
+<p>在decoder阶段的<code>reverse_module</code>参数是用来构建带MaxPool信息的UpMaxPool，可参考<a href="https://github.com/PavlosMelissinos/enet-keras/blob/master/src/models/enet_unpooling/decoder.py" target="_blank" rel="external">enet_unpooling</a>版本的实现。</p>
+<p>到这里ENet的Keras版本程序实现算是看完了~</p>
+<hr>
+<h2 id="ENet模型复现"><a href="#ENet模型复现" class="headerlink" title="ENet模型复现"></a>ENet模型复现</h2><p>我在复现时看的是<a href="https://github.com/TimoSaemann/ENet" target="_blank" rel="external">TimoSaemann/ENet</a>，因为是Caffe程序，可以参考<a href="http://blog.csdn.net/u011974639/article/details/78804299" target="_blank" rel="external">搭建Caffe环境</a>。</p>
+<h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><p>首先，先将ENet repository clone下来，后面要用:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone --recursive https://github.com/TimoSaemann/ENet.git</div></pre></td></tr></table></figure></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180102/47mJLgcIEc.png" alt="mark"></p>
+<p>编译定制的Caffe框架<code>Caffe-enet</code>(用于支持ENet所需要的层):<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cd ENet/caffe-enet</div><div class="line">mkdir build &amp;&amp; cd build</div><div class="line">cmake ..</div><div class="line">make all -j8 &amp;&amp; make pycaffe</div></pre></td></tr></table></figure></p>
+<p>需要注意的是，在编译上述定制<code>caffe-enet</code>需要我们在编译caffe的时候取消注释:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">WITH_PYTHON_LAYER := 1</div></pre></td></tr></table></figure></p>
+<p>并确保将python layer在PYTHONPATH定义了:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">export PYTHONPATH="$CAFFE_PATH/python:$PYTHONPATH"</div></pre></td></tr></table></figure></p>
+<h3 id="数据集准备"><a href="#数据集准备" class="headerlink" title="数据集准备"></a>数据集准备</h3><p>这一步比较麻烦，先从<a href="https://www.cityscapes-dataset.com/" target="_blank" rel="external">Cityscapes website</a>上下载数据集。这需要注册账号(最好用带edu的邮箱注册).下载数据集<strong>leftImg8bit_trainvaltest.zip (11GB)</strong>和对应的标注集<strong>gtFine_trainvaltest.zip (241MB)</strong>。并clone Cityscapes的脚本：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/mcordts/cityscapesScripts.git</div></pre></td></tr></table></figure></p>
+<p>执行<strong>/preparation/createTrainIdLabelImags.py</strong>将转化对应的数据集。</p>
+<p>将下面文件的<strong>caffe_root</strong>转为<strong>caffe-enet</strong>的绝对路径：</p>
+<ul>
+<li>ENet/scripts/BN-absorber-enet.py</li>
+<li>ENet/scripts/compute_bn_statistics.py</li>
+<li>ENet/scripts/create_enet_prototxt.py</li>
+<li>ENet/scripts/test_segmentation.py</li>
+</ul>
+<p>将下面文件中的相关路径改为绝对路径：</p>
+<ul>
+<li>ENet/prototxts/enet_solver_encoder.prototxt</li>
+<li>ENet/prototxts/enet_solver_encoder_decoder.prototxt</li>
+</ul>
+<h3 id="训练模型"><a href="#训练模型" class="headerlink" title="训练模型"></a>训练模型</h3><p>训练模型共分为2步：</p>
+<ul>
+<li>训练encoder阶段</li>
+<li>训练encoder+decoder阶段</li>
+</ul>
+<p><strong>训练encoder阶段：</strong></p>
+<p>创建网络架构文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">python create_enet_prototxt.py --source ENet/dataset/train_fine_cityscapes.txt --mode train_encoder</div></pre></td></tr></table></figure></p>
+<p>创建的prototxt文件包括ENet的架构设置。可根据个人设备定制。</p>
+<p>接下来这步是可选的，为ENet添加类权重：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">python calculate_class_weighting.py --source ENet/dataset/train_fine_cityscapes.txt --num_classes 19</div></pre></td></tr></table></figure></p>
+<p>计算类权重，拷贝终端输出的<strong>class_weightings</strong>到<code>enet_train_encoder.prototxt</code>和<code>enet_train_encoder_decoder.prototxt</code>文件下的<strong>weight_by_label_freqs</strong>下方，并设置flag为Ture。</p>
+<p>因为我的GPU显存不够，故先在<code>ENet/prototxt/enet_train_encoder_decoder.prototxt</code>下设置batchsize为1。<br>可以正式的训练了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ENet/caffe-enet/build/tools/caffe train -solver /ENet/prototxts/enet_solver_encoder.prototxt</div></pre></td></tr></table></figure></p>
+<p>训练大约10个小时，完毕后输出如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">I1215 21:52:47.058895 22595 sgd_solver.cpp:106] Iteration 74960, lr = 5e-06</div><div class="line">I1215 21:52:52.798851 22595 solver.cpp:228] Iteration 74980, loss = 0.192035</div><div class="line">I1215 21:52:52.798879 22595 solver.cpp:244]     Train net output #0: accuracy = 0.771729</div><div class="line">I1215 21:52:52.798887 22595 solver.cpp:244]     Train net output #1: loss = 0.192033 (* 1 = 0.192033 loss)</div><div class="line">I1215 21:52:52.798892 22595 solver.cpp:244]     Train net output #2: per_class_accuracy = 0.83268</div><div class="line">I1215 21:52:52.798894 22595 solver.cpp:244]     Train net output #3: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798897 22595 solver.cpp:244]     Train net output #4: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798900 22595 solver.cpp:244]     Train net output #5: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798903 22595 solver.cpp:244]     Train net output #6: per_class_accuracy = 0.5</div><div class="line">I1215 21:52:52.798907 22595 solver.cpp:244]     Train net output #7: per_class_accuracy = 0.694915</div><div class="line">I1215 21:52:52.798912 22595 solver.cpp:244]     Train net output #8: per_class_accuracy = 0.423077</div><div class="line">I1215 21:52:52.798915 22595 solver.cpp:244]     Train net output #9: per_class_accuracy = 0.848837</div><div class="line">I1215 21:52:52.798918 22595 solver.cpp:244]     Train net output #10: per_class_accuracy = 0.884995</div><div class="line">I1215 21:52:52.798923 22595 solver.cpp:244]     Train net output #11: per_class_accuracy = 0.91989</div><div class="line">I1215 21:52:52.798926 22595 solver.cpp:244]     Train net output #12: per_class_accuracy = 0.980857</div><div class="line">I1215 21:52:52.798930 22595 solver.cpp:244]     Train net output #13: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798933 22595 solver.cpp:244]     Train net output #14: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798959 22595 solver.cpp:244]     Train net output #15: per_class_accuracy = 0.922049</div><div class="line">I1215 21:52:52.798962 22595 solver.cpp:244]     Train net output #16: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798965 22595 solver.cpp:244]     Train net output #17: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798969 22595 solver.cpp:244]     Train net output #18: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798971 22595 solver.cpp:244]     Train net output #19: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798974 22595 solver.cpp:244]     Train net output #20: per_class_accuracy = 0</div><div class="line">I1215 21:52:52.798979 22595 sgd_solver.cpp:106] Iteration 74980, lr = 5e-06</div><div class="line">I1215 21:52:58.191184 22595 solver.cpp:454] Snapshotting to binary proto file /root/模型复现/ENet/ENet/weights/snapshots_encoder/enet_iter_75000.caffemodel</div><div class="line">I1215 21:52:58.213759 22595 sgd_solver.cpp:273] Snapshotting solver state to binary proto file /root/模型复现/ENet/ENet/weights/snapshots_encoder/enet_iter_75000.solverstate</div><div class="line">I1215 21:52:58.319011 22595 solver.cpp:317] Iteration 75000, loss = 0.192242</div><div class="line">I1215 21:52:58.319034 22595 solver.cpp:322] Optimization Done.</div><div class="line">I1215 21:52:58.319037 22595 caffe.cpp:254] Optimizatio</div></pre></td></tr></table></figure></p>
+<p><strong>接下来第二阶段，训练encoder+decoder阶段：</strong></p>
+<p>依旧是先创建模型：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">python create_enet_prototxt.py --source ENet/dataset/train_fine_cityscapes.txt --mode train_encoder_decoder</div></pre></td></tr></table></figure></p>
+<p>还是要注意设置batchsize。<br>使用上面训练好的模型，接着开始训练：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ENet/caffe-enet/build/tools/caffe train -solver ENet/prototxts/enet_solver_encoder_decoder.prototxt -weights ENet/weights/snapshots_encoder/NAME.caffemodel</div></pre></td></tr></table></figure></p>
+<p>将<code>NAME</code>取代为上一阶段训练保存的的模型名称。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">I1216 11:13:46.340370  5167 sgd_solver.cpp:106] Iteration 74960, lr = 5e-06</div><div class="line">I1216 11:13:58.945647  5167 solver.cpp:228] Iteration 74980, loss = 0.343889</div><div class="line">I1216 11:13:58.945674  5167 solver.cpp:244]     Train net output #0: accuracy = 0.842316</div><div class="line">I1216 11:13:58.945682  5167 solver.cpp:244]     Train net output #1: loss = 0.343885 (* 1 = 0.343885 loss)</div><div class="line">I1216 11:13:58.945685  5167 solver.cpp:244]     Train net output #2: per_class_accuracy = 0.986849</div><div class="line">I1216 11:13:58.945688  5167 solver.cpp:244]     Train net output #3: per_class_accuracy = 0.738194</div><div class="line">I1216 11:13:58.945691  5167 solver.cpp:244]     Train net output #4: per_class_accuracy = 0.976514</div><div class="line">I1216 11:13:58.945695  5167 solver.cpp:244]     Train net output #5: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945698  5167 solver.cpp:244]     Train net output #6: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945701  5167 solver.cpp:244]     Train net output #7: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945704  5167 solver.cpp:244]     Train net output #8: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945708  5167 solver.cpp:244]     Train net output #9: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945710  5167 solver.cpp:244]     Train net output #10: per_class_accuracy = 0.948243</div><div class="line">I1216 11:13:58.945713  5167 solver.cpp:244]     Train net output #11: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945716  5167 solver.cpp:244]     Train net output #12: per_class_accuracy = 0.603895</div><div class="line">I1216 11:13:58.945719  5167 solver.cpp:244]     Train net output #13: per_class_accuracy = 0.536638</div><div class="line">I1216 11:13:58.945722  5167 solver.cpp:244]     Train net output #14: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945726  5167 solver.cpp:244]     Train net output #15: per_class_accuracy = 0.975269</div><div class="line">I1216 11:13:58.945729  5167 solver.cpp:244]     Train net output #16: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945732  5167 solver.cpp:244]     Train net output #17: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945735  5167 solver.cpp:244]     Train net output #18: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945739  5167 solver.cpp:244]     Train net output #19: per_class_accuracy = 0</div><div class="line">I1216 11:13:58.945741  5167 solver.cpp:244]     Train net output #20: per_class_accuracy = 0.00182025</div><div class="line">I1216 11:13:58.945768  5167 sgd_solver.cpp:106] Iteration 74980, lr = 5e-06</div><div class="line">I1216 11:14:10.935374  5167 solver.cpp:454] Snapshotting to binary proto file /root/模型复现/ENet/ENet/weights/snapshots_decoder/enet_iter_75000.caffemodel</div><div class="line">I1216 11:14:10.954293  5167 sgd_solver.cpp:273] Snapshotting solver state to binary proto file /root/模型复现/ENet/ENet/weights/snapshots_decoder/enet_iter_75000.solverstate</div><div class="line">I1216 11:14:11.325291  5167 solver.cpp:317] Iteration 75000, loss = 0.386199</div><div class="line">I1216 11:14:11.325314  5167 solver.cpp:322] Optimization Done.</div><div class="line">I1216 11:14:11.325317  5167 caffe.cpp:254] Optimization Done.</div><div class="line">root@DFann:~/模型复现/ENet/ENet/scripts#</div></pre></td></tr></table></figure>
+<p>到这里，模型算是训练结束了，至于后面的测试等功能，可参考原github的教程~</p>
+<h3 id="训练模型遇到的错误"><a href="#训练模型遇到的错误" class="headerlink" title="训练模型遇到的错误"></a>训练模型遇到的错误</h3><h4 id="错误1"><a href="#错误1" class="headerlink" title="错误1"></a>错误1</h4><p>错误描述：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">AttributeError: <span class="string">'LayerParameter'</span> object has no attribute <span class="string">'dense_image_data_param'</span></div></pre></td></tr></table></figure></p>
+<p>解决方法：<br>这是因为.py文件没有找到刚编译的包，指定的地址有问题。</p>
+<p>打开<code>create_enet_prototxt.py</code>文件，在最前面：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 将这个caffe_root目录指定到ENet的目录(就是一开始要改变目录的工作没有完成)</span></div><div class="line">caffe_root = <span class="string">'/root/ENet/ENet/caffe-enet/'</span></div></pre></td></tr></table></figure></p>
+<h4 id="错误2"><a href="#错误2" class="headerlink" title="错误2"></a>错误2</h4><p>错误描述:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ImportError: dynamic module does <span class="keyword">not</span> define module export function (PyInit__caffe)</div></pre></td></tr></table></figure></p>
+<p>解决方法：<br>将默认的python从python3.6切换到python2.7完事。</p>
+<h4 id="错误3"><a href="#错误3" class="headerlink" title="错误3"></a>错误3</h4><p>错误描述：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ImportError: /lib/x86_64-linux-gnu/libz.so<span class="number">.1</span>: version `ZLIB_1<span class="number">.2</span><span class="number">.9</span><span class="string">' not found (required by /root/anaconda3/lib/./libpng16.so.16)</span></div></pre></td></tr></table></figure></p>
+<p>解决方法：</p>
+<ul>
+<li><a href="https://sourceforge.net/projects/libpng/files/zlib/1.2.9/zlib-1.2.9.tar.gz/download" target="_blank" rel="external">Download</a> zlib version 1.2.9</li>
+<li>Uncompress the file</li>
+<li>cd to zlib-1.2.9</li>
+<li>Run<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">./configure</div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="错误4"><a href="#错误4" class="headerlink" title="错误4"></a>错误4</h4><p>错误描述：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Importing caffe results <span class="keyword">in</span> ImportError: “No module named google.protobuf.internal” (<span class="keyword">import</span> enum_type_wrapper)</div></pre></td></tr></table></figure></p>
+<p>解决方法：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">pip install protobuf</div><div class="line"></div><div class="line"><span class="meta">#</span> or</div><div class="line">/home/username/anaconda2/bin/pip install protobuf</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LightWeight-Convolutional-NetWork/" rel="tag"># LightWeight Convolutional NetWork</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/ENet/" rel="tag"># ENet</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/10/语义分割论文-SegNet/" rel="next" title="语义分割论文-SegNet">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-SegNet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/05/语义分割论文-PSPNet/" rel="prev" title="语义分割论文-PSPNet">
+                语义分割论文-PSPNet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ENet"><span class="nav-text">ENet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-work"><span class="nav-text">Related work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Architecture"><span class="nav-text">Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ENet中bottleneck-module"><span class="nav-text">ENet中bottleneck module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体的架构"><span class="nav-text">整体的架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Design-choices-架构设计技巧和思想"><span class="nav-text">Design choices(架构设计技巧和思想)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Benchmarks"><span class="nav-text">Benchmarks</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ENet程序分析"><span class="nav-text">ENet程序分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ENet模型复现"><span class="nav-text">ENet模型复现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备"><span class="nav-text">准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据集准备"><span class="nav-text">数据集准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#训练模型"><span class="nav-text">训练模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#训练模型遇到的错误"><span class="nav-text">训练模型遇到的错误</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#错误1"><span class="nav-text">错误1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#错误2"><span class="nav-text">错误2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#错误3"><span class="nav-text">错误3</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#错误4"><span class="nav-text">错误4</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
