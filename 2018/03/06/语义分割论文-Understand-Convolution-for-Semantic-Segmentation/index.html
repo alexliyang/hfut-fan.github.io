@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,Dilated Convolution," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="论文提出了 Hybrid Dilated Convolution(HDC)和 Dense Upsampling Convolution(DUC)两个简单有效的卷积操作用于改进语义分割系统。DUC恢复上采样丢失的信息，HDC在解决扩张卷积产生的”gridding”影响的同时扩大感受野。实验证明了在各种语义分割任务上的有效性。">
+<meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,Dilated Convolution">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文-Understand Convolution for Semantic Segmentation">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/03/06/语义分割论文-Understand-Convolution-for-Semantic-Segmentation/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="论文提出了 Hybrid Dilated Convolution(HDC)和 Dense Upsampling Convolution(DUC)两个简单有效的卷积操作用于改进语义分割系统。DUC恢复上采样丢失的信息，HDC在解决扩张卷积产生的”gridding”影响的同时扩大感受野。实验证明了在各种语义分割任务上的有效性。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/GkeiEH8d3l.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/9H5FGFIibL.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/54B10CcFC6.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/E07hhLE8K3.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/B4583c91Ke.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/mFimkgjGDE.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/lDCLc3KaDl.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/bEekI06KE7.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/K36B4JeBLL.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/iJki7flaCl.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/eJHc7g5Dj3.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/FF499L1kgk.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/Dgej3gga76.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/29m9f5k2HG.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/hie8c9hjhg.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/ldfijaB6kF.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/aADhCEF0aJ.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/37aG5b5I0I.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/LB49a0m09A.png">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/DfdFEIeJHj.png">
+<meta property="og:updated_time" content="2018-03-06T08:54:04.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文-Understand Convolution for Semantic Segmentation">
+<meta name="twitter:description" content="论文提出了 Hybrid Dilated Convolution(HDC)和 Dense Upsampling Convolution(DUC)两个简单有效的卷积操作用于改进语义分割系统。DUC恢复上采样丢失的信息，HDC在解决扩张卷积产生的”gridding”影响的同时扩大感受野。实验证明了在各种语义分割任务上的有效性。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180306/GkeiEH8d3l.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/03/06/语义分割论文-Understand-Convolution-for-Semantic-Segmentation/"/>
+
+
+
+
+
+  <title>语义分割论文-Understand Convolution for Semantic Segmentation | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/03/06/语义分割论文-Understand-Convolution-for-Semantic-Segmentation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文-Understand Convolution for Semantic Segmentation</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-06T09:35:48+08:00">
+                2018-03-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文提出了 Hybrid Dilated Convolution(HDC)和 Dense Upsampling Convolution(DUC)两个简单有效的卷积操作用于改进语义分割系统。DUC恢复上采样丢失的信息，HDC在解决扩张卷积产生的”gridding”影响的同时扩大感受野。实验证明了在各种语义分割任务上的有效性。</p>
+<a id="more"></a>
+<h1 id="Understanding-Convolution-for-Semantic-Segmentation"><a href="#Understanding-Convolution-for-Semantic-Segmentation" class="headerlink" title="Understanding Convolution for Semantic Segmentation"></a>Understanding Convolution for Semantic Segmentation</h1><p>Understanding Convolution for Semantic Segmentation</p>
+<p>收录：IEEE Winter Conference on Applications of Computer Vision (WACV 2018)</p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1702.08502.pdf" target="_blank" rel="external">HDC</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/TuSimple/TuSimple-DUC" target="_blank" rel="external">官方-MXNet</a></li>
+</ul>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>本文介绍了两种操控卷积相关运算(convolution-related operations)方法用于提高语义分割效果:</p>
+<ul>
+<li><p>设计<strong>密集上采样卷积(dense upsampling convolution,DUC)</strong>生成预测结果，这可以捕获在双线性上采样过程中丢失的细节信息。</p>
+</li>
+<li><p>设计<strong>混合空洞卷积框架(hybrid dilated convolution,HDC)</strong>，用于减轻扩张卷积产生的”gidding issue”影响，扩大接收野聚合全局信息。</p>
+</li>
+</ul>
+<p>论文在CityScapes上达到了80.1%mIoU,同样在KITTI和VOC12上也达到了state-of-the-art 结果.</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>大部分应用在语义分割任务上的CNN系统可分为三类：</p>
+<ol>
+<li><strong>全卷积神经网络</strong>。例如FCN. 使用卷积层代替FC层，提高训练和推断效率，并可接收任意大小输入；</li>
+<li><strong>使用CRF</strong>. 结构预测用于捕获图片内的本地和长距离依赖，用于细化分割结果；</li>
+<li>使用<strong>空洞卷积</strong>。增加中间featue map的分辨率，可在保持相同计算成本的同时提高预测精度。</li>
+</ol>
+<p>大部分提高预测准确率的系统可分为两类：</p>
+<ol>
+<li>使用更优秀的特征提取模型。即使用VGG16、ResNet等预训练架构。这些更深的模型可对更复杂的信息建模，学习更有区分力的feature并可更好的区分类别。</li>
+<li>使用CRF作为后端处理，集成CRF到模型内构成end2end训练，并将额外的信息例如边缘合并到CRF内。</li>
+</ol>
+<p>本文以另一个角度来提升性能，考虑到现在大多数模型分为encoding和decoding两部分：</p>
+<ul>
+<li><p>对于decoding：大多数模型在最终预测图的基础上，采用双线性插值上采样直接获得与输入同分辨率的输出，双线性插值没有学习能力并且会丢失细节。本文提出了<strong>密集上采样卷积(dense upsampling convolution,DUC)，取代了简单的双线性插值，学习一组上采样滤波器用于放大低分辨率的feature。DUC支持end2end，便于融入FCN网络架构中</strong>。</p>
+</li>
+<li><p>对于encoding：使用扩张卷积可以扩大感受野，减少使用下采样(下采样丢失细节比较严重)。本文指出空洞卷积存在”girdding”问题，即空洞卷积在卷积核两个采样像素之间插入0值，如果扩张率过大，卷积会过于稀疏，捕获信息能力差。 本文提出了<strong>混合扩展卷积架构(hybrid dilation convolution,HDC): 使用一组扩展率卷积串接一下构成block，可扩大感受野的同时减轻”gridding”弊端。</strong></p>
+</li>
+</ul>
+<p>论文以DUC和HDC为基础卷积操作，构建更适合语义分割任务的深度神经网络系统.</p>
+<hr>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><ul>
+<li><p><strong>特征表示解码(Decoding of Feature Representation):</strong>因为池化操作不可避免的会下采样。现在多种方案针对低分辨率feature解码出准确信息，常见的双线性上采样节省存储空间并且快；解卷积：使用池化的位置信息帮助解码阶段，也有使用堆叠的解卷积层来恢复信息，等等</p>
+</li>
+<li><p><strong>扩张卷积(Dilated Convolution):</strong> 在卷积采样中插入0值，用以扩张采样分辨率。例如DeepLab设计的ASPP聚合多个尺度信息。等等</p>
+</li>
+</ul>
+<hr>
+<h1 id="Approach"><a href="#Approach" class="headerlink" title="Approach"></a>Approach</h1><h2 id="Dense-Upsampling-Convolution"><a href="#Dense-Upsampling-Convolution" class="headerlink" title="Dense Upsampling Convolution"></a>Dense Upsampling Convolution</h2><h3 id="为什么要使用DUC？"><a href="#为什么要使用DUC？" class="headerlink" title="为什么要使用DUC？"></a><strong>为什么要使用DUC？</strong></h3><p>考虑到模型输入图片大小$(H,W,C)$,整个模型在预测前的输出feature map大小为$F_{out}=(h,w,c)$，其中 $H/d=h, W/d=w$，$d$称为下采样因子(downsampling factor)。</p>
+<ul>
+<li><strong>双线性插值存在的问题</strong>：如果模型的$d=16$，即输入到输出下采样了16倍。如果一个目标物的长或宽长度小于16个pixel，训练label map需要下采样到与模型输出维度相同，即下采样16倍时已经丢失了许多细节, 对应的模型预测结果双线性插值上采样是无法恢复这个信息 。</li>
+</ul>
+<h3 id="DUC的方案："><a href="#DUC的方案：" class="headerlink" title="DUC的方案："></a><strong>DUC的方案：</strong></h3><p>针对这一问题，DUC将$F_{out}$的尺寸$(h,w,c)$通道转为到$(h,w,d^2×L)$, $L$是分割类别数目。再reshape到label map大小$(H,W,L)$。 reshape操作代替了解卷积上采样，可直接对接label map。</p>
+<p>这里比较难理解的是reshape操作，开源的代码如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Base Network</span></div><div class="line"> res = get_resnet_hdc(bn_use_global_stats=bn_use_global_stats)</div><div class="line"></div><div class="line"> <span class="comment"># ASPP</span></div><div class="line"> aspp_list = list()</div><div class="line"> <span class="keyword">for</span> i <span class="keyword">in</span> range(aspp_num):</div><div class="line">     pad = ((i + <span class="number">1</span>) * aspp_stride, (i + <span class="number">1</span>) * aspp_stride)</div><div class="line">     dilate = pad</div><div class="line">     conv_aspp=mx.symbol.Convolution(data=res, num_filter=cell_cap * label_num, kernel=(<span class="number">3</span>, <span class="number">3</span>), pad=pad,</div><div class="line">                                     dilate=dilate, name=(<span class="string">'fc1_%s_c%d'</span> % (exp, i)), workspace=<span class="number">8192</span>)</div><div class="line">     aspp_list.append(conv_aspp)</div><div class="line"> </div><div class="line"> <span class="comment"># 这是是ASPP模块输出作像素和</span></div><div class="line"> summ = mx.symbol.ElementWiseSum(*aspp_list, name=(<span class="string">'fc1_%s'</span> % exp))</div><div class="line"></div><div class="line"> <span class="comment"># Reshape操作</span></div><div class="line"> cls_score_reshape = mx.symbol.Reshape(data=summ, shape=(<span class="number">0</span>, label_num, <span class="number">-1</span>), name=<span class="string">'cls_score_reshape'</span>)</div><div class="line"> </div><div class="line"> <span class="comment"># Reshape完后直接送到Softmax</span></div><div class="line"> cls = mx.symbol.SoftmaxOutput(data=cls_score_reshape, multi_output=<span class="keyword">True</span>,</div><div class="line">                               normalization=<span class="string">'valid'</span>, use_ignore=<span class="keyword">True</span>, ignore_label=ignore_label, name=<span class="string">'seg_loss'</span>)</div><div class="line"> <span class="keyword">return</span> cls</div></pre></td></tr></table></figure>
+<p>可以看到reshape操作传入的是shape=(0, label_num, -1)  ,MXNet中0代表保持不变，-1表示推断~.<br>ASPP出来的数据形式为(N,channel,h,w)经过reshape甩成了(N,label_num,-1)，即把每类的分类结果拍成向量形式。</p>
+<p>下图是本文一作关于DUC卷积的回答：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/GkeiEH8d3l.png" alt="mark"></p>
+<p>下图更好的阐述了DUC思想：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/9H5FGFIibL.png" alt="mark"></p>
+<p>该图来自：<a href="https://arxiv.org/pdf/1609.05158.pdf" target="_blank" rel="external">Real-Time Single Image and Video Super-Resolution Using an Efficient Sub-Pixel Convolutional Neural Network</a></p>
+<p>从另一个角度想：DUC将整个label map$(H,W,L)$分为为$d^2$个等大小的子图(subparts)，每个子图和大小和$F_{out}$输出的feature map大小相同。也就是说将label map切分为$(h,w,d^2×L)$。</p>
+<p>模型的整体结构如下，DUC应用在输出部分：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/54B10CcFC6.png" alt="mark"></p>
+<p>DUC以原始分辨率像素级解码，并且能够自然的集成到FCN框架中，使得整个编码和解码能以<strong>end2end</strong>方式训练。</p>
+<h3 id="Hybrid-Dilated-Convolution"><a href="#Hybrid-Dilated-Convolution" class="headerlink" title="Hybrid Dilated Convolution"></a>Hybrid Dilated Convolution</h3><p>对于二维信号，卷积核大小$k×k$，经过扩张卷积的结果为$k_d×k_d$,其中$k_d=k+(k-1)(r-1)$.例如：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/E07hhLE8K3.png" alt="mark"></p>
+<ul>
+<li>对于左边：$r=2,k=3$.  $k_d=3+(3-1)(2-1)=5$，接收野为$5×5$</li>
+<li>对于右边：$r=3,k=3$.  $k_d=3+(3-1)(3-1)=7$，接收野为$7×7$</li>
+</ul>
+<p>扩张卷积可增加features map的分辨率，故可替换FCN架构中的池化层。但是，扩张卷积存在一个理论上的问题，称之为”<strong>gridding</strong>“：对于扩张卷积的一个像素点p，对其有贡献的是上一层以p为中心的$k_d×k_d$的邻近区域，因为扩张卷积引入0值，在$k_d×k_d$的区域只计算$k×k$个像素点，非0像素点之间间隔为$r-1$.</p>
+<p>例如$k=3,r=2$的扩张卷积，从$Conv2–&gt;Conv3$，25个像素只有9个像素做了贡献：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/B4583c91Ke.png" alt="mark"></p>
+<p>可以看到top feature map使用扩张卷积只能以<code>棋盘</code>的形式查看信息，这会丢失大量信息.</p>
+<ul>
+<li><p>当high layer中$r$变的越来越大，这会使得从输入中采样的数据越来越稀疏，不利于卷积学习，因为</p>
+<ul>
+<li>局部的信息完全丢失 </li>
+<li>信息之间太远不相关</li>
+</ul>
+</li>
+<li><p>$r×r$的区域从完全不同的“网格”集合内接收信息，这会损害本地信息的一致性。</p>
+</li>
+</ul>
+<p>论文提出了HDC用于缓解”gridding”产生的影响：考虑到一个$N$个的size为$K×K$的扩张卷积，对应的扩张率为$[r_1,…,r_i,..,r_n]$，<strong>HDC的目标是让最后的接收野全覆盖整个区域（没有任何空洞或丢失边缘）</strong>，我们定义两个非零点之间最大距离为： $$M_i=\max[M_{i+1}-2r_i,M_{i+1}-2(M_{i+1}-r_i),r_i]$$<br>其中$M_n=r_n$,<strong>设计的目标是让$M_2≤K$.</strong></p>
+<p>这是公式是怎么来的，我邮件咨询了一作PanQu Wang：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/mFimkgjGDE.png" alt="mark"></p>
+<p>HDC实例：</p>
+<ul>
+<li>对于常见的扩张卷积核大小$K=3$，如果$r=[1,2,5]$ 则$$M_2=\max[M_3-2r_2,-M_3+2r_2,r_2]=\max[1,-1,2]=2$$此时$M_2=2≤K=3$,满足设计要求.设计的示意图如下：<br>  <img src="http://owv7la1di.bkt.clouddn.com/blog/180306/lDCLc3KaDl.png" alt="mark"></li>
+</ul>
+<ul>
+<li>如果$r=[1,2,9]$则$$M_2=\max[M_3-2r_2,-M_3+2r_2,r_2]=\max[5,-5,2]=5$$此时$M_2=5＞K=3$,不满足设计要求.<br>  <img src="http://owv7la1di.bkt.clouddn.com/blog/180306/bEekI06KE7.png" alt="mark"></li>
+</ul>
+<p>论文给出使用不同扩张率的扩张卷积策略是<strong>锯齿波</strong>(sawtooth wave-like)变化形式:即取几层为一组，每个组的扩张率从低向高增加，每个组类似，即扩张率变换类似锯齿波。锯齿波能同时满足小物体大物体的分割要求(小rate提取本地信息，大rate提取长距离信息)。</p>
+<p>例如：对于r=2的层，将3个层组成一组，对应的扩张率分别为1,2,3。这样<strong>顶层可以获取更宽阔的区域信息，这能在保持接收野大小不变的情况下提高信息利用率</strong>。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/K36B4JeBLL.png" alt="mark"></p>
+<p>需要注意的是，<strong>一个组内的卷积不应该有一个固定的变换因子</strong>，即不要用大于1的公约数(例如2,4,8的公约数为2&gt;1)，否则依旧无法减小”girdding”效应。</p>
+<p>HDC的另一个好处是可以使用任意的扩张率，很自然的扩大了接收野且不需要添加额外的模块，这对识别大型相关目标很关键。</p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><p>论文一共在三个数据集上做了测试：CityScapes，KITTI dataset for road estimation, PASCAL VOC2012. 以预训练的ResNet101和ResNet152为特征提取层。</p>
+<h2 id="CityScapes"><a href="#CityScapes" class="headerlink" title="CityScapes"></a>CityScapes</h2><p>CityScapes的数据尺寸固定为$1024×2048$，本文的策略是将图片分成重叠的<strong>12</strong>个$800×800$的patches，整个训练集大小为$2975*12=35700$.这样的数据增强可保证图片的每个区域都被访问到，比随机的cropping要跟细腻。</p>
+<p><strong>Baseline-model</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>设置项</th>
+<th>设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优化器</td>
+<td>使用mini-batch SGD</td>
+</tr>
+<tr>
+<td>patch size</td>
+<td>$544×544$(randomly cropped from the 800x800 patch)</td>
+</tr>
+<tr>
+<td>batch_size</td>
+<td>12</td>
+</tr>
+<tr>
+<td>学习率策略</td>
+<td>poly，power=0.9,初始的学习率为$2.5×10^{-4}$.</td>
+</tr>
+<tr>
+<td>权重衰减</td>
+<td>$5×10^{-4}$,momentum为0.9</td>
+</tr>
+</tbody>
+</table>
+<h3 id="DUC"><a href="#DUC" class="headerlink" title="DUC"></a>DUC</h3><p>DUC做的事情就是改变原本top layer输出的shape.</p>
+<p>例如：<strong>Baseline-model</strong>的输出为$68×68×19$(19是cityscapes的类别)。DUC将输出变化为$68×68×(d^2×19)$，$d$是下采样因子，这里$r=8$. 再reshape为$544×544×19$即预测的map. DUC只在ResNet的top端引入了新参数，与Baseline相比，提高了2%mIoU，可视化结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/iJki7flaCl.png" alt="mark"></p>
+<p>由图可以清晰的看见DUC主要<strong>提高了小目标物的识别率</strong>，验证了DUC可以恢复双线性插值上采样损失的信息。</p>
+<p><strong>Abation Studies</strong>：主要做以下方面的实验.</p>
+<ul>
+<li>网络的下采样扩张率，用于控制内部的feature map的分辨率</li>
+<li>是否使用<a href="http://blog.csdn.net/u011974639/article/details/79138653" target="_blank" rel="external">ASPP模块</a>，以及使用并行路径的数量</li>
+<li>是否做数据增强，即将数据切分为12个子patches</li>
+<li>一个预测像素投影的邻近区域大小$(cell,cell)$.像素级的DUC应该使用$cell=1$，但因为Gound Truth无法达到像素级，在实验中尝试$cell=2$</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/eJHc7g5Dj3.png" alt="mark"></p>
+<p>降低下采样率会降低准确率。ASPP模块通常有助于改善性能。数据增强有助于提高准确率，使用cell=2有轻微的提升，同时有助于降低计算消耗。</p>
+<p><strong>Bigger Patch Size</strong>： 因为$cell=2$会大幅度减少计算量消耗，故讨论patch size对性能的影响。将patch size提高到$880×880$，将原本的12倍cropping换成7倍的cropping，性能提升了1%；<br><strong>Compared with Deconvolution</strong>： 使用上采样效率略低于DUC model；<br><strong>Conditional Random Fields(CRF)</strong>： 使用CRF提高了1%的性能。</p>
+<h3 id="HDC"><a href="#HDC" class="headerlink" title="HDC"></a>HDC</h3><p>以最佳的101 layer的ResNet-DUC为基础，添加HDC，实验探究了几种变体：</p>
+<ul>
+<li><strong>无扩张卷积(no dilation)</strong>：对于所有包含扩张卷积，设置$r=1$</li>
+<li>扩张卷积(<strong>dilation Conv</strong> )：对于所有包含扩张卷积，将2个block和为一组，设置第一个block的$r=2$，第二个block的$r=1$</li>
+<li><strong>Dilation-RF</strong>：对于$res4b$包含了23个blocks，使用的$r=2$，设置3个block一组，$r=1,2,3$.对于最后两个block，设置$r=2$；对于$res5b$，包含3个block,使用$r=4$，设置为$r=3,4,5$.</li>
+<li><strong>Dilation-Bigger</strong>：对于$res4b$模块，设置4个block为一组，设置$r=1,2,5,9$.最后3个block设置为$1,2,5$；对于$res5b$模块，设置$r=5,9,17$</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/FF499L1kgk.png" alt="mark"></p>
+<p>可以看到增加接收野大小会获得较高的精度。如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/Dgej3gga76.png" alt="mark"></p>
+<p>ResNet-DUC-HDC在较大的目标物上表现较好。下图是局部放大：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/29m9f5k2HG.png" alt="mark"></p>
+<p>可以看到HDC有效的消除”gridding”产生的影响。</p>
+<p><strong>Deeper Networks</strong>： 同样尝试了将ResNet-101切换为ResNet-152，使用ResNet152先跑了10个epoch学习了BN层参数，再固定BN层，跑了20个epochs.结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/hie8c9hjhg.png" alt="mark"></p>
+<p>ResNet152为基础层的有1%的提升。</p>
+<p><strong>Test Set Results</strong>： 论文将ResNet101开始的$7×7$卷积拆分为3个$3×3$的卷积，再不带CRF的情况下达到了80.1%mIoU.与其他先进模型相比如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/ldfijaB6kF.png" alt="mark"></p>
+<p>模型同时在coarse labels跑了一圈，与同样以deliated convolution为主的DeepLabv2相比，提升了9.7%.</p>
+<h2 id="KITTI-Road-Segmentaiton"><a href="#KITTI-Road-Segmentaiton" class="headerlink" title="KITTI Road Segmentaiton"></a>KITTI Road Segmentaiton</h2><p>KITTI有289的训练图片和290个测试图片。示例如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/aADhCEF0aJ.png" alt="mark"></p>
+<p>因为数据集有限，为了避免过拟合。论文以100的步长在数据集中裁剪$320×320$的patch. 使用预训练模型，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/37aG5b5I0I.png" alt="mark"></p>
+<p>结果达到了state-of-the-art水平.</p>
+<h2 id="PASCAL-VOC2012-dataset"><a href="#PASCAL-VOC2012-dataset" class="headerlink" title="PASCAL VOC2012 dataset"></a>PASCAL VOC2012 dataset</h2><p>先用VOC2012训练集和MS-COCO数据集对ResNet-DUC做预训练。再使用VOC2012做fine-tune。使用的图片大小为$512×512$。达到了state-of-the-art水平：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/LB49a0m09A.png" alt="mark"></p>
+<p>可视化结果如下：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180306/DfdFEIeJHj.png" alt="mark"></p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>论文提出了简单有效的卷积操作改进语义分割系统。使用DUC恢复上采样丢失的信息，使用HDC在解决”gridding”的影响的同时扩大感受野。实验证明我们的框架对各种语义分割任务的有效性。</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/Dilated-Convolution/" rel="tag"># Dilated Convolution</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/29/轻量级网络-MobileNetV2/" rel="next" title="轻量级网络-MobileNetV2">
+                <i class="fa fa-chevron-left"></i> 轻量级网络-MobileNetV2
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Understanding-Convolution-for-Semantic-Segmentation"><span class="nav-text">Understanding Convolution for Semantic Segmentation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Approach"><span class="nav-text">Approach</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dense-Upsampling-Convolution"><span class="nav-text">Dense Upsampling Convolution</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要使用DUC？"><span class="nav-text">为什么要使用DUC？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DUC的方案："><span class="nav-text">DUC的方案：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hybrid-Dilated-Convolution"><span class="nav-text">Hybrid Dilated Convolution</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CityScapes"><span class="nav-text">CityScapes</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DUC"><span class="nav-text">DUC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HDC"><span class="nav-text">HDC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KITTI-Road-Segmentaiton"><span class="nav-text">KITTI Road Segmentaiton</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PASCAL-VOC2012-dataset"><span class="nav-text">PASCAL VOC2012 dataset</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
