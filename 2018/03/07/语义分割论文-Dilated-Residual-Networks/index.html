@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Object Detection,Semantic Segmentation,Dilated Convolution," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="本文以Resnet基础层，使用扩张卷积(atrous or dilated convolution)替换下采样层，在保持feature map的空间分辨率的同时增加接收野的分辨率，新的架构称为DRN(Dilated Residual Networks)。同时针对使用扩张卷积产生的”girdding”影响，提出了一组解决方案。实验表明了DRN结构的有效性。">
+<meta name="keywords" content="Object Detection,Semantic Segmentation,Dilated Convolution">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文--Dilated Residual Networks">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/03/07/语义分割论文-Dilated-Residual-Networks/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="本文以Resnet基础层，使用扩张卷积(atrous or dilated convolution)替换下采样层，在保持feature map的空间分辨率的同时增加接收野的分辨率，新的架构称为DRN(Dilated Residual Networks)。同时针对使用扩张卷积产生的”girdding”影响，提出了一组解决方案。实验表明了DRN结构的有效性。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/HC27Lbc0j7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/FiK6K7jELH.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/4G12AL9576.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/9acCj5dFB7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/6m2ED45m6I.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/Dgb5A85G6B.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/4ij0iEGe3j.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/lm6bl2CE3h.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/Bgm1888e86.png?imageslim">
+<meta property="og:updated_time" content="2018-03-07T13:39:06.117Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文--Dilated Residual Networks">
+<meta name="twitter:description" content="本文以Resnet基础层，使用扩张卷积(atrous or dilated convolution)替换下采样层，在保持feature map的空间分辨率的同时增加接收野的分辨率，新的架构称为DRN(Dilated Residual Networks)。同时针对使用扩张卷积产生的”girdding”影响，提出了一组解决方案。实验表明了DRN结构的有效性。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180307/HC27Lbc0j7.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/03/07/语义分割论文-Dilated-Residual-Networks/"/>
+
+
+
+
+
+  <title>语义分割论文--Dilated Residual Networks | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/03/07/语义分割论文-Dilated-Residual-Networks/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文--Dilated Residual Networks</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-07T20:24:21+08:00">
+                2018-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文以Resnet基础层，使用扩张卷积(atrous or dilated convolution)替换下采样层，在保持feature map的空间分辨率的同时增加接收野的分辨率，新的架构称为DRN(Dilated Residual Networks)。同时针对使用扩张卷积产生的”girdding”影响，提出了一组解决方案。实验表明了DRN结构的有效性。</p>
+<a id="more"></a>
+<h1 id="DRN：Dilated-Residual-Networks"><a href="#DRN：Dilated-Residual-Networks" class="headerlink" title="DRN：Dilated Residual Networks"></a>DRN：Dilated Residual Networks</h1><p>收录：CVPR2017(IEEE Conference on Computer Vision and Pattern Recognition)</p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1705.09914.pdf" target="_blank" rel="external">Dilated Residual Networks</a></p>
+<p><strong>本文配合前面的Understand convolution for Semantic Segmentation有奇效~</strong></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/fyu/drn" target="_blank" rel="external">官方-Pytorch</a></li>
+</ul>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>扩张卷积可以增加神经元的接收野，若用于替换卷积网络中的下采样层，即维持了feature map的空间分辨率，又可以保持后续神经元接收野的分辨率。论文据此提出了dilated residual networks(DRN)，实验表明DRN在图像分类等任务上优于不加扩张卷积的网络。此外，使用空洞卷积会产生”gridding”问题，论文提出了一些解决方案。</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>卷积神经网络使用池化和下采样获取更抽象的特征，但这伴随着是feature map空间分辨率的下降，这会丢失很多敏感细节，不利于涉及密集预测的图像场景解析任务。论文认为池化和下采样不是必须的(PS:很多大师都觉得池化这个操作很蠢，但是又离不开~)，在残差网络的结构上，使用扩张卷积替换模型内部的下采样层来提高输出的准确率。</p>
+<p>在ImageNet上DRN的输出分辨率为$28×28$(原Resnet输出$7×7$，空间分辨率提高了4倍，替换了2个下采样)，论文指出在此基础上使用平均池化效果不错。使用扩张卷积会带来”gridding”问题，论文提出了一种用于消除影响的解决方案，这进一步提高了DRN的准确率。同时验证了DRN在其他任务：例如语义分割任务上表现也很不错。</p>
+<hr>
+<h1 id="Approach"><a href="#Approach" class="headerlink" title="Approach"></a>Approach</h1><h2 id="Dilated-Residual-NetWorks"><a href="#Dilated-Residual-NetWorks" class="headerlink" title="Dilated Residual NetWorks"></a>Dilated Residual NetWorks</h2><p>在卷积神经网络中使用下采样会降低feature的空间分辨率，这会丢失许多细节，从而影响模型对小型目标乃至目标之间关系的识别。</p>
+<p>论文以Resnet为基础，提出了一个改进方法，在resnet的top layers移除下采样层，这可以保持feature map的空间分辨率，但后续的卷积层接收野分辨率下降了，这不利于模型聚合上下文信息。针对这一问题，论文使用扩张卷积替换下采样，在后续层合理使用扩张卷积，在保持feature map的空间分辨率同时维持后续层接收野的分辨率。</p>
+<p>具体来说，对于Resnet可分为5组卷积，DRN改进了后两组卷积(记为$G^4$和$G^5$)，这两组卷积开始的卷积层都是下采样，DRN做了以下改进：</p>
+<ul>
+<li>去除了开始的下采样，这保持了feature的分辨率，注意到无论是$G^4$和$G^5$的第一层卷积接收野是不受影响的，但是$G^4$的后续层接收野下降了2倍，$G^5$的后续层接收野下降了4倍</li>
+<li>对$G^4$的后续层使用2倍扩张率的扩张卷积，$G^5$的后续层使用4倍扩张率的扩张卷积</li>
+<li>后续就是接平均池化，预测输出了</li>
+</ul>
+<p>DRN和Resnet的对比如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/HC27Lbc0j7.png?imageslim" alt="mark"></p>
+<p>注意到原Resnet在$G^4$和$G^5$上都有下采样，由输入的$224×224$最终输出$7×7$，下采样因子为32。使用DRN替换了两个下采样，最终输出为$28×28$,下采样因子为8。相比增加了16倍的值，空间信息量增大许多。</p>
+<p>至于为什么不全替换了下采样层，是因为在全分辨率下不使用下采样，内存消耗超出当前硬件的能力。</p>
+<h2 id="Degridding"><a href="#Degridding" class="headerlink" title="Degridding"></a>Degridding</h2><p>扩张卷积产生的”gridding”问题，在<a href="http://blog.csdn.net/u011974639/article/details/79460893#t7" target="_blank" rel="external">Understand Convolution for Semantic Segmentation </a>中详细解释过。</p>
+<p>大致可以总结当使用的扩张率增加，采样点之间相隔较远，局部信息丢失，产生的预测图出现网格效应。例如下图(c)所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/FiK6K7jELH.png?imageslim" alt="mark"></p>
+<p>可以看到图(c)预测图有棋盘状。</p>
+<p>论文针对这一问题提出了一些解决办法。示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/4G12AL9576.png?imageslim" alt="mark"></p>
+<h3 id="a-移除最大池化层"><a href="#a-移除最大池化层" class="headerlink" title="(a): 移除最大池化层"></a><strong>(a): 移除最大池化层</strong></h3><p>如图5 (a) DRN-A-18所示。 继承了原始Resnet在初始的$7×7$卷积后接的最大池化操作，论文发现该池化层有高频高幅的激活，如图6 (b)所示，这样的高频传播到网络后面，会加剧gridding影响。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/9acCj5dFB7.png?imageslim" alt="mark"></p>
+<p>故图5 (b)使用<strong>卷积滤波器代替最大池化</strong>，图6 (c)显示了转换后的效果。</p>
+<h3 id="b-添加图层"><a href="#b-添加图层" class="headerlink" title="(b): 添加图层"></a><strong>(b): 添加图层</strong></h3><p>如图5 (b) DRN-B-26所示。考虑到扩张卷积产生的”gridding”影响，论文在网络的后端增加两个扩张卷积block，即level7-8，注意到这两个block的扩张率较小。作用类似于使用不同频率的去<code>抗混叠</code>(个人理解~)</p>
+<h3 id="c-移除残差连接"><a href="#c-移除残差连接" class="headerlink" title="(c): 移除残差连接"></a><strong>(c): 移除残差连接</strong></h3><p>在图5 (b) DRN-B-26中，在网络的后端增加了两个扩张率的卷积block，作用类似于<code>抗混叠</code>，但是因为增加的模块存在残差连接(残值就能直通，移除了就没办法不通过卷积了)，为了完全了实现扛混叠，论文移除了残差连接，图5 (c) DRN-C-26所示。这样的结构虽然在深度和容量上超出了开始的DRN-A，但后续的实验证明这样结构对精度有显著的提升，与更深的DRN-A-34有类似的精度，比DRN-A-50在语义分割任务上有更好的精度。</p>
+<p>DRN-C的特征激活图如图7所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/6m2ED45m6I.png?imageslim" alt="mark"></p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><h2 id="Image-Classification"><a href="#Image-Classification" class="headerlink" title="Image Classification"></a>Image Classification</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练数据</td>
+<td>ImageNet2012</td>
+</tr>
+<tr>
+<td>优化器是SGD</td>
+<td>momentum 0.9 and weight decay $10^{-4}$</td>
+</tr>
+<tr>
+<td>学习率</td>
+<td>初始是$10^{-1}$，每30epochs下降10倍，一共跑了120epochs.</td>
+</tr>
+<tr>
+<td>测试集</td>
+<td>ImageNet验证集</td>
+</tr>
+</tbody>
+</table>
+<p>论文针对数据裁剪方式设计了两种评估手段：1-crop和10-crop：</p>
+<ul>
+<li><code>1-crop</code>:使用图片中间的$224×224$区域</li>
+<li><code>10-crop</code>:使用图片中间、四个角和翻转后的，共10中crop，预测结果取平均</li>
+</ul>
+<p>多个实验的对比结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/Dgb5A85G6B.png?imageslim" alt="mark"></p>
+<ul>
+<li><p><strong>ResNet vs. DRN-A：</strong><br>  DRN-A相比于对应的ResNet有性能上都有提升。DRN-A-50相比于更深的ResNet-101在精度上只有微弱的差距。</p>
+</li>
+<li><p><strong>DRN-A vs. DRN-C：</strong> 可以看到每个的DRN-C与对应的DRN-A有显著的提升，虽然在模型的宽度和容量上有所增加，但精度的提升很大，以至于变换后的DRN与更深层模型都有相似的精度。</p>
+</li>
+</ul>
+<h2 id="Object-Localization"><a href="#Object-Localization" class="headerlink" title="Object Localization"></a>Object Localization</h2><p>在ImageNet2012验证集上，评估模型的弱监督目标定位能力，如果预测结果和Ground Truth的IoU超过0.5，则认为预测准确，实验结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/4ij0iEGe3j.png?imageslim" alt="mark"></p>
+<p>每组DRN比对应的ResNet效果要好，这进一步验证了DRN结构的有效性。同时DRN-C-26性能要明显优于DRN-A，这验证了对”gridding”提出的解决方案的有效性。</p>
+<h2 id="Semantic-Segmentation"><a href="#Semantic-Segmentation" class="headerlink" title="Semantic Segmentation"></a>Semantic Segmentation</h2><p>语义分割任务涉及到对像素的密集预测，这对输出feature的分辨率要求较高。而DRN相比于Resnet在分辨率上保持较好，对于上卷积或者后续的增加分辨率的操作需求较少，易于迁移到语义分割应用上。</p>
+<p>在CityScapes dataset上，数据增强只使用了随机翻转和裁剪，实验结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/lm6bl2CE3h.png?imageslim" alt="mark"></p>
+<p>所有的展示结果都超过了ResNet101的66.6%mIoU。同样DRN-C-26和DRN-C-42都比DRN-A-50要好，这验证了弥补”gridding”影响的方案在密集预测任务上特别有效。</p>
+<p>DRN-A-50和DRN-C-26的可视化对比如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180307/Bgm1888e86.png?imageslim" alt="mark"></p>
+<p>DRN-A-50受”gridding”的影响较多，相比之下DRN-C-26不仅准确率更好，也更清晰。</p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>论文提出了一种设计卷积网络架构方案，使用扩张卷积替换模型中的下采样，保持feature map的空间分辨率同时不降低后续卷积层的接收野的分辨率，实验证明这样简单转换是有效的。</p>
+<p>因为扩张卷积产生的”gridding”影响，论文提出了一些修改模型结构方案减少”gridding”效应，这进一步提高了模型的精度。DRN更适配密集预测任务，可用作复杂的自然图像分析任务起点。</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Object-Detection/" rel="tag"># Object Detection</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/Dilated-Convolution/" rel="tag"># Dilated Convolution</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/06/语义分割论文-Understand-Convolution-for-Semantic-Segmentation/" rel="next" title="语义分割论文-Understand Convolution for Semantic Segmentation">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-Understand Convolution for Semantic Segmentation
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/07/语义分割论文-Dilated-Residual-Networks/" rel="prev" title="">
+                 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DRN：Dilated-Residual-Networks"><span class="nav-text">DRN：Dilated Residual Networks</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Approach"><span class="nav-text">Approach</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dilated-Residual-NetWorks"><span class="nav-text">Dilated Residual NetWorks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Degridding"><span class="nav-text">Degridding</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a-移除最大池化层"><span class="nav-text">(a): 移除最大池化层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b-添加图层"><span class="nav-text">(b): 添加图层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c-移除残差连接"><span class="nav-text">(c): 移除残差连接</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Image-Classification"><span class="nav-text">Image Classification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Object-Localization"><span class="nav-text">Object Localization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semantic-Segmentation"><span class="nav-text">Semantic Segmentation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
