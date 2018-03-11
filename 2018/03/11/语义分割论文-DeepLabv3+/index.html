@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,DeepLab," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="DeepLabv3+Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation 原文地址：DeepLabv3+ 注意本文的一作$Liang-Chieh Chen$参与了DeepLab系列，MaskLab和MobileNet系列的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到">
+<meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,DeepLab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文--DeepLabv3+">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/03/11/语义分割论文-DeepLabv3+/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="DeepLabv3+Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation 原文地址：DeepLabv3+ 注意本文的一作$Liang-Chieh Chen$参与了DeepLab系列，MaskLab和MobileNet系列的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/9h0cmFB90B.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/Af2H87AdGH.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/5d2jIA1I31.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/5Igk3GcAi6.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/g2DF4034cf.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/8fGc4aAcjj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/GB51B1HE0h.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/f7Ha5k73F0.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/1Le1c1Fhhi.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/3EC5f20KCI.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/9F3e8ef05f.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/5IkGAFm3dG.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/bH56C1hGl5.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/i5ilJcgafj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/h39DIHkI85.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/1AgGDDJ9BI.png?imageslim">
+<meta property="og:updated_time" content="2018-03-11T09:23:13.972Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文--DeepLabv3+">
+<meta name="twitter:description" content="DeepLabv3+Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation 原文地址：DeepLabv3+ 注意本文的一作$Liang-Chieh Chen$参与了DeepLab系列，MaskLab和MobileNet系列的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/9h0cmFB90B.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/03/11/语义分割论文-DeepLabv3+/"/>
+
+
+
+
+
+  <title>语义分割论文--DeepLabv3+ | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/03/11/语义分割论文-DeepLabv3+/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文--DeepLabv3+</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-11T16:26:55+08:00">
+                2018-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<h1 id="DeepLabv3"><a href="#DeepLabv3" class="headerlink" title="DeepLabv3+"></a>DeepLabv3+</h1><p>Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation</p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1802.02611.pdf" target="_blank" rel="external">DeepLabv3+</a></p>
+<p>注意本文的一作<a href="http://liangchiehchen.com/" target="_blank" rel="external">$Liang-Chieh Chen$</a>参与了<a href="http://blog.csdn.net/u011974639/article/details/79148719" target="_blank" rel="external">DeepLab系列</a>，MaskLab和<a href="http://blog.csdn.net/u011974639/article/details/79199588" target="_blank" rel="external">MobileNet系列</a>的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到新的state-of-the-art。</p>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>空间金字塔模块在输入feature上应用多采样率扩张卷积、多接收野卷积或池化，探索多尺度上下文信息。 Encoder-Decoder结构通过逐渐恢复空间信息来捕捉清晰的目标边界。</p>
+<p>DeepLabv3+结合了这两者的优点，具体来说，以DeepLabv3为encoder架构，在此基础上添加了简单却有效的decoder模块用于细化分割结果。此外论文进一步探究了以Xception结构为模型主干，并探讨了Depthwise separable convolution在ASPP和decoder模块上的应用，最终得到了更快更强大的encoder-decoder网络。</p>
+<p>论文在PASCAL VOC 2012上验证了模型的有效性，在没有添加任何后端处理的情况下达到了89%mIoU.</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>在DeepLabv3+中，使用了两种类型的神经网络，使用空间金字塔模块和<a href="http://blog.csdn.net/u011974639/article/details/78916327#t5" target="_blank" rel="external">encoder-decoder结构</a>做语义分割。</p>
+<ul>
+<li>空间金字塔：通过在不同分辨率上以池化操作捕获丰富的上下文信息</li>
+<li>encoder-decoder架构:逐渐的获得清晰的物体边界</li>
+</ul>
+<p>DeepLabv3+结合这两者的优点，在DeepLabv3的基础上拓展了一个简单有效的模块用于恢复边界信息。如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/9h0cmFB90B.png?imageslim" alt="mark"></p>
+<ul>
+<li>(a): 即DeepLabv3的结构，使用ASPP模块获取多尺度上下文信息，直接上采样得到预测结果</li>
+<li>(b): encoder-decoder结构，高层特征提供语义，decoder逐步恢复边界信息</li>
+<li>(c): DeepLabv3+结构，以DeepLabv3为encoder，decoder结构简单</li>
+</ul>
+<p>DeepLabv3的top layer输出的feature中有丰富的语义信息，可通过扩张卷积依据计算资源限制控制计算密度，配合一个decoder模块用于逐渐恢复边界信息。</p>
+<p>在上述的encoder-decoder架构上，论文受到Xception等工作启发，将深度分离卷积应用到ASPP和decoder模块，用于快速计算并保持模型的强大学习能力。最终得到的模型在没有添加后端处理的情况下，达到了新的state-of-the-art.</p>
+<p>论文的主要贡献在于：</p>
+<ul>
+<li>论文提出了一个全新的encoder-decoder架构，使用DeepLabv3作为encoder模块，并添加了一个简单却有效的decoder模块</li>
+<li>在我们提出的encoder-decoder架构中，可通过扩张卷积直接控制提取encoder特征的分辨率，用于平衡精度和运行时间</li>
+<li>论文将Xception结构应用于分割任务中，在ASPP和decoder模块中加入深度分离卷积，获得到强大又快速的模型</li>
+<li>模型达到了新的state-of-the-art，同时我们给出了模型设计分析细节和模型变体</li>
+<li>以后开源TensorFlow代码(估计得等到2018CVPR或者ECCV完全结束~)</li>
+</ul>
+<hr>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><p>近几年基于全卷积神经网络的模型在语义分割任务上表现成功。有几种变体模型提出利用上下文信息包括多尺度输入在内的做分割，也有采用概率图模型细化分割结果。本文主要讨论使用空间金字塔池化和encoder-decoder结构、并讨论了基于Xception为主体的强大特征提取层，和基于深度分离卷积快速计算。</p>
+<p><strong>空间金字塔池化：</strong>如PSPNet使用多个不同gird的池化，DeepLab的ASPP模块平行的使用不同扩张率的扩张卷积，执行空间金字塔合并获取多尺度信息。在多个benchmark获得不错的结果。</p>
+<p><strong>Encoder-Decoder：</strong> encoder-decoder结构在多个计算机视觉任务上获得成功，例如人类姿态估计、目标检测和语义分割。通常，encoder-decoder网络包含：</p>
+<ul>
+<li>encoder模块逐步减少feature map分辨率，捕获高级语义信息</li>
+<li>decoder模块逐渐恢复空间信息</li>
+</ul>
+<p>在这领域上基础上，我们使用DeepLabv3作为encoder模块，并增加一个简单又有效的的decoder模块获取空间信息。</p>
+<p><strong>深度分离卷积：</strong> 深度分离卷积和组卷积能够减少计算消耗和参数量的同时维持相似的表现。深度分离卷积已应用在多个神经网络中，特别的，我们探索了Xception架构，在语义分割任务上展现了精度和速度上的双重提升。</p>
+<hr>
+<h1 id="Methods"><a href="#Methods" class="headerlink" title="Methods"></a>Methods</h1><p>本节简单回顾<a href="http://blog.csdn.net/u011974639/article/details/79144773" target="_blank" rel="external">DeepLabv3架构</a>，提出改进后的Xception模型，介绍扩张卷积和深度分离卷积。</p>
+<h2 id="Encoder-Decoder-with-Atrous-Convolution"><a href="#Encoder-Decoder-with-Atrous-Convolution" class="headerlink" title="Encoder-Decoder with Atrous Convolution"></a>Encoder-Decoder with Atrous Convolution</h2><p><strong>DeepLabv3 as encoder：</strong><br>DeepLabv3中也使用扩张卷积提取特征，我们将输入和输出的分辨率比值称为$output_stride$,对于语义分割任务，使用扩张卷积替换下采样，使得输出的feature的$output_stride=16$。</p>
+<p>DeepLabv3的ASPP模块使用了多个平行的扩张卷积，配合了图像级特征(即全局平均池化)。我们将DeepLabv3的logit前的输出特征作为encoder-decoder模型的encoder输出。此时输出的feature通道为256，可依据计算资源限制合理使用扩张卷积。</p>
+<p><strong>Proposed decoder:</strong></p>
+<p>在原先的DeepLabv3中，取预测的feature 直接双线性上采样16倍到期望尺寸，这样的简易的decoder模块不能成功的恢复分割细节(这个问题在<a href="http://blog.csdn.net/u011974639/article/details/79460893" target="_blank" rel="external">Understand Convolution for Semantic Segmentation</a>重点讨论过~)</p>
+<p>DeepLabv3+的整体的架构如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/Af2H87AdGH.png?imageslim" alt="mark"></p>
+<p>简单说一下decoder的组成:</p>
+<ul>
+<li>encoder输出的feature的$output_stride=16$，经过双线性上采样4倍得到$F_A$，$F_A$的$output_stride=4$</li>
+<li>再取encoder中对应着相同分辨率(即$output_stride=4$)的特征层，经过$1×1$卷积降通道，此时输出的feature记为$F_B$。<strong>这里为什么要经过$1×1$卷积降通道，是因为此分辨率的特征通道较多(256或512)，而$F_A$输出只有256，故降通道以保持与$F_A$所占比重，利于模型学习。</strong></li>
+<li>将$F_A$和$F_B$做concat，再经过一个$3×3$卷积细化feature，最终再双线性上采样4倍得到预测结果</li>
+</ul>
+<p>在实验部分展示了$output_stride=16$是在速度和精度上最佳的平衡点，使用$output_stride=8$能够进一步提升精度，伴随着是更大的计算消耗。</p>
+<h2 id="使用分离卷积改进Xcetpion"><a href="#使用分离卷积改进Xcetpion" class="headerlink" title="使用分离卷积改进Xcetpion"></a>使用分离卷积改进Xcetpion</h2><h3 id="扩张分离卷积"><a href="#扩张分离卷积" class="headerlink" title="扩张分离卷积"></a>扩张分离卷积</h3><h4 id="Atrous-Convolution："><a href="#Atrous-Convolution：" class="headerlink" title="Atrous Convolution："></a><strong>Atrous Convolution：</strong></h4><p>扩张卷积在<a href="http://blog.csdn.net/u011974639/article/details/79138653" target="_blank" rel="external">DeepLab系列</a>，<a href="http://blog.csdn.net/u011974639/article/details/79460893" target="_blank" rel="external">Understand Convolution for Semantic Segmentation</a>, <a href="http://blog.csdn.net/u011974639/article/details/79477838" target="_blank" rel="external">Dilated Residual Networks</a> 上都介绍过。这里简单说一下：</p>
+<p>考虑到二维信号上使用空洞卷积,对于位置$i$，在输入为$x$上应用滤波器$w$，输出为$y$：</p>
+<p>$$y[i]=\sum_{k}x[i+r·k]w[k]$$<br>其中速率$r$在采样点之间引入$r-1$个零，有效的将感受野从$k×k$扩展到$k_e=k+(k-1)(r-1)$，而不增加参数和计算量。</p>
+<h4 id="Depthwise-separable-convolution："><a href="#Depthwise-separable-convolution：" class="headerlink" title="Depthwise separable convolution："></a><strong>Depthwise separable convolution：</strong></h4><p>深度分离卷积在<a href="http://blog.csdn.net/u011974639/article/details/79199306" target="_blank" rel="external">MobileNet</a>里面重点讲过，这里简单说一下：</p>
+<p>深度可分离卷积干的活是：把标准卷积分解成<strong>深度卷积(depthwise convolution)</strong>和<strong>逐点卷积(pointwise convolution)</strong>。深度卷积对每个通道独立使用空间卷积，逐点卷积用于结合深度卷积的输出。深度分离卷积可以大幅度降低参数量和计算量。                                                                                             </p>
+<p><strong>我们将扩张卷积核深度分离卷积结合到一起，即扩张分离卷积。扩张分离卷积能够显著的减少模型的计算复杂度并维持相似的表现。</strong></p>
+<h3 id="Modified-Aligned-Xcetpion"><a href="#Modified-Aligned-Xcetpion" class="headerlink" title="Modified Aligned Xcetpion"></a>Modified Aligned Xcetpion</h3><p>论文受到近期MSRA组在Xception上改进工作可变形卷积(<a href="https://arxiv.org/pdf/1703.06211.pdf" target="_blank" rel="external">Deformable-ConvNets</a>)启发，Deformable-ConvNets对Xception做了改进，能够进一步提升模型学习能力，新的结构如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/5d2jIA1I31.png?imageslim" alt="mark"></p>
+<p><a href="http://presentations.cocodataset.org/COCO17-Detect-MSRA.pdf" target="_blank" rel="external">摘自MSRA COCO Detection &amp; Segmentation Challenge 2017 Entry</a>。</p>
+<p>论文进一步改进了MSRA的工作以适应语义分割任务，具体如下：</p>
+<ul>
+<li>更深的Xception结构，不同的地方在于不修改entry flow network的结构，为了快速计算和有效的使用内存</li>
+<li>所有的最大池化操作替换成带下采样的深度分离卷积，这能够应用扩张分离卷积扩展feature的分辨率</li>
+<li>在每个$3×3$的深度卷积后增加BN层和ReLU</li>
+</ul>
+<p>改进后的Xception整体结构如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/5Igk3GcAi6.png?imageslim" alt="mark"></p>
+<p>改进后的Xception为encodet网络主体，替换原本DeepLabv3的ResNet101.</p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><p>论文使用modified aligned Xception改进后的ResNet-101，在ImageNet-1K上做预训练，通过扩张卷积做密集的特征提取。采用DeepLabv3的训练方式(poly学习策略，crop$513×513$).注意在decoder模块同样包含BN层。</p>
+<h2 id="Decoder-Design-Choise"><a href="#Decoder-Design-Choise" class="headerlink" title="Decoder Design Choise"></a>Decoder Design Choise</h2><p>用DeepLabv3作为encoder，对于$f$个$k×k$的卷积操作记为$[k×k,f]$，先前DeepLabv3是在输出结果上继续双线性上采样16倍得到预测结果，这在PASCAL VOC2012 验证集上达到了77.21%。论文在此基础上，提出了改进的decoder模块。关于decoder的设计有多个方案：</p>
+<h3 id="使用-1×1-卷积减少来自低级feature的通道数"><a href="#使用-1×1-卷积减少来自低级feature的通道数" class="headerlink" title="使用$1×1$卷积减少来自低级feature的通道数"></a><strong>使用$1×1$卷积减少来自低级feature的通道数</strong></h3><p>下图示意部分为$1×1$卷积：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/g2DF4034cf.png?imageslim" alt="mark"></p>
+<p>为了评估$1×1$卷积的重要性，在encoder中取了$Conv2$尺寸为$[3×3,256]$为输出，减少通道数在48到32之间性能最佳。结果如下表：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/8fGc4aAcjj.png?imageslim" alt="mark"></p>
+<p>最终采用了$[1×1,48]$来做通道降维。</p>
+<h3 id="是否需要-3×3-卷积逐步获取分割结果，"><a href="#是否需要-3×3-卷积逐步获取分割结果，" class="headerlink" title="是否需要$3×3$卷积逐步获取分割结果，"></a><strong>是否需要$3×3$卷积逐步获取分割结果，</strong></h3><p>即下图示意部分$3×3$卷积恢复信息：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/GB51B1HE0h.png?imageslim" alt="mark"></p>
+<p>实验部分包括使用$1×1,256$的卷积，一组、二组、三组的$3×3,256$卷积，使用$3×3,128$的卷积，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/f7Ha5k73F0.png?imageslim" alt="mark"></p>
+<p>结果显示使用两组$3×3,256$卷积性能最佳。</p>
+<h3 id="使用那部分的低级特征帮助提供细节"><a href="#使用那部分的低级特征帮助提供细节" class="headerlink" title="使用那部分的低级特征帮助提供细节"></a><strong>使用那部分的低级特征帮助提供细节</strong></h3><p>即下图示意部分：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/1Le1c1Fhhi.png?imageslim" alt="mark"></p>
+<p>论文实验了如果使用$Conv2$和$Conv3$同时预测，$Conv2$上采样2倍后与$Conv3$结合，再上采样2倍，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/3EC5f20KCI.png?imageslim" alt="mark"></p>
+<p>这并没有显著的提升性能，考虑到计算资源的限制，论文最终采样简单的decoder方案，即取$Conv2$上采样后再与top feature concatenate。</p>
+<h2 id="ResNet-101-as-Network-Backbone"><a href="#ResNet-101-as-Network-Backbone" class="headerlink" title="ResNet-101 as Network Backbone"></a>ResNet-101 as Network Backbone</h2><p>以ResNet为encoder模型，测试了以下几种变体：</p>
+<ul>
+<li><p><strong>Baseline：</strong> 在下表的第一组。都没有使用decoder。测试了不同$output_stride$，多尺度输入，左右翻转操作。</p>
+</li>
+<li><p><strong>Adding decoder：</strong> 下表的第二组。采用的encoder。平均多增加了20B的计算消耗。</p>
+</li>
+<li><p><strong>Coarser feature maps：</strong> 测试了使用$output_stride=32$，这样计算速度更快。但是相对于$output_stride=16$准确率下降了1-2%左右。</p>
+</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/9F3e8ef05f.png?imageslim" alt="mark"></p>
+<p>可以看到使用多尺度$MS$计算量计算量增加一个数量级，使用左右翻转$Flip$计算量翻倍。</p>
+<h2 id="Xception-as-Network-Backbone"><a href="#Xception-as-Network-Backbone" class="headerlink" title="Xception as Network Backbone"></a>Xception as Network Backbone</h2><p><strong>ImageNet pretraining：</strong> 改进后的Xception网络在ImageNet-1K上做了预训练。训练设置如下：<br>|选项|配置|<br>|–|–|<br>|优化器|Nesterov momentum optimizer，momentum = 0.9|<br>|学习率|初始学习率0.05,2个epochs衰减0.94|<br>|weight_decay|4e-5|<br>|硬件|同步使用50 GPUs|<br>|batchsize|每个GPU取32|<br>|image size|299x299|</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/5IkGAFm3dG.png?imageslim" alt="mark"></p>
+<p>可以看到Modified Xception性能要好点。</p>
+<p>整体的使用Modified Xception做为网络骨架，使用如下几种变体:</p>
+<ul>
+<li><strong>Baseline:</strong> 不使用decoder.</li>
+<li><strong>Adding decoder:</strong> 添加了decoder.</li>
+<li><strong>Using depthwise separable convolution:</strong> 在ASPP和decoder中使用深度分离卷积。计算量下降了30-40%.</li>
+<li><strong>Pretraining on COCO:</strong> 在MS-COCO数据集上预训练</li>
+<li><strong>Pretraining on JFT:</strong> 在IamgeNet-1K和JFT-300M上预训练</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/bH56C1hGl5.png?imageslim" alt="mark"></p>
+<p>可以看到使用深度分离卷积可以显著降低计算消耗。</p>
+<p>与其他先进模型在VOC12的测试集上对比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/i5ilJcgafj.png?imageslim" alt="mark"></p>
+<h2 id="在目标边界上的提升"><a href="#在目标边界上的提升" class="headerlink" title="在目标边界上的提升"></a>在目标边界上的提升</h2><p>使用trimap实验测量模型在分割边界的准确度。计算边界周围扩展频带(称为trimap)内的mIoU。结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/h39DIHkI85.png?imageslim" alt="mark"></p>
+<p>与双线性上采样相比，加decoder的有明显的提升。trimap越小效果越明显。</p>
+<p>加了decoder的可视化结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180311/1AgGDDJ9BI.png?imageslim" alt="mark"></p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>论文提出的DeepLabv3+是encoder-decoder架构，其中encoder架构采用DeepLabv3，decoder采用一个简单却有效的模块用于恢复目标边界细节。并可使用扩张卷积在指定计算资源下控制feature的分辨率。</p>
+<p>论文探索了Xception和深度分离卷积在模型上的使用，进一步提高模型的速度和性能。模型在VOC2012上获得了新的state-of-the-art表现。</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/DeepLab/" rel="tag"># DeepLab</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/07/语义分割论文-Dilated-Residual-Networks/" rel="next" title="语义分割论文--Dilated Residual Networks">
+                <i class="fa fa-chevron-left"></i> 语义分割论文--Dilated Residual Networks
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DeepLabv3"><span class="nav-text">DeepLabv3+</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Methods"><span class="nav-text">Methods</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Encoder-Decoder-with-Atrous-Convolution"><span class="nav-text">Encoder-Decoder with Atrous Convolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用分离卷积改进Xcetpion"><span class="nav-text">使用分离卷积改进Xcetpion</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#扩张分离卷积"><span class="nav-text">扩张分离卷积</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Atrous-Convolution："><span class="nav-text">Atrous Convolution：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Depthwise-separable-convolution："><span class="nav-text">Depthwise separable convolution：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Modified-Aligned-Xcetpion"><span class="nav-text">Modified Aligned Xcetpion</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Decoder-Design-Choise"><span class="nav-text">Decoder Design Choise</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-1×1-卷积减少来自低级feature的通道数"><span class="nav-text">使用$1×1$卷积减少来自低级feature的通道数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#是否需要-3×3-卷积逐步获取分割结果，"><span class="nav-text">是否需要$3×3$卷积逐步获取分割结果，</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用那部分的低级特征帮助提供细节"><span class="nav-text">使用那部分的低级特征帮助提供细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ResNet-101-as-Network-Backbone"><span class="nav-text">ResNet-101 as Network Backbone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Xception-as-Network-Backbone"><span class="nav-text">Xception as Network Backbone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在目标边界上的提升"><span class="nav-text">在目标边界上的提升</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
