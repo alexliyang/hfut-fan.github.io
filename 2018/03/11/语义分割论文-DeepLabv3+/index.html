@@ -92,13 +92,13 @@
 
 
 
-<meta name="description" content="DeepLabv3+Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation 原文地址：DeepLabv3+ 注意本文的一作$Liang-Chieh Chen$参与了DeepLab系列，MaskLab和MobileNet系列的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到">
+<meta name="description" content="论文在提出了DeepLabv3+架构。主要以DeepLabv3做encoder架构，decoder采用一个简单却有效的模块。并探索了了改进的Xception和深度分离卷积在模型中的应用，进一步提升模型在语义分割任务上的性能。">
 <meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation,DeepLab">
 <meta property="og:type" content="article">
 <meta property="og:title" content="语义分割论文--DeepLabv3+">
 <meta property="og:url" content="http://hfut-fan.github.io/2018/03/11/语义分割论文-DeepLabv3+/index.html">
 <meta property="og:site_name" content="DelphiFan&#39;s Blog">
-<meta property="og:description" content="DeepLabv3+Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation 原文地址：DeepLabv3+ 注意本文的一作$Liang-Chieh Chen$参与了DeepLab系列，MaskLab和MobileNet系列的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到">
+<meta property="og:description" content="论文在提出了DeepLabv3+架构。主要以DeepLabv3做encoder架构，decoder采用一个简单却有效的模块。并探索了了改进的Xception和深度分离卷积在模型中的应用，进一步提升模型在语义分割任务上的性能。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/9h0cmFB90B.png?imageslim">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/Af2H87AdGH.png?imageslim">
@@ -116,10 +116,10 @@
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/i5ilJcgafj.png?imageslim">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/h39DIHkI85.png?imageslim">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/1AgGDDJ9BI.png?imageslim">
-<meta property="og:updated_time" content="2018-03-11T09:23:13.972Z">
+<meta property="og:updated_time" content="2018-03-11T09:27:23.592Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="语义分割论文--DeepLabv3+">
-<meta name="twitter:description" content="DeepLabv3+Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation 原文地址：DeepLabv3+ 注意本文的一作$Liang-Chieh Chen$参与了DeepLab系列，MaskLab和MobileNet系列的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到">
+<meta name="twitter:description" content="论文在提出了DeepLabv3+架构。主要以DeepLabv3做encoder架构，decoder采用一个简单却有效的模块。并探索了了改进的Xception和深度分离卷积在模型中的应用，进一步提升模型在语义分割任务上的性能。">
 <meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180311/9h0cmFB90B.png?imageslim">
 
 
@@ -377,7 +377,8 @@
       
 
       
-        <a id="more"></a>
+        <p>论文在提出了DeepLabv3+架构。主要以DeepLabv3做encoder架构，decoder采用一个简单却有效的模块。并探索了了改进的Xception和深度分离卷积在模型中的应用，进一步提升模型在语义分割任务上的性能。</p>
+<a id="more"></a>
 <h1 id="DeepLabv3"><a href="#DeepLabv3" class="headerlink" title="DeepLabv3+"></a>DeepLabv3+</h1><p>Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation</p>
 <p>原文地址：<a href="https://arxiv.org/pdf/1802.02611.pdf" target="_blank" rel="external">DeepLabv3+</a></p>
 <p>注意本文的一作<a href="http://liangchiehchen.com/" target="_blank" rel="external">$Liang-Chieh Chen$</a>参与了<a href="http://blog.csdn.net/u011974639/article/details/79148719" target="_blank" rel="external">DeepLab系列</a>，MaskLab和<a href="http://blog.csdn.net/u011974639/article/details/79199588" target="_blank" rel="external">MobileNet系列</a>的工作。本文是在DeepLabv3的基础上将多个技术融合到一起，达到新的state-of-the-art。</p>
