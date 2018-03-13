@@ -92,13 +92,13 @@
 
 
 
-<meta name="description" content="In-Place ABNIn-Place Activated BatchNorm for Memory-Optimized Training of DNNs 相关：CityScapes 语义分割项目第一(180313统计) 原文地址：In-Place-abn 代码:  官方-pytorch   Abstract论文提出了一种新颖的有效的计算方式，能大幅度减少现代深度神经网络训练存储足迹。称之为I">
+<meta name="description" content="先进的深度网络中，大多数重复使用BN+激活层组合。而现有的深度学习框架对此的内存优化策略不佳。论文提出了INPLACE-ABN层代替BN+激活层，相比于标准的BN+激活层节省了50%的内存。">
 <meta name="keywords" content="Semantic Segmentation,Network Optimiztion">
 <meta property="og:type" content="article">
 <meta property="og:title" content="网络优化论文--In-Place Activated BatchNorm for Memory-Optimized Training of DNNs">
 <meta property="og:url" content="http://hfut-fan.github.io/2018/03/13/网络优化论文-In-Place-Activated-BatchNorm-for-Memory-Optimized-Training-of-DNNs/index.html">
 <meta property="og:site_name" content="DelphiFan&#39;s Blog">
-<meta property="og:description" content="In-Place ABNIn-Place Activated BatchNorm for Memory-Optimized Training of DNNs 相关：CityScapes 语义分割项目第一(180313统计) 原文地址：In-Place-abn 代码:  官方-pytorch   Abstract论文提出了一种新颖的有效的计算方式，能大幅度减少现代深度神经网络训练存储足迹。称之为I">
+<meta property="og:description" content="先进的深度网络中，大多数重复使用BN+激活层组合。而现有的深度学习框架对此的内存优化策略不佳。论文提出了INPLACE-ABN层代替BN+激活层，相比于标准的BN+激活层节省了50%的内存。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180313/A98JEeAKHc.png?imageslim">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180313/FLbh4KFj5H.png?imageslim">
@@ -121,10 +121,10 @@
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180313/4CedmGDcf3.png?imageslim">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180313/L9kdaiKm1k.png?imageslim">
 <meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180313/jKcgA7Cd28.png?imageslim">
-<meta property="og:updated_time" content="2018-03-13T11:18:46.847Z">
+<meta property="og:updated_time" content="2018-03-13T11:32:22.539Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="网络优化论文--In-Place Activated BatchNorm for Memory-Optimized Training of DNNs">
-<meta name="twitter:description" content="In-Place ABNIn-Place Activated BatchNorm for Memory-Optimized Training of DNNs 相关：CityScapes 语义分割项目第一(180313统计) 原文地址：In-Place-abn 代码:  官方-pytorch   Abstract论文提出了一种新颖的有效的计算方式，能大幅度减少现代深度神经网络训练存储足迹。称之为I">
+<meta name="twitter:description" content="先进的深度网络中，大多数重复使用BN+激活层组合。而现有的深度学习框架对此的内存优化策略不佳。论文提出了INPLACE-ABN层代替BN+激活层，相比于标准的BN+激活层节省了50%的内存。">
 <meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180313/A98JEeAKHc.png?imageslim">
 
 
@@ -382,7 +382,8 @@
       
 
       
-        <a id="more"></a>
+        <p>先进的深度网络中，大多数重复使用BN+激活层组合。而现有的深度学习框架对此的内存优化策略不佳。论文提出了INPLACE-ABN层代替BN+激活层，相比于标准的BN+激活层节省了50%的内存。</p>
+<a id="more"></a>
 <h1 id="In-Place-ABN"><a href="#In-Place-ABN" class="headerlink" title="In-Place ABN"></a>In-Place ABN</h1><p>In-Place Activated BatchNorm for Memory-Optimized Training of DNNs</p>
 <p>相关：<strong>CityScapes 语义分割项目第一(180313统计)</strong></p>
 <p>原文地址：<a href="https://arxiv.org/pdf/1712.02616.pdf" target="_blank" rel="external">In-Place-abn</a></p>
