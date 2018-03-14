@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Semantic Segmentation,FRRN," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="论文介绍了一种新颖的融合low-level feature 和high-level feature 的架构，使用两条数据流，一条流负责传递全分辨率信息(提供细节),另一条流经过一连串池化操作获取语义信息。两条流通过FRRN模块融合到一起。 FRRN网络在没有使用预训练模型的情况下在CityScapes上获得state-of-the-art结果。">
+<meta name="keywords" content="Semantic Segmentation,FRRN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文--FRRN">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/03/14/语义分割论文-FRRN/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="论文介绍了一种新颖的融合low-level feature 和high-level feature 的架构，使用两条数据流，一条流负责传递全分辨率信息(提供细节),另一条流经过一连串池化操作获取语义信息。两条流通过FRRN模块融合到一起。 FRRN网络在没有使用预训练模型的情况下在CityScapes上获得state-of-the-art结果。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/c37BLmL9dI.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/kl2gA9eBi0.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/K3Ii60kiCD.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/7JBiiHHJEf.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/lbdI563iei.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/2LhIK9F66A.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/C84DiilfgD.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/5Ki1AD7lb7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/i2GEgifhh8.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/iBafgg6iCG.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/gd8c0j4FJG.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/Jig4JaJ3G6.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/fmbd5fA758.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/0EjK5eHCh3.png?imageslim">
+<meta property="og:updated_time" content="2018-03-14T14:11:28.427Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文--FRRN">
+<meta name="twitter:description" content="论文介绍了一种新颖的融合low-level feature 和high-level feature 的架构，使用两条数据流，一条流负责传递全分辨率信息(提供细节),另一条流经过一连串池化操作获取语义信息。两条流通过FRRN模块融合到一起。 FRRN网络在没有使用预训练模型的情况下在CityScapes上获得state-of-the-art结果。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180314/c37BLmL9dI.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/03/14/语义分割论文-FRRN/"/>
+
+
+
+
+
+  <title>语义分割论文--FRRN | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/03/14/语义分割论文-FRRN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文--FRRN</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-14T20:51:32+08:00">
+                2018-03-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文介绍了一种新颖的融合low-level feature 和high-level feature 的架构，使用两条数据流，一条流负责传递全分辨率信息(提供细节),另一条流经过一连串池化操作获取语义信息。两条流通过FRRN模块融合到一起。 FRRN网络在没有使用预训练模型的情况下在CityScapes上获得state-of-the-art结果。</p>
+<a id="more"></a>
+<h1 id="FRRN"><a href="#FRRN" class="headerlink" title="FRRN"></a>FRRN</h1><p>Full-Resolution Residual Networks for Semantic Segmentation in Street Scenes</p>
+<p>收录：CVPR2017(IEEE Conference on Computer Vision and Pattern Recognition)</p>
+<p>原文地址：<a href="http://openaccess.thecvf.com/content_cvpr_2017/papers/Pohlen_Full-Resolution_Residual_Networks_CVPR_2017_paper.pdf" target="_blank" rel="external">FRRN</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/TobyPDE/FRRN" target="_blank" rel="external">官方：Theano</a></li>
+<li><a href="https://github.com/hiwonjoon/tf-frrn" target="_blank" rel="external">TensorFlow</a></li>
+</ul>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>语义分割广泛应用于多个领域，现阶段先进的语义分割模型大多依赖于预训练的网络，这些网络有着出色的识别性能(即语义特征丰富)，但缺乏定位精度。</p>
+<p>为了缓解这个问题，论文提出了一个新颖的类似于ResNet的网络架构，使用两条处理流将多尺度上下文信息和像素级精度结合起来：</p>
+<ul>
+<li>一条流以全分辨率携带信息，用于实现精准的分割边界</li>
+<li>另一条流经过一连串的池化操作获取high-level的feature用于识别。</li>
+</ul>
+<p>两条流使用FRRNs单元做耦合。在没有额外的后端处理和预训练的情况下，模型在CityScapes上达到了71.8%mIoU.</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>现如今自动驾驶是一个热门话题。自动驾驶内的一个重要的部分是理解驾驶周围环境。语义分割实现了各类目标之间的精确分割，可作为自动驾驶的前端处理帮助识别目标和目标关系。在本文中，我们追求高质量的、边界分割精准的语义分割系统。</p>
+<p>当前先进的语义分割系统都大多采用某种形式的FCN结构，即采用图片作为输入，以每个类别概率图作为输出。许多方案依赖于在分类任务上(ImageNet)预训练的网络，例如多种VGG和ResNet变体。预训练能够帮助模型预先设置模型权重，与只使用目标数据从头开始训练相比，减少了训练时间且常有更好的性能。然而使用预训练的模型有一个固有的限制，即已存在的预训练网络结构无法改变，这限制了新方法的设计，例如难以添加BN层或新的激活函数。</p>
+<p>语义分割系统使用FCN架构时，常见的策略是使用池化或下采样操作降低feature的空间分辨率以获取high-level features，这么做有两个原因：</p>
+<ul>
+<li>可以显著的增加接受野</li>
+<li>让模型鲁棒性更强，能够应对小的图片变换(即内在不变性)</li>
+</ul>
+<p>池化操作能够高度描述图片中物体，但是这对定位精度会造成巨大的损耗(池化丢失大量的空间信息)。许多工作想克服这个问题获得精确的分割结果。例如Deconvolution-Conv、Dilated等等</p>
+<p>本文提出了一个新颖的网络架构，整体采用encoder-decoder架构，基本单元和残差单元类似, 不需要额外的后续处理或者预训练模型。新的架构使用两条流：</p>
+<ul>
+<li>一条流是(<strong>池化流–&gt;语义流</strong>)：进过一连串的池化操作，用于捕捉图片中的语义信息</li>
+<li>另一条流(<strong>残差流–&gt;细节流</strong>)：携带全分辨率的特征，用于提供精准的边界信息</li>
+</ul>
+<p>新的架构示意图如下所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/c37BLmL9dI.png?imageslim" alt="mark"></p>
+<p>两条流通过全分辨率残差单元(FRRU)相结合，最后得到预测结果上采样到指定大小。</p>
+<p>论文的主要贡献在于：</p>
+<ul>
+<li>提出了一种新颖的网络架构，适用于精准的街道场景，不需要预训练的情况下在CityScapes上达到state-of-the-art水准</li>
+<li>论文使用两条流结合实现了目标的识别和定位。一条流经过一连串池化操作获得语义信息，另一条流以全分辨率通过提供细节信息</li>
+<li>公开了代码(Theano实现的…)</li>
+</ul>
+<hr>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><p>深度网络在语义分割任务上表现不凡，对于深度网络的训练需要大量标准数据集。近期有发布了许多高质量的数据集以鼓励进一步探究新的分割系统，如Synthia、KITTI和CityScapes。论文选用的是CityScapes。考虑到深度学习对语义分割系统性能巨大提升，论文将review相关工作限定在基于深度学习的语义分割系统和深度网络架构。</p>
+<h2 id="Semantic-Segmentation-Approaches："><a href="#Semantic-Segmentation-Approaches：" class="headerlink" title="Semantic Segmentation Approaches："></a><strong>Semantic Segmentation Approaches：</strong></h2><p>过去几年内，大多数先进的语义分割系统都是基于CNN。其中，较为出名的是使用end-2-end训练的FCN架构，该工作将预训练网络调整用于语义分割，获得了显著的性能提升。</p>
+<p>在FCN中使用连续的池化操作，用于扩张feature的接受野并提升分类性能。但同时会显著降低feature空间分辨率，导致丢失空间细节。为了克服这个问题，有使用skip connection扩展feature；有使用encoder-decoder结构的，encoder提取语义，decoder恢复空间细节。与这些方案不同的是，<strong>论文通过一条单独的高分辨率数据流携带全分辨率信息传入整个网络。</strong></p>
+<p>也有许多方案对CNN的输出作平滑操作用于提升预测结果。常见的如DeepLab系列使用的CRF，也有将CRF化为平均场结合整个模型实现end-2-end训练。一些工作使用域变换或超分辨率平滑结果。<strong>本论文的方案能够快速的结合低分辨率和高分辨率的特征</strong>。实验证明添加额外的CRF平滑对性能没有显著的提升。</p>
+<h2 id="Network-Architecture"><a href="#Network-Architecture" class="headerlink" title="Network Architecture:"></a><strong>Network Architecture:</strong></h2><p>自从AlexNet在ImageNet上大放光彩，视觉领域迎来了几个里程碑性的CNN架构。VGG使用小卷积核堆叠，GoogleNet使用BN层。最近大多数网络以ResNet架构为基础，这些方法与早期的相比有巨大的性能提升，展现出模型架构的重要性。然而这些工作都是面向分类任务设计的，许多情况下都是在ImageNet上做了预训练，这对语义分割这样的像素级任务来说，会有一些设计上的选择导致非最优性能。本论文的方案是针对语义分割任务提出的，在CityScapes上达到有竞争力表现，且不需要做预训练。</p>
+<hr>
+<h1 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h1><h2 id="Feed-Forward-Networks"><a href="#Feed-Forward-Networks" class="headerlink" title="Feed-Forward Networks"></a><strong>Feed-Forward Networks</strong></h2><p>大多数前馈网络(例如VGG)，都是由一系列的线性层组合而成。网络中每层的计算记为$F$，对于$n$-th层网络输出记为$x_n$：<br>$$x_n=F(x_{n-1},W_m)$$<br>其中$W_n$是该层的参数，论文称这样的网络为<code>traditional feedforward networks</code>.</p>
+<p><code>traditional feedforward networks</code>示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/kl2gA9eBi0.png?imageslim" alt="mark"></p>
+<h2 id="Residual-Networks-ResNets"><a href="#Residual-Networks-ResNets" class="headerlink" title="Residual Networks (ResNets)"></a><strong>Residual Networks (ResNets)</strong></h2><p>残差网络在<a href="http://blog.csdn.net/u011974639/article/details/76737547" target="_blank" rel="external">ResNet解读</a>详细讲过。残差网络允许使用更深的网络训练。ResNet由一连串的残差单元(residual unit,<code>RU</code>)组成。对于$n$-th层网络输出记为$x_n$：<br>$$x_n=x_{n-1}+F(x_{n-1},W_m)$$<br>其中$F(x_{n-1},W_m)$是残差，参数是$W_n$。残差网络不直接学习$x_n$，而是学习残差$x_{n-1}$.</p>
+<p>从经验上看，ResNet比<code>traditional feedforward networks</code>具有更优越的训练优势。这可通过改善网络中的梯度流量来解释。</p>
+<p>ResNet的示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/K3Ii60kiCD.png?imageslim" alt="mark"></p>
+<p>这里论文深入的解释了ResNet为啥能够训练更深的网络。</p>
+<p>为了方便理解，考虑$n$-th和$m$-th个残差单元，其中$m&gt;n$(即第$m$个残差单元更接近输出层)，通过多次残差递归，$m$-th个残差单元可表示为：<br>$$x_m=x_n+\sum_{i=n}^{m-1}F(x_{i},W_{i+1})$$</p>
+<p>进一步，如果$L$是模型训练的loss，可使用多元偏导数链式法则，将$L$相对于第$n$-th个<code>RU</code>输出$x_n$的导数为：<br>$$\frac{\partial L}{\partial x_n}=\frac{\partial L}{\partial x_m}\frac{\partial x_m}{\partial x_n}=\frac{\partial L}{\partial x_m}+\frac{\partial L}{\partial x_m}\sum_{i=n}^{m-1}\frac{\partial F(x_{i},W_{i+1})}{\partial x_n}$$</p>
+<p>即：</p>
+<p>$$\frac{\partial L}{\partial W_n}=\frac{\partial L}{\partial x_n} \frac{\partial x_n}{\partial W_n}=(\frac{\partial L}{\partial x_m}+\frac{\partial L}{\partial x_m}\sum_{i=n}^{m-1}\frac{\partial F(x_{i},W_{i+1})}{\partial x_n})\frac{\partial x_n}{\partial W_n}$$</p>
+<p>可以看到权重更新梯度依赖于两个信息源：$\frac{\partial L}{\partial x_m},\sum_{i=n}^{m-1}\frac{\partial F(x_{i},W_{i+1})}{\partial x_n}$,可以看到后者中包含的信息主要取决于深度$n$，<strong>但前者提供的信息允许与深度无关。</strong>因此，梯度可以不受阻碍的从deeper unit流向shallower unit，这促使可以训练更深的ResNet。</p>
+<h2 id="Full-Resolution-Residual-Networks-FRRNs"><a href="#Full-Resolution-Residual-Networks-FRRNs" class="headerlink" title="Full-Resolution Residual Networks (FRRNs)"></a><strong>Full-Resolution Residual Networks (FRRNs)</strong></h2><p>论文统一上述两种设计原则，提出了和ResNet相同的优越训练属性的网络，具有两条处理流的full-resolution residual networks(FRRNs)。一条数据流称之为残差流(residual stream)，通过连续添加残差计算。另一条数据流称之为池化流(pooling stream)，是在输入上应用一连串的卷积和池化操作直接得到结果。</p>
+<p>先不考虑网络的具体设计，获取high-level需要多个池化操作：</p>
+<ul>
+<li><p>池化操作减少feature的空间分辨率的同时增加了模型接受野，这也是模型应对小型平移具有鲁棒性的根本。多次使用池化操作就很难追踪low-level的feature了(例如边沿，边界等)。这就让识别和准确定位产生了矛盾。(关于池化的这个问题在Object Detction讲了很多了~)。</p>
+</li>
+<li><p>如果网络不采取任何池化操作，这在目标边界定位上效果较好，但是识别性能差。</p>
+</li>
+</ul>
+<p>论文的设计思想源于网络模型需要联合high-level和low-level的feature。通过同时使用两条处理流，我们可以同时计算两种feature，残差流允许low-level的信息在网络内传播，池化流得到high-level的feature.两条处理流即如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/7JBiiHHJEf.png?imageslim" alt="mark"></p>
+<p>FRNN网络由一连串的full-resolution residual units(<code>FRRUs</code>)组成，每个<code>FRRUs</code>有两个输出和两个输入。如果$z_{n-1}$为$n$-th个FRRUs的残差输入，$y_{n-1}$为其池化输入，那么输出可计算为：<br>$$z_n=z_{n-1}+H(y_{n-1},z_{n-1};W_n) \ y_n=G(y_{n-1},z_{n-1};Wn)$$<br>其中$W_n$是函数$G,H$的参数。</p>
+<p><code>FRRUs</code>的示意图如下：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/lbdI563iei.png?imageslim" alt="mark"></p>
+<p>合理的配置函数$G,H$才能组合两条流：</p>
+<ul>
+<li><p>如果$G\equiv 0$，相当于丢弃了池化输入，那么<code>FRRUs</code>就和原本的<code>RU</code>一个样子了。</p>
+</li>
+<li><p>如果$H\equiv 0$，没有残差结构了，那么<code>FRRUs</code>就和<code>traditional feedforward networks</code>一个样子了。</p>
+</li>
+</ul>
+<p>同样论文也分析FRRNs和ResNet具有类似的训练特征，使用先前预设的递归参数，对于$m&gt;n$，$z_m$可表示为：<br>$$z_m=z_n+\sum_{i=n}^{m-1}H(y_i,z_i;W_{i+1})$$</p>
+<p>训练的loss记为$L$,对于权重$W_n$的偏导数为：<br>$$\frac{\partial L}{\partial W_n}=\frac{\partial L}{\partial z_n}\frac{\partial z_n}{\partial W_n}+\frac{\partial L}{\partial y_n}\frac{\partial y_n}{\partial W_n} \ =(\frac{\partial L}{\partial z_m}+\frac{\partial L}{\partial z_m}\sum_{i=n}^{m-1}\frac{\partial H(y_{i},z_i;W_{i+1})}{\partial z_n})\frac{\partial z_n}{\partial W_n}+\frac{\partial L}{\partial y_n}\frac{\partial y_n}{\partial W_n}$$</p>
+<p>可以看到权重的更新依赖于三个信息源：$\frac{\partial L}{\partial y_n}, \frac{\partial y_n}{\partial W_n},\sum_{i=n}^{m-1}\frac{\partial H(y_{i},z_i;W_{i+1})}{\partial z_n}$。其中$\frac{\partial L}{\partial z_m}$是独立于深度的，这允许是用残差函数$H$让所有参数实现了与深度无关的梯度流。<br>此外我们可以通过对$G$计算的输出加权重，这样可通过$G$的输出来计算$H$.论文认为还有其他设计可能。</p>
+<p><code>FRRUs</code>设计如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/2LhIK9F66A.png?imageslim" alt="mark"></p>
+<p>红色部分$G$是池化流的操作：</p>
+<ul>
+<li>首先使用池化层减少残差流的尺寸</li>
+<li>再用concat操作将量两条流融合到一起</li>
+<li>进过两个卷积单元(每个单元由$3×3$卷积+BN层+ReLU组成)</li>
+<li>这里一是直接出去下一层的池化流，另一个是输入到$H$部分，作为计算残差的基础</li>
+</ul>
+<p>蓝色部分$H$是残差流操作：</p>
+<ul>
+<li>池化函数$G$输出经过$1×1$卷积调整通道数目</li>
+<li>再使用unpooling上采样(发现沿着空间维度简单的重复要比双线性插值要好)</li>
+</ul>
+<p>可以看到池化函数$G$的输出送到$H$当输入，$H$包括了$G$，这样的设计选择可为所有单元提供优越的梯度流动。</p>
+<p>用来评估论文方案的两种网络架构：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/C84DiilfgD.png?imageslim" alt="mark"></p>
+<p>架构使用的是encoder-decoder架构，在encoder阶段池化流使用最大池化，在decoder阶段使用双线性插值扩大feature。每次池化操作后将通道数增加一倍，不使用VGG网络的64通道，而是改成48通道合理控制训练参数。</p>
+<hr>
+<h1 id="Training-Procedure"><a href="#Training-Procedure" class="headerlink" title="Training Procedure"></a>Training Procedure</h1><p>训练模型使用的是bootstrapped cross-entropy loss，记$c$为分类类别。$y_1,…,y_N∈{1,…,c}$作为像素$1,..,N$的目标标签，$p_{i,j}$作为$i$点预测种类$j$的概率。对应$K$个像素Loss定义为：<br>$$ L=-\frac{1}{K} \sum_{i=1}^N1[p_{i,y_i}&lt;t_K]\log p_{i,y_i} $$<br>其中如果$x$为true，那么$1[x]=1$。阈值$t_K$对预测的对数概率做排序，并选择第$K+1$作为阈值.使用ADAM做优化。</p>
+<p>可视化的情况：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/5Ki1AD7lb7.png?imageslim" alt="mark"></p>
+<p>因为FRRU处理了全分辨率的feature，这对内存要求非常高。为了做反正传播，需要将前向传播的值存储起来，但是这可能会超出GPU的显存。为了缓解这个问题，论文通过手动放置几个切割点将计算图分成若干个子块。独立的计算每个子块里面的导数。计算每个子块的前向传播，只存储用于方向传播的参数。这样允许我们在时间和空间上做折中。在测试期间，不要存储参数用于反向传播。</p>
+<p>为了预防过拟合：训练时使用了两种数据增强</p>
+<ul>
+<li><strong>平移增强(translation augmentation)</strong>,随机平移图片和对应的标注。为了填补平移后的留白，使用了反射填充和使用注释标签填充。</li>
+<li><strong>$\gamma$增强(gamma augmentation)</strong>：如下图所示</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/i2GEgifhh8.png?imageslim" alt="mark"></p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><p>论文测试了两种FRNNs网络：FRRN A在四分之一分辨率(256×512)的CityScapes上训练的；FRRN B在二分之一分辨率(512x1024)上训练。输出采用数双线性插值得到指定大小。虽然没有使用全分辨率，FRRN B已经表现了了具有竞争力的性能了。</p>
+<h2 id="Residual-Network-Baseline"><a href="#Residual-Network-Baseline" class="headerlink" title="Residual Network Baseline"></a>Residual Network Baseline</h2><p>显示测试了FRRNs单元的有效性。测试了和FRRN A架构一致的网络，整体采用ResNet为基本单元且带skip-connection，正式的是FRRNs的baseline对比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/iBafgg6iCG.png?imageslim" alt="mark"></p>
+<p>训练两个网络都使用1/4分辨率，迭代了45K，batchsize=3,前35K迭代学习率设置为$10^{-3}$，后10K迭代学习率设置为$10^{-4}$.正规的FRRN A相比于ResNet的性能有显著的提升。</p>
+<p>FRRN效果要好点~</p>
+<h2 id="Quantitative-Evaluation"><a href="#Quantitative-Evaluation" class="headerlink" title="Quantitative Evaluation"></a>Quantitative Evaluation</h2><p>下表是在CityScapes测试榜上的对比结果：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/gd8c0j4FJG.png?imageslim" alt="mark"></p>
+<p>FRRN的结果是没有预训练的模型内性能最佳的。</p>
+<p>FRRN与其他模型预测结果可视化对比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/Jig4JaJ3G6.png?imageslim" alt="mark"></p>
+<p>论文同时评估了上采样因子和性能之间的关系：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/fmbd5fA758.png?imageslim" alt="mark"></p>
+<p>可以看到，使用全分辨率的模型总体效果要好点。</p>
+<h2 id="Boundary-Adherence"><a href="#Boundary-Adherence" class="headerlink" title="Boundary Adherence"></a>Boundary Adherence</h2><p>对于语义分割任务，单独的去评估IoU指标不是太全面，因为池化操作会导致边界过于平滑，细节会丢失。常用的评估分割边界的方法是使用trimap evaluation.下表显示FRRN与其他先进模型对比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180314/0EjK5eHCh3.png?imageslim" alt="mark"></p>
+<p>可以看到FRNN效果很棒。 同时论文了也测试CRF做后端处理，但是在性能上只有微弱的提升，鉴于CRF需要的大量计算，决定不做后端处理。</p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>论文提出了一个面向城市街道场景语义分割任务的网络架构，模型不需要在其他模型上做预训练，在CityScapes上达到了state-of-the-art水准。且新的模型在边界分割上显示了强大的性能。</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/FRRN/" rel="tag"># FRRN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/13/网络优化论文-In-Place-Activated-BatchNorm-for-Memory-Optimized-Training-of-DNNs/" rel="next" title="网络优化论文--In-Place Activated BatchNorm for Memory-Optimized Training of DNNs">
+                <i class="fa fa-chevron-left"></i> 网络优化论文--In-Place Activated BatchNorm for Memory-Optimized Training of DNNs
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#FRRN"><span class="nav-text">FRRN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Semantic-Segmentation-Approaches："><span class="nav-text">Semantic Segmentation Approaches：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Network-Architecture"><span class="nav-text">Network Architecture:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Architecture"><span class="nav-text">Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Feed-Forward-Networks"><span class="nav-text">Feed-Forward Networks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Residual-Networks-ResNets"><span class="nav-text">Residual Networks (ResNets)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Full-Resolution-Residual-Networks-FRRNs"><span class="nav-text">Full-Resolution Residual Networks (FRRNs)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Training-Procedure"><span class="nav-text">Training Procedure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Residual-Network-Baseline"><span class="nav-text">Residual Network Baseline</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Quantitative-Evaluation"><span class="nav-text">Quantitative Evaluation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Boundary-Adherence"><span class="nav-text">Boundary Adherence</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
