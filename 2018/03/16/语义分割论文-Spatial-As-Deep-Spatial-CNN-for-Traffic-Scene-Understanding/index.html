@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Semantic Segmentation,Lane Detection," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="论文提出了一个新颖网络Spatial CNN，在图片的行和列上做信息传递。可以有效的识别强先验结构的目标。论文提出了一个大型的车道检测数据集，用于进一步推动自动驾驶发展。">
+<meta name="keywords" content="Semantic Segmentation,Lane Detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文--SCNN">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/03/16/语义分割论文-Spatial-As-Deep-Spatial-CNN-for-Traffic-Scene-Understanding/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="论文提出了一个新颖网络Spatial CNN，在图片的行和列上做信息传递。可以有效的识别强先验结构的目标。论文提出了一个大型的车道检测数据集，用于进一步推动自动驾驶发展。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/F8Ae40dj22.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/dKkf1jK2I8.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/GAIAe9k3EK.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/fc1jfk8j39.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/d5IlCd9kdi.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/CL3lLB1jJd.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/EAlLeHb44L.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/aKfA87m1jH.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/FkJL058ah7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/aDHK5mi1F1.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/0Hd6K58bCF.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/4h9d9LG6DJ.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/4KFmj02CkK.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/AEedi95AJI.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/d81606dG5C.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/39dKhA5GJG.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/4JC506AD09.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/dgm304fhgG.png?imageslim">
+<meta property="og:updated_time" content="2018-03-16T05:50:44.842Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文--SCNN">
+<meta name="twitter:description" content="论文提出了一个新颖网络Spatial CNN，在图片的行和列上做信息传递。可以有效的识别强先验结构的目标。论文提出了一个大型的车道检测数据集，用于进一步推动自动驾驶发展。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180316/F8Ae40dj22.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/03/16/语义分割论文-Spatial-As-Deep-Spatial-CNN-for-Traffic-Scene-Understanding/"/>
+
+
+
+
+
+  <title>语义分割论文--SCNN | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/03/16/语义分割论文-Spatial-As-Deep-Spatial-CNN-for-Traffic-Scene-Understanding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文--SCNN</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-16T11:41:01+08:00">
+                2018-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文提出了一个新颖网络Spatial CNN，在图片的行和列上做信息传递。可以有效的识别强先验结构的目标。论文提出了一个大型的车道检测数据集，用于进一步推动自动驾驶发展。</p>
+<a id="more"></a>
+<h1 id="SCNN"><a href="#SCNN" class="headerlink" title="SCNN"></a>SCNN</h1><p>Spatial As Deep: Spatial CNN for Traffic Scene Understanding</p>
+<p>收录：AAAI2018 (AAAI Conference on Artificial Intelligence) </p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1712.06080.pdf" target="_blank" rel="external">SCNN</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/XingangPan/SCNN" target="_blank" rel="external">官方-torch</a></li>
+</ul>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>现今的CNN模型通常是由卷积块堆叠构建，虽然CNN有强大的特征提取能力，但现存CNN架构没有足够充分探索图像行和列上的空间关系能力。这些关系对于学习强先验形状的对象很重要，尤其是外观(图像像素)连贯性很弱。例如交通线，车道经常会被遮挡，或者压根就没在路上画车道线。如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/F8Ae40dj22.png?imageslim" alt="mark"></p>
+<p>本文提出了Spatial CNN(CNN),它将传统的卷积层接层(layer-by-layer)的连接形式的转为feature map中片连片卷积(slice-by-slice)的形式，使得图中像素行和列之间能够传递信息。这特别适用于检测长距离连续形状的目标或大型目标，有着极强的空间关系但是外观线索较差的目标，例如交通线，电线杆和墙。论文在车道检测挑战和CityScapes上评估了SCNN的表现，同时SCNN在TuSimple Benchmark lane Detection challenge获得了第一名，准确率为96.53%。</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>自动驾驶中最具挑战的任务之一是交通场景理解，包括计算机视觉任务下的车道检测和语义分割。车道检测帮助指导车辆，语义分割提供更多关于周围环境目标的细节位置。但在实际情况下，因为有许多恶劣条件，这些任务可能非常具有挑战性。对于交通场景理解的另一个挑战是，在许多情况下需要在有强结构先验知识下处理外形线索不多的目标，例如交通线，杆状物等，这些具有长距离连续的形状，常常有很大部分被遮挡。</p>
+<p>得益于强大的学习表示能力，CNN将视觉理解推向了一个新的高度。但是这依然不能很好地处理外形线索不多的有强结构先验的目标，而人类可以推断它们的位置并填充遮挡的部分。</p>
+<p>为了解决这个问题，论文提出了SCNN，将深度卷积神经网络推广到丰富空间层次。</p>
+<p>传统的CNN，任意层接收上层的数据作输入，再作卷积并加激活传给下一层，这个过程是顺序执行的。与之类似的是，SCNN将feature map的行或列也看成layer，也使用卷积加非线性激活，从而实现空间上的深度神经网络。这使得空间信息能够在同层的神经元上传播，增强空间信息进而对于识别结构化对象特别有效。</p>
+<p><strong>相关工作：</strong> </p>
+<p>对于车道检测任务，大多数现有的算法都是依赖于低级手工特征，这让模型难以在恶劣条件下工作。2015年有工作尝试使用深度学习方案用于车道检测，但苦于没有大的广泛的数据集(<strong>说这个的原因是论文建立了一个大的数据集~</strong>)。对于语义分割，基于CNN的方案的已经成为主流并取得了巨大的成功。</p>
+<p>对于在深度神经网络中使用空间信息：有工作使用RNN按每列和行传递信息，但每个像素只能接收同一行或列的信息。也有工作使用LSTM变体探索语义分割的上下文信息，但计算消耗较大。也有工作尝试结合CNN和图模型(例如MRF或CRF)，通过大卷积核传递信息.</p>
+<p>与上述方案相比，SCNN有如下几个优势：</p>
+<ul>
+<li>消息传递比传统的MRF/CRF更有计算效率</li>
+<li>消息传递使用的是残差，这更易训练</li>
+<li>SCNN很灵活，适用于多种深度神经网络</li>
+</ul>
+<hr>
+<h1 id="Spatial-Convolutional-Neural-Network"><a href="#Spatial-Convolutional-Neural-Network" class="headerlink" title="Spatial Convolutional Neural Network"></a>Spatial Convolutional Neural Network</h1><h2 id="Lane-Detection-Dataset"><a href="#Lane-Detection-Dataset" class="headerlink" title="Lane Detection Dataset"></a>Lane Detection Dataset</h2><p>本文提出了一个关于交通车道检测的大规模数据集。以前的车道检测数据集(KITTI,CamVid)要不就是太简单，要不就是数据太小。最近的(Caltech,TuSimple)数据集是在交通受限状态下建立的，这样的数据车流量少且路标较为清晰。这些数据集没有包括一些车道线模糊，条件恶劣的情况，而这些情况人类可以推断出来，且这具有很高的实用价值。</p>
+<p>论文提出的数据集是由六辆车在北京不同时间录制的，超过55个小时共收集了133,235 张图片，这超过TuSimple 数据集20倍了。论文分成88880张作为训练集, 9675作为验证集，34680做测试集。图像的大小为$1640×590$。下图是示例和简介：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/dKkf1jK2I8.png?imageslim" alt="mark"></p>
+<p>数据集内包括城市、农村和高速公路等场景，北京作为世界上最大和最拥挤的城市之一，对应的车道检测数据提供了很多具有挑战性的交通场景。论文将测试集分为正常和8个具有挑战性的类别，这对应上图 (a)的9个示例情况。图(b)显示的是挑战性的场景站数据集的比例(共72.3%)。</p>
+<p>对于每一张图片，使用三条线注释车道，如前面所述，许多情况下车道是被遮挡的或看不见的。而这在实际情况下是很重要的，车道检测算法需要能够在这种情况下工作。对此，标注工作根据上下文也做了标注，如图(2)(4)所示。对于图(1)的情况我们不对障碍的另一边做标注，将精力集中于最受关注的部分。</p>
+<h2 id="Spatial-CNN"><a href="#Spatial-CNN" class="headerlink" title="Spatial CNN"></a>Spatial CNN</h2><p>传统的关于空间关系的建模方法是基于概率图模型的，例如马尔科夫随机场(MRF)或条件随机场(CRF)。最近有工作将概率图与CNN相结合，如图 3(a)所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/GAIAe9k3EK.png?imageslim" alt="mark"></p>
+<p>CRF可化为平均场，算法可以用神经网络来实现，具体来说，过程分为：</p>
+<ul>
+<li>标准化：CNN的输出作为一元势函数，并通过Softmax操作标准化</li>
+<li>信息传递：可通过大内核的逐通道卷积实现(对于DenseCRF,内核大小将覆盖整张图片，内核权重取决于图片)</li>
+<li>兼容性转换：使用$1×1$的卷积实现</li>
+<li>添加一元势：整个过程迭代N次得到最终输出</li>
+</ul>
+<p>可以看到传统方法在传递信息时，<strong>每个像素点接受来自全图其他像素的信息，这在计算上是非常昂贵的</strong>，难以应用于实时系统。且对于MRF的大卷积核权重很难学。这些方法是应用在CNN的输出上的，论文认为CNN的隐藏层，包含了丰富的空间关系，可更好的用于处理空间关系。</p>
+<p>论文提出了Spatial CNN，这里的Spatial不是指Spatial Convolution，而是CNN通过特征的设计架构传递空间信息。SCNN更有效的学习空间关系，能平滑的找出连续的有强先验的结构目标。SCNN的整体架构如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/fc1jfk8j39.png?imageslim" alt="mark"></p>
+<p>(图中SCNN的下标有<code>D,U,R,L</code>，这在结构上是类似的，方向上分别表示为向下，向上，向右，向左)</p>
+<p><strong>先以<code>SCNN_D</code>分析：</strong></p>
+<p>考虑到SCNN应用在三维张量$C×H×W$上，$C,H,W$分别代表通道数，长和宽。为了实现空间信息传递，将张量切分成$H$片(slice)，先将第一片送到尺寸为$C×w$的卷积层($w$为卷积核的宽度)。传统的CNN是将这层的输出传递给下一层，而这里是将这片输出相加到下一片作为新的一片。接着下一片继续应用卷积(这里卷积核共享)，直到处理完所有片。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/d5IlCd9kdi.png?imageslim" alt="mark"></p>
+<p>具体来讲，假设我们有一个三维的张量$K$，其中$K_{i,j,k}$记为最后一片中通道$i$的元素和当前片中通道$j$的元素之间的权重，这两个元素之间偏移为$k$列。同样的将$X_{i,j,k}$记录为张量$X$的元素，其中$i,j,k$分别指代通道，行，列.<br>则SCNN的前向计算为：<br>$$X_{i,j,k}^{‘}=<br>\begin{cases}<br>X_{i,j,k}&amp; \text{if } j=1\\<br>X_{i,j,k}+f(\sum_m\sum_n X_{m,j-1,k+n-1}^{‘}×K_{m,i,n})&amp; \text{if } j=2,3,..,H<br>\end{cases}<br>$$<br>其中$f$是非线性激活函数$ReLU$。$X$加$’$表示更新后的值，注意所有的片共享一组卷积核，SCNN是一种RNN。</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>SCNN相比于传统方法，有三个优势：</p>
+<h3 id="计算效率"><a href="#计算效率" class="headerlink" title="计算效率"></a>计算效率</h3><p>SCNN与传统的Dense MRF/CRF相比，在信息传递方向不同，示意图如下所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/CL3lLB1jJd.png?imageslim" alt="mark"></p>
+<ul>
+<li>图(a)：MRF/CRF中每个像素点会直接接收其他所有像素点的信息(大卷积核实现)，这其中有许多冗余计算。</li>
+<li>图(b)：在SCNN中，信息是顺序传递的。</li>
+</ul>
+<p>假设张量有$H$行$W$列，对于密集的MRF/CRF来讲，在每两个$HW$像素之间都存在信息传递，对于$n_{iter}$次迭代，传递了$n_{iter}W^2H^2$次信息。在SCNN中，每个像素只接受来自$w$个像素的信息，共传递了$n_{der}WHw$次，其中$der$指代传递信息的方向的数量，$w$为卷积核宽度。</p>
+<p>$n_{iter}$范围在10到100之间，在本文中$n_{dir}$设置为4，对应着四个方向。$w$设置通常不超过10(图中设置为3)。对于一张有上千行和列的图片来说，SCNN可大幅度减少计算量，而每个像素点依旧能够接收来所有其他像素传递的信息(4个方向的信息传递)。</p>
+<h3 id="将传递信息作残差"><a href="#将传递信息作残差" class="headerlink" title="将传递信息作残差"></a>将传递信息作残差</h3><p>密集的MRF/CRF内是通过所有加权像素相加，这样的计算花费很大。而RNN是通过梯度来优化的， 考虑到这么多层和列，<strong>依据残差网络的经验，论文也采用残差的方式来学习</strong>(计算公式描述的残差学习)。这种残差可认为是对原始神经元的修正。实验证明这样的消息传递比基于LSTM的要好。</p>
+<h3 id="灵活性"><a href="#灵活性" class="headerlink" title="灵活性"></a>灵活性</h3><p>归功于SCNN的计算效率，它可以很方便的集成到CNN的任何部分。通常top hidden layer 包含了丰富的语义信息，这是应用SCNN的理想位置。在完整的SCNN模型中我们在顶层的feature map上用了四个方向的SCNN引入空间信息传递。</p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><p>论文在自发布的lane detection dataset 和 CityScapes数据集做了评估。<br>采用标准的SGD训练器，学习率采用”poly”策略，初始学习率为0.01，power为0.9。batchsize设置为12，动量为0.9，权重衰减为0.0001。迭代次数为60K。模型架构在LargeFOV(DeepLabv2)基础上修改，初始的13层采用的是在ImageNet上预训练的VGG16层。所有的实验使用的工作是Torch7.</p>
+<h2 id="Lane-Detection"><a href="#Lane-Detection" class="headerlink" title="Lane Detection"></a>Lane Detection</h2><p>普通的目标识别只要划分边界,而车道检测需要精准的预测曲线，一个自然的想法是模型输出曲线的概率图，以像素级目标来训练网络，这类似于语义分割任务。我们希望网络能够直接区分不同车道标记，这样鲁棒性更好。共有4中类型的车道线。输出的概率图经过一个小网络预测车道标记是否存在。</p>
+<p>在测试期间，同样需要从概率图转为曲线，模型大致示意如下图(b)所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/EAlLeHb44L.png?imageslim" alt="mark"></p>
+<p>对于存在值大于0.5的车道标记，在对应的概率图每20行搜索以获得最高的响应位置，然后通过三次样条函数连接这些点(cubic splines)。这就是最终的预测。</p>
+<p>上图(a)显示了baseline和LargeFOV之间的差异：</p>
+<ul>
+<li><code>fc7</code>输出通道为128</li>
+<li><code>fc6</code>扩张卷积的扩张率为4</li>
+<li>每个ReLU层前加了BN层</li>
+<li>添加了一个小型网络用于预测是否存在车道线</li>
+</ul>
+<p>训练时，输入和输出的图片分辨率设置为$800×288$(约为原图的二分之一)。目标线的宽度设置为16.考虑背景和车道标记之间的不平衡标签，背景损失乘以0.4。</p>
+<h3 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h3><p>为了判断车道标记是否正确的检测到，论文将车道标记视为宽度为30像素的线，计算ground truth和预测值之间的IoU.如果预测的IoU大于某个阈值，则认为是true positives (TP). 如下图6所示，这里设置了0.3和0.5作为阈值，分别对应松散和严格的评估。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/aKfA87m1jH.png?imageslim" alt="mark"></p>
+<p>然后使用$$F-measure=(1+\beta^2)\frac{Precision   Recall}{\beta^2 Precision + Recall}$$最为最终评价指标，其中$Precision=\frac{TP}{TP+FP}$，$Recall=\frac{TP}{TP+FN}$。设置$\beta=1$表示调和平均值。</p>
+<h3 id="Ablation-Study"><a href="#Ablation-Study" class="headerlink" title="Ablation Study"></a>Ablation Study</h3><h4 id="Effectiveness-of-multidirectional-SCNN"><a href="#Effectiveness-of-multidirectional-SCNN" class="headerlink" title="Effectiveness of multidirectional SCNN"></a>Effectiveness of multidirectional SCNN</h4><p>首先探究了SCNN里信息传递方向的有效性。对比实验如下表：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/FkJL058ah7.png?imageslim" alt="mark"></p>
+<p>SCNN的核宽度$w=5$，可以看到随着方向的增加，性能也逐渐增加。 为了证明性能是来源于多方向，而不是参数的增加，在baseline的基础上添加了一个额外的$5×5$的卷积层，可以看到性能只有微弱的提升。</p>
+<h4 id="Effects-of-kernel-width-w"><a href="#Effects-of-kernel-width-w" class="headerlink" title="Effects of kernel width w"></a>Effects of kernel width w</h4><p>论文在<code>SCNN_DURL</code>的基础上测试了不同核宽度对性能的影响，核宽度表示像素可以接收其他像素的信息数量，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/aDHK5mi1F1.png?imageslim" alt="mark"></p>
+<p>可以看到较大的$w$表现出的性能较好(计算量也一直上升)</p>
+<h4 id="Spatial-CNN-on-different-positions"><a href="#Spatial-CNN-on-different-positions" class="headerlink" title="Spatial CNN on different positions"></a>Spatial CNN on different positions</h4><p>SCNN可以添加到模型的任何地方，在图3中，将<code>SCNN_DURL</code>应用于output上或top hidden layer：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/0Hd6K58bCF.png?imageslim" alt="mark"></p>
+<p>可以看到放置在top hidden layer后效果要出色，这是因为top hidden layer包含更丰富的信息。</p>
+<h4 id="Effectiveness-of-sequential-propagation"><a href="#Effectiveness-of-sequential-propagation" class="headerlink" title="Effectiveness of sequential propagation"></a>Effectiveness of sequential propagation</h4><p>在SCNN中，信息时连续方式传递的，SCNN的一片不会传递信息给下一片，知道它接收到别的片传来的信息。与此做对比的时，使用平行策略(parallel)，即每个片在更新前将信息传递给一下片，一起更新，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/4h9d9LG6DJ.png?imageslim" alt="mark"></p>
+<p>可以看到顺序传递的优势较大，这表明在SCNN中，像素不仅受到邻近像素的影响，也受到更远距离的像素影响。</p>
+<h4 id="Comparison-with-state-of-the-art-methods"><a href="#Comparison-with-state-of-the-art-methods" class="headerlink" title="Comparison with state-of-the-art methods"></a>Comparison with state-of-the-art methods</h4><p>论文将SCNN与几个先进模型对比结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/4KFmj02CkK.png?imageslim" alt="mark"></p>
+<ul>
+<li>基于LSTM的Renet：使用两个ReNet层替换Figure 3中SCNN层</li>
+<li>DenseCRF：采用了10个平均场迭代</li>
+<li>MRFNet：使用Figure 3(a)，迭代10次，内核大小为20</li>
+<li>ResNet：基于与DeepLabv2相同，除了不使用ASPP模块</li>
+</ul>
+<p>可以看到SCNN的效果很出色~</p>
+<p>可视化结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/AEedi95AJI.png?imageslim" alt="mark"></p>
+<p>可以看到SCNN要比大型的ResNet101要好，虽然ResNet101参数多，但是在这种具有挑战性的情况下会产生杂乱或不连续的输出，SCNN相比能够保持平滑性。这表明SCNN相比于传统CNN能够更好的捕捉强先验结构的目标。</p>
+<h4 id="Computational-efficiency-over-other-methods"><a href="#Computational-efficiency-over-other-methods" class="headerlink" title="Computational efficiency over other methods"></a>Computational efficiency over other methods</h4><p>同时论文给出了与其他模型时间效率上的对比。注意计算时间没有包括网络主干。都是在CPU上跑的。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/d81606dG5C.png?imageslim" alt="mark"></p>
+<p>可以看到SCNN比CRF要快很多，这是因为传递信息策略的改变。</p>
+<h2 id="Semantic-Segmentation-on-CityScapes"><a href="#Semantic-Segmentation-on-CityScapes" class="headerlink" title="Semantic Segmentation on CityScapes"></a>Semantic Segmentation on CityScapes</h2><p>论文同时也在CityScapes上做了测试，使用DeepLabv2的LargeFOV和ResNet101作为baseline，在LargeFOV上添加BN层，对于两个模型，top hidden layer的通道数改为128.</p>
+<p>配置SCNN的是SCNN_DURL在$w=9$，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/39dKhA5GJG.png?imageslim" alt="mark"></p>
+<p>可以看到配置了SCNN的模型，在墙、杆等类别有着显著的提升，这是因为SCNN能够捕捉这些长距离连续物体。</p>
+<p>可视化结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/4JC506AD09.png?imageslim" alt="mark"></p>
+<p>有一个有意思的地方，汽车的底部在训练期间是不做标记的，在LargeFOV上是缺失的，因为SCNN的信息传递，被分类成道路。</p>
+<p>论文也将SCNN方法与其他方法做了对比，也使用了VGG16为网络主干，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180316/dgm304fhgG.png?imageslim" alt="mark"></p>
+<p>可以看到SCNN效果还是可以的</p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>论文提出了Spatial CNN，在空间层上实现信息的有效传递。SCNN易于融入到其他深度神经网络中做end-2-end训练。论文在车道检测和语义分割上测试了SCNN，结果表现SCNN可以有效的保持长距离连续结构，在语义分割其扩散效应对识别大型物体有利。</p>
+<p>此外，论文提出了一个车道检测的数据集，希望能够推动自动驾驶进一步发展。</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/Lane-Detection/" rel="tag"># Lane Detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/14/语义分割论文-FRRN/" rel="next" title="语义分割论文--FRRN">
+                <i class="fa fa-chevron-left"></i> 语义分割论文--FRRN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SCNN"><span class="nav-text">SCNN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spatial-Convolutional-Neural-Network"><span class="nav-text">Spatial Convolutional Neural Network</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lane-Detection-Dataset"><span class="nav-text">Lane Detection Dataset</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spatial-CNN"><span class="nav-text">Spatial CNN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Analysis"><span class="nav-text">Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#计算效率"><span class="nav-text">计算效率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将传递信息作残差"><span class="nav-text">将传递信息作残差</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#灵活性"><span class="nav-text">灵活性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lane-Detection"><span class="nav-text">Lane Detection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#评估"><span class="nav-text">评估</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ablation-Study"><span class="nav-text">Ablation Study</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Effectiveness-of-multidirectional-SCNN"><span class="nav-text">Effectiveness of multidirectional SCNN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Effects-of-kernel-width-w"><span class="nav-text">Effects of kernel width w</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spatial-CNN-on-different-positions"><span class="nav-text">Spatial CNN on different positions</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Effectiveness-of-sequential-propagation"><span class="nav-text">Effectiveness of sequential propagation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Comparison-with-state-of-the-art-methods"><span class="nav-text">Comparison with state-of-the-art methods</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Computational-efficiency-over-other-methods"><span class="nav-text">Computational efficiency over other methods</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semantic-Segmentation-on-CityScapes"><span class="nav-text">Semantic Segmentation on CityScapes</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
