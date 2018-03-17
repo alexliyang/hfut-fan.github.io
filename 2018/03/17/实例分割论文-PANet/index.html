@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Object Detection,Instance Segmentation," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="论文提出了PANet，在Mask R-CNN的基础上进一步聚合底层和高层特征。具体的说，FPN提供了从上到下的特征路径，论文又增加了一个从下到上的增强路径。对于ROIAlign在多个特征层次上采样候选区域对应的特征网格，通过自适应特征池化做融合操作用于后续预测。">
+<meta name="keywords" content="Object Detection,Instance Segmentation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实例分割论文-PANet">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/03/17/实例分割论文-PANet/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="论文提出了PANet，在Mask R-CNN的基础上进一步聚合底层和高层特征。具体的说，FPN提供了从上到下的特征路径，论文又增加了一个从下到上的增强路径。对于ROIAlign在多个特征层次上采样候选区域对应的特征网格，通过自适应特征池化做融合操作用于后续预测。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/LK2BIg0mhg.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/LK2BIg0mhg.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/g89b8dkFFD.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/30GHlIlhf7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/gGHhI5HKB6.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/0b3D07L3ED.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/AKhG51l7E1.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/eicc2DfK4i.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/bHaJfK06mK.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/idGJDfBciI.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/E159I5a84c.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/FkBDAC0kKi.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/14G7CCd5Jd.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/lGf7i0AFBb.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/4A6DBLf6d4.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/fG9G3JGceB.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/KlbH5alHKd.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/E4050f3LJB.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/kiKCfIFmKE.png?imageslim">
+<meta property="og:updated_time" content="2018-03-17T12:01:36.455Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实例分割论文-PANet">
+<meta name="twitter:description" content="论文提出了PANet，在Mask R-CNN的基础上进一步聚合底层和高层特征。具体的说，FPN提供了从上到下的特征路径，论文又增加了一个从下到上的增强路径。对于ROIAlign在多个特征层次上采样候选区域对应的特征网格，通过自适应特征池化做融合操作用于后续预测。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180317/LK2BIg0mhg.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/03/17/实例分割论文-PANet/"/>
+
+
+
+
+
+  <title>实例分割论文-PANet | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/03/17/实例分割论文-PANet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实例分割论文-PANet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-17T15:18:17+08:00">
+                2018-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文提出了PANet，在Mask R-CNN的基础上进一步聚合底层和高层特征。具体的说，FPN提供了从上到下的特征路径，论文又增加了一个从下到上的增强路径。对于ROIAlign在多个特征层次上采样候选区域对应的特征网格，通过自适应特征池化做融合操作用于后续预测。</p>
+<a id="more"></a>
+<h1 id="PANet"><a href="#PANet" class="headerlink" title="PANet"></a>PANet</h1><p>Path Aggregation Network for Instance Segmentation</p>
+<p>收录：CVPR2018(IEEE Conference on Computer Vision and Pattern Recognition)</p>
+<p>相关： COCO2017/CityScapes instance segmentation 第一 </p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1803.01534.pdf" target="_blank" rel="external">PANet</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="">未公布</a></li>
+</ul>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>论文提出了Path Aggregation Network(PANet)，旨在提升基于侯选区域的实例分割框架内的信息流传播。具体来讲，通过自下向上(bottom-up)的路径增强在较低层(lower layer)中准确的定位信息流，建立底层特征和高层特征之间的信息路径，从而增强整个特征层次架构。</p>
+<p>论文提出自适应特征池化(adaptive feature pooling)，连接特征网格(feature grid)和所有特征层次(image level)，让每个特征层次的有用信息直接传播到后续的候选区域子网络。另外创建了一个分支用于捕获各个候选区域的不同识图，进一步提升mask预测。</p>
+<p>PANet获得COCO2017实例分割第一，目标检测第二。在MVD和CityScapes上达到state-of-the-art水准。</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>实例分割目的是确定图片中存在的兴趣目标位置和类别。这项技术对于自动驾驶、机器人很有用。基于CNN的系统在实例分割任务上的表现持续上升，例如基于Faster R-CNN的Mask R-CNN，为了达到高性能，使用FPN做主干提取网络内部特征结构，使用具有侧向连接的从上到下(top-down)的路径增加强语义特征的流动。</p>
+<p>最近一些新发布的数据集为算法提升提供了很大的提升空间。COCO包含了20万张图片，每张图中存在多个空间排布复杂的实例目标。CityScapes和MVD提供的城市街道图片中有大量的交通参与者。这些数据集中包括一些模糊、高度重叠和极小的目标。</p>
+<p>图像分类任务中设计网络的几个原理同样对目标检测也有效，例如Dense连接和Residual连接可以简化信息传递路径。通过在split-transform-merge策略(ResNeXt)后创建平行路径可增加信息路径的灵活性和多样性。</p>
+<p> <strong>Our Findings</strong>：</p>
+<p>论文认为在Mask R-CNN中信息流动可以进一步提升。具体来说，low-layer feature有助于识别大型目标，<strong>但低层(low-level)feature到高层(high level)feature的路径太长，这增加了定位信息流动的难度</strong>。</p>
+<p>进一步来讲，每个候选区域都是源于一个特征层次上的特征网络池化的，这样的分配是启发式的。这个过程可以进一步提升，因为其他没有使用的特征层次信息可能有助于最终预测，原先mask的预测是在单个视图上，这失去收集不同信息的机会。</p>
+<p><strong>Our Contributions</strong>：</p>
+<p>论文提出了PANet，结构如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/LK2BIg0mhg.png?imageslim" alt="mark"></p>
+<p>主要贡献如下：</p>
+<ul>
+<li><p>创建<strong>自下而上(bottom-up)的增强路径</strong>(图 b绿色虚线)。用于缩短信息路径，利用low-level 特征中存储的精确定位信号，提升特征金字塔架构</p>
+</li>
+<li><p>创建了<strong>自适应特征池化(Adaptive feature pooling)</strong>(图 c)。用于恢复每个候选区域和所有特征层次之间被破坏的信息路径，聚合每个特征层次上的每个候选区域，避免任意分配的结果。</p>
+</li>
+<li><p>使用<strong>一个小型<code>fc</code>层用于补充mask预测</strong>，这能够捕获每个候选区域不同视图，这个<code>fc</code>层与Mask R-CNN原始的FCN有互补作用。通过融合两个识图，信息的多样性会增加，预测的mask效果更好</p>
+</li>
+</ul>
+<p>模型的前两个组件是目标检测和实例分割共享的，这大大提高了两个任务的性能。</p>
+<p><strong>Experimental Results</strong>：</p>
+<p>PANet在多个数据集上达到了state-of-the-art。以ResNet50为基础网络的PANet，在COCO16的目标检测和实例分割双任务上超过了冠军表现，这还只是测试单尺度的性能。PANet在COCO2017的实例分割上获得第一，在目标检测任务上获得第二。在CityScapes和MVD都表现出一流的结果。</p>
+<hr>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><h2 id="Instance-Segmentation"><a href="#Instance-Segmentation" class="headerlink" title="Instance Segmentation"></a><strong>Instance Segmentation</strong></h2><p>对于实例分割有两个主流方法：</p>
+<ul>
+<li><p><strong>基于候选区域</strong>：这样的方法和目标检测有很强的联系。R-CNN中候选区域使用Selective Search方法提取，送到模型中提取特征用于分类。Fast/Faster R-CNN 和SPPNet通过池化全局特征映射加速处理过程。也有工作是在网络中生成实例mask作为候选区域或最终结果。Mask R-CNN也是基于侯选区域的，本文以Mask R-CNN为基础从几个不同方向上做了改进。</p>
+</li>
+<li><p><strong>基于分割</strong>：这样的方法是学习特定的设计转换或实例边界。实例mask是从预测转换上解码出来的。DIN的工作是融合物体检测和语义分割系统。也有使用图模型来推断实例顺序。</p>
+</li>
+</ul>
+<h2 id="Multi-level-Features"><a href="#Multi-level-Features" class="headerlink" title="Multi-level Features"></a><strong>Multi-level Features</strong></h2><p>来自不同的层的feature可用于图像识别。 SharpMask、LRR融合feature用于精细分割；FCN、U-Net通过skip-connection 融合来自low-layer的信息；TDM、FPN通过侧向连接增加了从上到下的路径用于目标检测，TDM是将最高分辨率feature融入到池化feature中，与TDM不同的是，SDD、MS-CNN、FPN将候选区域分配到合适的特征层次用于推断。<strong>论文采用FCN为基准并大幅度增强它。</strong></p>
+<p>ION、Hypernet串接了不同层的特征网络用于预测，相比于这一系列的操作(例如，标准化、串接、降维等为了获取可用feature)，<strong>论文的方案简单了很多。</strong></p>
+<p>也有为了每个候选区域，融合来自不同源的特征网格。但是这个方法在不同尺度的输入上提取了feature，然后将特征融合(通过最大池化)用于改善来自输入图片金字塔的特征选择<strong>。论文使用的是在网络内部特征结构下的所有特征层次的信息，且是单尺度输入并支持end2end训练。</strong></p>
+<h2 id="Larger-Context-Region"><a href="#Larger-Context-Region" class="headerlink" title="Larger Context Region"></a><strong>Larger Context Region</strong></h2><p>有的方法池化每个候选区域的foveal结构的feature，用于开发不同分辨率区域下的上下文信息。大型区域的池化feature<br>提供周围的上下文信息。PSPNet、ParseNet在语义分割上使用全局池化大幅度提升性能。<strong>论文让mask预测分支同样支持获取全局信息，但是技术完全不同。</strong></p>
+<hr>
+<h1 id="Framework"><a href="#Framework" class="headerlink" title="Framework"></a>Framework</h1><p>PANet的框架如下所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/LK2BIg0mhg.png?imageslim" alt="mark"></p>
+<p>自下而上的路径用于增强low-layer的信息传播。设计了自适应特征池化允许每个候选区域可以获取所有特征层次的信息用于预测。论文添加了一个互补分支用于预测mask。</p>
+<h2 id="Bottom-up-Path-Augmentation"><a href="#Bottom-up-Path-Augmentation" class="headerlink" title="Bottom-up Path Augmentation"></a>Bottom-up Path Augmentation</h2><h3 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a><strong>Motivation</strong></h3><p>介绍一个见解很深的观点：高层的神经元对应整个目标的响应，其他的神经元更可能是被局部纹理所激活。这表明需要增强从上而下的传播强语义feature。</p>
+<p>模型通过传播low-level响应，进一步提升整个feature结构的定位能力。这是基于如下事实的：对于边界和实例的高级响应是精准定位实例的强力指向标。因此，<strong>论文从low level到high level构建一个清晰的侧向连接路径。这样的“短连接”(图中绿色虚线)包含的层10个都不到。</strong>相比之下，FPN的长路径路线(红色虚线)超过了100多层。<strong>新的增强路径让底层信息流通更快</strong>。</p>
+<h3 id="Augmented-Bottom-up-Structure"><a href="#Augmented-Bottom-up-Structure" class="headerlink" title="Augmented Bottom-up Structure"></a><strong>Augmented Bottom-up Structure</strong></h3><p>论文遵循FPN的定义，产生相同尺寸大小的feature的层处于网络的同一阶段。每个特征层次(feature level)对应一个阶段。以ResNet作为基础结构，使用$ {P_2,P_3,P_4,P_5 }$表示FPN生成对应的特征层次。增强路径从$P_2$逐渐接近$P_5$，如图(b)部分所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/g89b8dkFFD.png?imageslim" alt="mark"></p>
+<p>从$P_2$到$P_5$，空间尺度大小每层次做2倍下采样。使用${ N_2,N_3,N_4,N_5}$对应表示$ {P_2,P_3,P_4,P_5 }$生成的feature map，注意$N_2$就是$P_2$，没有做任何处理。</p>
+<p>可以看到每个构建块通过侧向连接将较高分辨率的$N_i$和模糊的$P_{i+1}$连接到一起，生成新的特征图$N_{i+1}$，如图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/30GHlIlhf7.png?imageslim" alt="mark"></p>
+<p>具体的连接操作如下：</p>
+<ul>
+<li>每个特征图$N_i$先经过步长为2的$3×3$卷积，减少空间尺寸</li>
+<li>特征图$P_{i+1}$的每个元素和下采样的特征图通过侧向连接做相加</li>
+<li>再过一个$3×3$的卷积生成$N_{i+1}$</li>
+</ul>
+<p>所有的特征图都使用256通道，所有卷积后接ReLU。每个候选区域的特征网络是从新生成的${ N_2,N_3,N_4,N_5}$上池化生成的</p>
+<h2 id="Adaptive-Feature-Pooling"><a href="#Adaptive-Feature-Pooling" class="headerlink" title="Adaptive Feature Pooling"></a>Adaptive Feature Pooling</h2><h3 id="Motivation-1"><a href="#Motivation-1" class="headerlink" title="Motivation"></a><strong>Motivation</strong></h3><p>在FPN中，依据候选区域的大小将候选区域分配到不同特征层次。这样小的候选区域分配到low-level，大的候选区域分配到high-level，这虽然简单但却很有效，但这可能会产生非最优结果。例如两个具有10个像素差的候选区域可能分配到不同特征层次，实际上，这两个候选区域非常相似。</p>
+<p>进一步，特征的重要性可能与他们所属的特征层次没有太大关系。</p>
+<ul>
+<li><p>High-level特征具有大的接受野并捕获了丰富的上下文信息。允许小型候选区域获取这些特征更好的使用上下文信息做预测。</p>
+</li>
+<li><p>low-level特征具有许多微小细节和高定位精度。这允许大型侯选区域获取这些特征，这显然是有益的。</p>
+</li>
+</ul>
+<p>也就是说，无论是high还是low的feature都有用。有了这样的想法，对于每个候选区域，我们提出了池化来自所有层次的特征，然后融合它们做预测，这称之为<strong>adaptive feature pooling(自适应特征池化)</strong>.</p>
+<p>我们分析adaptive feature pooling中，来自不同层次的特征池化的<strong>因子</strong>。我们使用最大池化操作融合不同层次特征，这允许网络逐元素选择有用信息。依据FPN中将信息分配的层次，我们将候选区域聚类成四类。对于每组候选区域，我们计算来自不同层次的特征比例。 level1-4表示从low-high的特征，如下图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/gGHhI5HKB6.png?imageslim" alt="mark"></p>
+<p>蓝线表示原先FPN将小型候选区域分配给level1，令人惊讶的是有近70%的特征来源于其他高层feature。黄线表示FPN中将大型候选区域分配给level4，有50%的feature从都是从其他低级层次来的<strong>。这可以清楚的看到，特征来自多个层次有助于提高精度，这也是对设计自下而上增强路径强有力的支持。</strong></p>
+<h3 id="Adaptive-Feature-Pooling-Structure："><a href="#Adaptive-Feature-Pooling-Structure：" class="headerlink" title="Adaptive Feature Pooling Structure："></a><strong>Adaptive Feature Pooling Structure：</strong></h3><p>Adaptive Feature Pooling实际上非常容易实现，如下图(c)所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/0b3D07L3ED.png?imageslim" alt="mark"></p>
+<p>具体来说：</p>
+<ul>
+<li>对于每个候选区域，我们将其映射到不同特征层次，如图(b)深灰色区域</li>
+<li>使用ROIAlign池化来自不同层次的特征网格</li>
+<li>再使用融合操作(逐像素SUM或ADD)融合不同层次的特征网格</li>
+</ul>
+<p>在随后的网络中，池化后的特征网格经过一个独立的参数层，然后再接融合操作，让网络适应特征。</p>
+<p>候选区域对应融合后的特征网格用于的进一步预测，即分类、框回归和mask预测，下图是自适应特征池化的详细示意图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/AKhG51l7E1.png?imageslim" alt="mark"></p>
+<p>注意到融合操作处于<code>fc1</code>和<code>fc2</code>之间， 融合操作的位置在实验部分是有探究的。</p>
+<h2 id="Fully-connected-Fusion"><a href="#Fully-connected-Fusion" class="headerlink" title="Fully-connected Fusion"></a>Fully-connected Fusion</h2><h3 id="Motivation-2"><a href="#Motivation-2" class="headerlink" title="Motivation"></a><strong>Motivation</strong></h3><p>全连接层和MLP广泛应用于实例分割中，用于预测mask和生成mask候选区域。有工作显示FCN同样也能够预测逐像素的mask。 Mask R-CNN使用了一个小型的FCN应用于池化后特征网格用于预测对于的mask。</p>
+<p><code>fc</code>层与FCN相比具有不同的属性：</p>
+<ul>
+<li>FCN给出了像素级预测，这是基于局部接受野和共享的核参数。</li>
+<li>与此相反，<code>fc</code>层是位置敏感的，因为对于不同空间位置的预测都是通过一组可变参数实现的。故认为<code>fc</code>层<strong>具有适应不同空间位置的能力</strong>。同时<code>fc</code>对于每个空间位置预测是基于整个候选区域的全局信息，这对于区分不同实例和识别属于同一对象的分离部分很有效。</li>
+</ul>
+<p>考虑到<code>fc</code>和卷积层之间的不同特性，<strong>论文是将这两种层的预测结果融合以达到更好的预测。</strong></p>
+<h3 id="Mask-Prediction-Structure"><a href="#Mask-Prediction-Structure" class="headerlink" title="Mask Prediction Structure"></a><strong>Mask Prediction Structure</strong></h3><p>负责预测mask的组件是一个轻量级、易实现的分支，mask分支的输入是每个候选区域融合后的池化特征网格，如下图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/eicc2DfK4i.png?imageslim" alt="mark"></p>
+<p>具体来说：</p>
+<ul>
+<li><p>主分支是4个连续的卷积层和一个deconv,每个卷积层核大小为$3×3$通道为256个，后面再接一个上采样2倍的deconv。这是用于预测每个类别mask的二进制像素值。</p>
+</li>
+<li><p>使用一个短路径从$conv3$连接到<code>fc</code>层，中间过两个卷积层<code>conv4_fc,conv5_fc</code>，<code>conv5_fc</code>卷积层通道数减半以减少计算量。</p>
+</li>
+<li><p>mask大小设置为$28×28$。<code>fc</code>层产生$784×1×1$的向量，故reshape成和FCN预测的mask同样的空间尺寸。再和FCN的输出相加得到最终预测。</p>
+</li>
+</ul>
+<p><code>fc</code>用于预测类不可知的背景/前景 mask，这不仅效率高，而且允许更多样本训练<code>fc</code>层的参数，是的泛化能力更强。只使用一个<code>fc</code>层的原因是防止隐藏的空间特征坍塌成短特征向量问题，这会丢失空间信息。</p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><p>论文在COCO、CityScapes、MVD数据集上与其他先进模型做对比，结果都很好。论文在COCO数据集上也对模型做了全方面的ablation study实验。 用于对比的Mask R-CNN和FPN是基于Caffe复现的。</p>
+<p>在实验中使用的所有的预训练模型都是公开可用的，采用图像中心训练，对于每张图片，选取512个ROI，正负样本比例1:3。权重衰减为0.0001,动量为0.9。候选区域来自独立的RPN，目标检测/实例分割的网络主干不共享。采用常用的评价指标，例如$AP,AP_{50},AP_{75},AP_{S},AP_{M},AP_{L}$，后面三项用于衡量不同尺度物体对象。</p>
+<h2 id="Experiments-on-COCO"><a href="#Experiments-on-COCO" class="headerlink" title="Experiments on COCO"></a>Experiments on COCO</h2><p><strong>Hyper-parameters：</strong>  训练是一个batch包含16张图片，图片大小为800x1000。对于实例分割，使用0.02学习率迭代120k，使用0.002迭代40k。对于目标检测，使用0.02学习率迭代60k，使用0.002迭代20k。</p>
+<h3 id="Instance-Segmentation-Results"><a href="#Instance-Segmentation-Results" class="headerlink" title="Instance Segmentation Results"></a><strong>Instance Segmentation Results</strong></h3><p>结果如下表所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/bHaJfK06mK.png?imageslim" alt="mark"></p>
+<p>以ResNet50为主干的PANet使用多尺度训练，单尺度测试的结果在COCO2016上超过了Mask R-CNN(使用ResNet101为主干，多种训练测试技巧)。</p>
+<h3 id="Object-Detection-Results"><a href="#Object-Detection-Results" class="headerlink" title="Object Detection Results"></a><strong>Object Detection Results</strong></h3><p>对于目标的边框检测结果如下所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/idGJDfBciI.png?imageslim" alt="mark"></p>
+<p>可以看到使用单尺度训练，单尺度测试的基于ResNet50的PANet比其他模型效果都要出色，尽管其他模型有着更深的ResNet101或更多的训练技巧。</p>
+<h3 id="Component-Ablation-Studies"><a href="#Component-Ablation-Studies" class="headerlink" title="Component Ablation Studies"></a><strong>Component Ablation Studies</strong></h3><p>首先，分析各个模型中各个组件的重要性，除了自下而上的增强通道(bottom-up path augmentation)、自适应特征池化(adaptive feature pooling)和FC融合(fully-connected fusion),论文同样分析了多尺度训练(multi-scale training),多GPU同步BN(multi-GPU synchronized batch normalization)和heavier head.</p>
+<ul>
+<li>对于多尺度训练，设置长边为1400，其他的在400-1400之间。</li>
+<li>对于多GPU同步BN， 在一个batch前计算所有样本的均值和方差，一起更新，而不是batch里面一张一张更新。</li>
+<li>heavier head，使用4个连续的$3×3$卷积共享box分类和box回归，而不是使用<code>fc</code>层。</li>
+</ul>
+<p>ResNet50作为网络的初始模块。结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/E159I5a84c.png?imageslim" alt="mark"></p>
+<ul>
+<li><p><strong>Re-implemented Baseline:</strong> 复现了Mask R-CNN的表现，论文的模型效果更好。</p>
+</li>
+<li><p><strong>Multi-scale Training &amp; Multi-GPU Sync. BN:</strong>这两个技术帮助网络收敛的更好，泛化能力更强。</p>
+</li>
+</ul>
+<ul>
+<li><strong>Bottom-up Path Augmentation：</strong> 无论是否使用自适应池化卷积。自下而上增强路径提高了预测mask的表现。这验证了低层特征信息的有效性。</li>
+</ul>
+<ul>
+<li><strong>Adaptive Feature Pooling：</strong>无论是否使用自下而上的增强路径。自适应池化滤波都不断提升性能。其他层的特征对最终预测是有用的。</li>
+</ul>
+<ul>
+<li><strong>Fully-connected Fusion：</strong>全连接融合目的是提高mask预测的质量。这对于所有尺度都适用。</li>
+</ul>
+<ul>
+<li><strong>Heavier Head：</strong> 对于bbox训练非常有效，对于mask预测效果一般。</li>
+</ul>
+<h3 id="Ablation-Studies-on-Adaptive-Feature-Pooling"><a href="#Ablation-Studies-on-Adaptive-Feature-Pooling" class="headerlink" title="Ablation Studies on Adaptive Feature Pooling"></a><strong>Ablation Studies on Adaptive Feature Pooling</strong></h3><p>论文进一步探究自适应特征池化操作的的放置位置。<code>fu.fc1fc2</code>表示将融合操作放在ROIAlign和<code>fc1</code>之间，<code>fc1fu.fc2</code>表示将融合操作放在<code>fc1</code>和<code>fc2</code>之间,实现结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/FkBDAC0kKi.png?imageslim" alt="mark"></p>
+<p>类似的设置也用于测试mask预测分支中的融合操作。论文还测试了MAX和SUN这两个特征融合操作。由表可知自适应特征池化对融合操作不是很敏感，但是，允许参数使用来自不同层次的特征网格非常重要。最终模型使用MAX的融合操作，放置于第一个参数层后。</p>
+<h3 id="Ablation-Studies-on-Fully-connected-Fusion"><a href="#Ablation-Studies-on-Fully-connected-Fusion" class="headerlink" title="Ablation Studies on Fully-connected Fusion"></a><strong>Ablation Studies on Fully-connected Fusion</strong></h3><p>论文进一步测试了以不同方式去增强<code>fc</code>层。从两方面考虑：</p>
+<ul>
+<li>一个是<code>fc</code>分支的起始点，论文测试了从<code>conv2</code>,<code>conv3</code>,<code>conv4</code>创建路径。</li>
+<li>另一个是<code>fc</code>分支和FCN的融合操作，使用<code>PROD</code>,<code>SUM</code>,<code>MAX</code>做融合操作。</li>
+</ul>
+<p>使用复现的Mask R-CNN配合自下向上的增强路径和自适应特征池化为基准，测试结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/14G7CCd5Jd.png?imageslim" alt="mark"></p>
+<p>可以看到从<code>conv3</code>开始做<code>SUM</code>操作融合效果是最好的。</p>
+<h3 id="COCO-2017-Challenge"><a href="#COCO-2017-Challenge" class="headerlink" title="COCO 2017 Challenge"></a><strong>COCO 2017 Challenge</strong></h3><p>PANet的COCO2017上的表现，如下表所示：</p>
+<p><strong>实例分割：</strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/lGf7i0AFBb.png?imageslim" alt="mark"></p>
+<p><strong>目标检测上：</strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/4A6DBLf6d4.png?imageslim" alt="mark"></p>
+<p>可以看到PANet在没有大规模训练的情况下达到了顶尖水平。同时论文也在PANet中添加了一些细节实验，采用了DCN，各种测试技巧，使用公开的大型初始模型。</p>
+<h2 id="Experiments-on-CityScapes"><a href="#Experiments-on-CityScapes" class="headerlink" title="Experiments on CityScapes"></a>Experiments on CityScapes</h2><p>在CityScapes上使用和Mask R-CNN一样的参数，具体来讲，训练时短边随机在${800,1024}$之间采样，测试使用1024。没有使用DCN或者测试技巧。使用0.01的学习率迭代了18K，使用0.001学习率迭代了6K。每个batch设置8张图片，ResNet50作为基础层。</p>
+<p><strong>Results：</strong> 论文与一些其他先进方法做对比，结果如下：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/fG9G3JGceB.png?imageslim" alt="mark"></p>
+<p>可以看到只是使用<code>fine</code>的数据就已经比其他模型效果要好了。可视化的结果如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/KlbH5alHKd.png?imageslim" alt="mark"></p>
+<p><strong>Ablation Study：</strong> 实验结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/E4050f3LJB.png?imageslim" alt="mark"></p>
+<p>包括增加多GPU同步BN，和完整的PANet。</p>
+<h2 id="Experiments-on-MVD"><a href="#Experiments-on-MVD" class="headerlink" title="Experiments on MVD"></a>Experiments on MVD</h2><p>PANet与UCenter方法的对比：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180317/kiKCfIFmKE.png?imageslim" alt="mark"></p>
+<p>可以看到PANet的效果要出色。</p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>论文提出了面向实例分割的PANet，设计了几个组件有效的提升信息传播：自下而上的增强路径建立了从低层到高层之间流通的短路径，自适应特征池化汇集了来自不同层次的特征。PANet的多个数据集取得了state-of-the-art结果。</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Object-Detection/" rel="tag"># Object Detection</a>
+          
+            <a href="/tags/Instance-Segmentation/" rel="tag"># Instance Segmentation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/16/语义分割论文-Spatial-As-Deep-Spatial-CNN-for-Traffic-Scene-Understanding/" rel="next" title="语义分割论文--SCNN">
+                <i class="fa fa-chevron-left"></i> 语义分割论文--SCNN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PANet"><span class="nav-text">PANet</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Instance-Segmentation"><span class="nav-text">Instance Segmentation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-level-Features"><span class="nav-text">Multi-level Features</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Larger-Context-Region"><span class="nav-text">Larger Context Region</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Framework"><span class="nav-text">Framework</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Bottom-up-Path-Augmentation"><span class="nav-text">Bottom-up Path Augmentation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation"><span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Augmented-Bottom-up-Structure"><span class="nav-text">Augmented Bottom-up Structure</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adaptive-Feature-Pooling"><span class="nav-text">Adaptive Feature Pooling</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation-1"><span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaptive-Feature-Pooling-Structure："><span class="nav-text">Adaptive Feature Pooling Structure：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fully-connected-Fusion"><span class="nav-text">Fully-connected Fusion</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation-2"><span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mask-Prediction-Structure"><span class="nav-text">Mask Prediction Structure</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiments-on-COCO"><span class="nav-text">Experiments on COCO</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Instance-Segmentation-Results"><span class="nav-text">Instance Segmentation Results</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Object-Detection-Results"><span class="nav-text">Object Detection Results</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Component-Ablation-Studies"><span class="nav-text">Component Ablation Studies</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ablation-Studies-on-Adaptive-Feature-Pooling"><span class="nav-text">Ablation Studies on Adaptive Feature Pooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ablation-Studies-on-Fully-connected-Fusion"><span class="nav-text">Ablation Studies on Fully-connected Fusion</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#COCO-2017-Challenge"><span class="nav-text">COCO 2017 Challenge</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiments-on-CityScapes"><span class="nav-text">Experiments on CityScapes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiments-on-MVD"><span class="nav-text">Experiments on MVD</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
