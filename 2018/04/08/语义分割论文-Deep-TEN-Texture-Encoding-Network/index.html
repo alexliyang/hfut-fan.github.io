@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Texture Recognition,DEEP TEN," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="论文提出了一个新的深度学习模型，推广了传统的字典学习(dictionary learning)和残差编码(Residual Encoders)(例如 VLAD 和 Fisher Vector)。提出的编码层(Encoding Layer)可结合现有的深度学习框架，实现了端对端的深度学习框架，在材料识别任务上取得了不错的效果。">
+<meta name="keywords" content="Texture Recognition,DEEP TEN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文-Deep TEN: Texture Encoding Network">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/04/08/语义分割论文-Deep-TEN-Texture-Encoding-Network/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="论文提出了一个新的深度学习模型，推广了传统的字典学习(dictionary learning)和残差编码(Residual Encoders)(例如 VLAD 和 Fisher Vector)。提出的编码层(Encoding Layer)可结合现有的深度学习框架，实现了端对端的深度学习框架，在材料识别任务上取得了不错的效果。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180408/557HcIfklg.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180408/gBlch9kKCe.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180408/2ffh25d1hk.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180410/Bl3DhGaIgJ.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180410/IaEC4kmeg7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180410/17c0cAA46G.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180410/FJLbgAkgdH.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180410/7a6Fbda8kk.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180410/DgbGJh91IB.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180410/DH7L83hJ33.png?imageslim">
+<meta property="og:updated_time" content="2018-04-10T12:38:07.654Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文-Deep TEN: Texture Encoding Network">
+<meta name="twitter:description" content="论文提出了一个新的深度学习模型，推广了传统的字典学习(dictionary learning)和残差编码(Residual Encoders)(例如 VLAD 和 Fisher Vector)。提出的编码层(Encoding Layer)可结合现有的深度学习框架，实现了端对端的深度学习框架，在材料识别任务上取得了不错的效果。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180408/557HcIfklg.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/04/08/语义分割论文-Deep-TEN-Texture-Encoding-Network/"/>
+
+
+
+
+
+  <title>语义分割论文-Deep TEN: Texture Encoding Network | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/04/08/语义分割论文-Deep-TEN-Texture-Encoding-Network/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文-Deep TEN: Texture Encoding Network</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T22:40:03+08:00">
+                2018-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文提出了一个新的深度学习模型，推广了传统的<code>字典学习(dictionary learning)</code>和<code>残差编码(Residual Encoders)</code>(例如 VLAD 和 Fisher Vector)。提出的编码层(Encoding Layer)可结合现有的深度学习框架，实现了端对端的深度学习框架，在材料识别任务上取得了不错的效果。</p>
+<a id="more"></a>
+<h1 id="Deep-TEN-Texture-Encoding-Network"><a href="#Deep-TEN-Texture-Encoding-Network" class="headerlink" title="Deep TEN: Texture Encoding Network"></a>Deep TEN: Texture Encoding Network</h1><p>原文地址：<a href="https://arxiv.org/pdf/1612.02844v1.pdf" target="_blank" rel="external">Deep TEN</a></p>
+<p>收录：CVPR2017(IEEE Conference on Computer Vision and Pattern Recognition)</p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/zhanghang1989/Torch-Encoding-Layer" target="_blank" rel="external">官方-Torch</a></li>
+<li><a href="https://github.com/zhanghang1989/PyTorch-Encoding" target="_blank" rel="external">官方-PyTorch</a></li>
+</ul>
+<hr>
+<h1 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h1><h2 id="传统方法"><a href="#传统方法" class="headerlink" title="传统方法"></a>传统方法</h2><p>对于输入图片，传统图像识别方案：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180408/557HcIfklg.png?imageslim" alt="mark"></p>
+<p>即分为如下步骤：</p>
+<ul>
+<li>通常先提取图像特征(SIFT、filterbank responses等)</li>
+<li>通过聚类等非监督方式得到一个字典(dictionary)</li>
+<li>对图片特征编码（材料识别中通常使用无序编码器，比如BoWs，VLAD）</li>
+<li>使用分类器进行分类</li>
+</ul>
+<p>传统方法有以下两个特点：</p>
+<ol>
+<li>输入图片可以为任意大小，使用编码器转化为一个固定长度的表达。</li>
+<li><strong>特征本身是通用的(domain-independent)，字典和编码表达通常携带域信息(domain-specific information)。</strong> 即图像特征部分对多数任务都是有效的，这和深度学习预训练是一个道理，字典和编码是针对特定任务的，即深度学习里面的finetune。</li>
+</ol>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>对比于传统方法(左图)，已有的深度学习方法<a href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Cimpoi_Deep_Filter_Banks_2015_CVPR_paper.pdf" target="_blank" rel="external">Cimpoiet. al. CVPR 2015 </a>做了如下尝试(右图)：</p>
+<p><div align="center"><br><img src="http://owv7la1di.bkt.clouddn.com/blog/180408/gBlch9kKCe.png?imageslim" alt="mark"></div></p>
+<p>总结一下：</p>
+<ul>
+<li>将特征提取换成了Pre-trained CNN，因为CNN的特征提取能力强</li>
+<li>编码使用强大的Fisher Vector编码器</li>
+</ul>
+<p>CNN强大的特征提取让整个框架得到了当时的state-of-the-art。但这种方法将整个系统分成多步再优化。 即整个系统形成不了端对端学习，特征提取，字典学习和编码器不能够从标识的数据（labeled data）中得到进一步优化。 <em>这可以类比目标检测中的Fast R-CNN工作，先使用传统方法找出侯选区域。使用CNN来提取特征，使用RoI pooling将特征映射为固定长度表示，然后用分类器。最终版的Faster R-CNN通过RPN联立学习。*</em></p>
+<h2 id="论文方案"><a href="#论文方案" class="headerlink" title="论文方案"></a>论文方案</h2><p>理想的方案如右图，即论文的思路：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180408/2ffh25d1hk.png?imageslim" alt="mark"></p>
+<p>思路也很直接：设法将字典学习和编码整合到一个CNN网络层中，实现了端对端的学习优化。</p>
+<p>论文提出了一个数学模型(Residual Encoding Model)，推广已有的编码器 (VLAD, Fisher Vector)，使得整个系统是可微分的，让所有部分从loss 中学习。实现了全监督式的字典学习(supervised dictionary learning)。 同时模型具备传统方法的特性：如CNN网络可以接受任意大小的图片；字典学习和编码容易携带domain信息，这样学习到的深度特征就更容易应用于其他domain。</p>
+<p>模型推广了VLAD和Fisher Vector，故除了应用的于材料/纹理识别，还可以应用到其他地方(今年的scene understanding的<code>EncNet</code>, image retrieval等等)。</p>
+<hr>
+<h1 id="论文介绍"><a href="#论文介绍" class="headerlink" title="论文介绍"></a>论文介绍</h1><h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>论文提出了一个新颖的编码层(Encoding Layer)集成可集成现有的CNN中，论文称为深度纹理编码网络(Texture Encoding Network,<code>Deep-TEN</code>)，编码层将整个字典学习(dictionary learning)和编码集成到一个单独的模型，提供了一个端对端的学习框架，分类器的feature，dictionaries和encoding representation都可以同时从loss上学习。</p>
+<p>其中编码层泛化成鲁棒残差编码器(例如VLAD和Fish Vectors)。实验证明新的模型在多个数据集达到了先进的表现。</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h3 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h3><p>CNN在多个计算机视觉任务上成为了标准方法。在纹理和材料识别和目标识别中有一些独特的挑战，需要捕获一些空间重复无序度量(apturing an orderless measure encompassing some spatial repetition)。</p>
+<p>在传统的方法上，使用兴趣点检测方法提取手工特征(例如SIFT或filterbank responses)。字典通常是离线学习，再编码特征分布(例如BoW)，后面再使用分类器(例如SVM)得到预测结果。  </p>
+<p>在最近的工作中，手工提取特征被预训练的CNN代替，BoWs被鲁棒残差编码器代替(例如VLAD和Fisher Vector)，例如Cimpoi等人使用不同的编码器(VLAD,FV)组成不同的特征(SIFT,CNN)，这取得了当时的先进的结果。</p>
+<p>但是，这些方法是堆叠self-contained 组件(特征提取，字典学习，编码，分类器训练)，如下图左边和中间：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180410/Bl3DhGaIgJ.png?imageslim" alt="mark"></p>
+<p>这些算法的缺点在于特征提取和编码一旦构建完成就是固定的，这样特征学习(CNN和字典)无法从标签数据中获益。 </p>
+<p><strong>如何实现端对端学习？</strong>   </p>
+<p>CNN的卷积操作是以滑窗方式操作，充当局部特征提取器。输出的特征图保存了输入图片的相对的空间排列。再将得到的全局有序的特征级联送到FC层做分类， 这样的框架在图像分类，目标识别等获得巨大成功。但是这不适用于纹理识别，因为纹理识别需要描述特征分布的空间不变表示而不是级联。 </p>
+<p>因此，一个无序的特征池化层对于端对端训练是很有用的，而问题在于loss的梯度传递，论文在附录A给出了新的BP推导，实现了无序表示的编码集成到深度学习框架中。</p>
+<h3 id="Contribution"><a href="#Contribution" class="headerlink" title="Contribution"></a>Contribution</h3><h4 id="论文的第一个贡献"><a href="#论文的第一个贡献" class="headerlink" title="论文的第一个贡献"></a>论文的第一个贡献</h4><p>引入了一个新的可学习残差编码层(Encoding Layer)，能够将整个字典学习和残差编码集成到单一的CNN模型中，编码层具有三个主要属性：</p>
+<ul>
+<li><p>编码层推广鲁棒残差编码器，如VLAD和Fisher Vector，这种表示是无序的，描述了特征空间，适用于纹理和材质识别。</p>
+</li>
+<li><p>编码层在卷积层顶端充当池化层，接收不同尺寸大小并提供固定长度的表示输出。因为可接收不同尺寸的输出，模型更为灵活并且实现证明多尺度输入能够提升模型性能。</p>
+</li>
+<li><p>编码层学习固定字典并编码表示，这可能会携带特定域的信息，因此适合迁移预训练特征。在论文中，CNN是从对象分类迁移到纹理识别，因为网络作为回归过程实现端对端训练，因此卷积特征与顶端的编码层一起更容易迁移。</p>
+</li>
+</ul>
+<h4 id="论文的第二个贡献"><a href="#论文的第二个贡献" class="headerlink" title="论文的第二个贡献"></a>论文的第二个贡献</h4><p>给出了一个端对端的框架Texture Encoding Network - Deep TEN。其中特征提取、字典学习和编码集成于单个网络中， 每个组件受益于BP中的梯度流动，都可以做学习调整。 </p>
+<p>模型在多个数据集上获得了先进的结果。论文进一步探索了通过对两个数据集联合训练来传输和编码层一起学习的卷积特征。</p>
+<hr>
+<h2 id="Learnable-Residual-Encoding-Layer"><a href="#Learnable-Residual-Encoding-Layer" class="headerlink" title="Learnable Residual Encoding Layer"></a>Learnable Residual Encoding Layer</h2><p><strong><em>对于传统方法不太了解，这里只是贴一个大概翻译~</em></strong></p>
+<p><strong>Residual Encoding Model：</strong></p>
+<p>给定一组$N$个视觉描述符$X={x_1,..,x_N}$，和一组学习codebook$C={c_1,..,c_K}$包含了$K$个$D$维的codewords. 为每个描述符$x_i$，针对每个codeword$c_k$分配权重$\alpha_{ik}$，对应的残差向量记为$r_{ik}=x_i-c_k$，其中$i=1,..,N$和$k=1,..K$. 给定分配和残差向量，残差编码模块对每个单独的codeword$c_k$做聚合操作：<br>$$e_k=\sum_{i=1}^{N}e_{ik}=\sum_{i=1}^{N}\alpha_{ik}r_{ik}$$</p>
+<p>结果编码输出是一个固定长度表示$E={e_1,..,e_K}$(独立于输入描述符$N$的)。</p>
+<p><strong>Encoding Layer：</strong> </p>
+<p>传统的识别方法分成特征提取，字典学习，特征池化(编码)，分类器学习。 论文的方案将字典学习和残差编码结合到单个CNN模型中，称之为<strong>Encoding Layer</strong> 。 编码层以全监督方式学习同时学习编码参数和固有字典。固有字典通过分配权重传递的梯度从描述符的分布中学习。在训练过程中，提取的卷积特征也可以从编码表示中受益。</p>
+<p>对于描述符的权重原本使用的时 Hard-assignment，论文改进使用的Soft-weight应对不可分问题，受GMM的启发，最终的权重为：<br>$$\alpha_{ik}=\frac{\exp(-s_k||r_{ik}||^2)}{\sum_{j=1}^{K}\exp(-s_j||r_{ij}||^2)}$$</p>
+<p>这对描述符提供了一个更为精确的建模，编码层通过分配的权重聚合残差向量，最终再用$L2-norm$做标准化。</p>
+<p><strong>End-to-end Learning：</strong></p>
+<p>编码层是一个有向无环图，如下所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180410/IaEC4kmeg7.png?imageslim" alt="mark"></p>
+<p>所有的参数都是可微分的。</p>
+<h2 id="Relation-to-Other-Methods"><a href="#Relation-to-Other-Methods" class="headerlink" title="Relation to Other Methods"></a>Relation to Other Methods</h2><p>对比图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180410/17c0cAA46G.png?imageslim" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180410/FJLbgAkgdH.png?imageslim" alt="mark"></p>
+<hr>
+<h2 id="Experimental-Results"><a href="#Experimental-Results" class="headerlink" title="Experimental Results"></a>Experimental Results</h2><p>纹理识别任务上：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180410/7a6Fbda8kk.png?imageslim" alt="mark"></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180410/DgbGJh91IB.png?imageslim" alt="mark"></p>
+<p>在分类任务上测试：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180410/DH7L83hJ33.png?imageslim" alt="mark"></p>
+<hr>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>论文的主要贡献在于将传统的编码部分和现CNN架构集成到一起，弥补了传统计算机视觉方法和深度学习方法之间的差距。具体来说，提出了个数学模型 (Residual Encoding Model)，推广了已有的编码器 (VLAD, Fisher Vector)，并且使得整个系统是可微分的，每个部分都可从loss function中学习。 论文提出了一个针对纹理识别任务的框架Deep TEN，在多个纹理数据集上表现优异。</p>
+<p>此外，新的模型有很多传统方法的特性：如CNN网络可以接受任意大小的图片，字典学习和表达容易携带Domain信息，这样学习到的深度特征就更加容易应用于其他domain。</p>
+<hr>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://zhuanlan.zhihu.com/p/25013378" target="_blank" rel="external">张航-知乎</a></li>
+</ul>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Texture-Recognition/" rel="tag"># Texture Recognition</a>
+          
+            <a href="/tags/DEEP-TEN/" rel="tag"># DEEP TEN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/03/语义分割论文-EncNet/" rel="next" title="语义分割论文-EncNet">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-EncNet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Deep-TEN-Texture-Encoding-Network"><span class="nav-text">Deep TEN: Texture Encoding Network</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#核心思想"><span class="nav-text">核心思想</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#传统方法"><span class="nav-text">传统方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相关工作"><span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#论文方案"><span class="nav-text">论文方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#论文介绍"><span class="nav-text">论文介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation"><span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Contribution"><span class="nav-text">Contribution</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#论文的第一个贡献"><span class="nav-text">论文的第一个贡献</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#论文的第二个贡献"><span class="nav-text">论文的第二个贡献</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Learnable-Residual-Encoding-Layer"><span class="nav-text">Learnable Residual Encoding Layer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relation-to-Other-Methods"><span class="nav-text">Relation to Other Methods</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experimental-Results"><span class="nav-text">Experimental Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

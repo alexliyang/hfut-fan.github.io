@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deformable ConvNets,Spatial Transfomer," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="关于Deformable Convolutional Networks的论文解读，共分为5个部分，本章是第四部分：   Part1： 快速学习实现仿射变换  Part2： Spatial Transfomer Networks论文解读  Part3： TenosorFlow实现STN  Part4： Deformable Convolutional Networks论文解读  Part5： Ten">
+<meta name="keywords" content="Deformable ConvNets,Spatial Transfomer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Part4:Deformable Convolutional Networks论文解读">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/03/24/论文解读-Deformable-ConvNets-Part4-Deformable-Convolutional-Networks论文解读/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="关于Deformable Convolutional Networks的论文解读，共分为5个部分，本章是第四部分：   Part1： 快速学习实现仿射变换  Part2： Spatial Transfomer Networks论文解读  Part3： TenosorFlow实现STN  Part4： Deformable Convolutional Networks论文解读  Part5： Ten">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/JfGbFd8Fe3.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/IfkLGALhf5.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/Kfck33LF0B.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/Jb8J948dcg.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/a5J4C7DbEh.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/af8B0EJ5kk.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/F9eFk8dj1C.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/41Dha1IFi0.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/8bbHJHmchB.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/m2LikL66Gc.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/515DbLJdDj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/dd64f9GG67.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/FhFgmik4jb.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/miGmFc7Ff9.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/dBdc9hE15I.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/I7hjAljh36.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/7I5Gja8b6A.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/lDfkgl3kdC.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/k39C4511d6.png?imageslim">
+<meta property="og:updated_time" content="2018-03-26T12:40:16.061Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Part4:Deformable Convolutional Networks论文解读">
+<meta name="twitter:description" content="关于Deformable Convolutional Networks的论文解读，共分为5个部分，本章是第四部分：   Part1： 快速学习实现仿射变换  Part2： Spatial Transfomer Networks论文解读  Part3： TenosorFlow实现STN  Part4： Deformable Convolutional Networks论文解读  Part5： Ten">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180326/JfGbFd8Fe3.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/03/24/论文解读-Deformable-ConvNets-Part4-Deformable-Convolutional-Networks论文解读/"/>
+
+
+
+
+
+  <title>Part4:Deformable Convolutional Networks论文解读 | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/03/24/论文解读-Deformable-ConvNets-Part4-Deformable-Convolutional-Networks论文解读/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Part4:Deformable Convolutional Networks论文解读</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T10:00:34+08:00">
+                2018-03-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>关于Deformable Convolutional Networks的论文解读，共分为5个部分，本章是第四部分：</p>
+<ul>
+<li style="list-style: none"><input type="checkbox"> Part1： 快速学习实现仿射变换</li>
+<li style="list-style: none"><input type="checkbox"> Part2： Spatial Transfomer Networks论文解读</li>
+<li style="list-style: none"><input type="checkbox"> Part3： TenosorFlow实现STN</li>
+<li style="list-style: none"><input type="checkbox" checked> Part4： Deformable Convolutional Networks论文解读</li>
+<li style="list-style: none"><input type="checkbox"> Part5： TensorFlow实现Deformable ConvNets</li>
+</ul>
+<p>本章解读Deformable ConvNets论文，看该模型是如何让卷积可变形，如何让模型支持端对端训练。</p>
+<a id="more"></a>
+<h1 id="Deformable-Convolutional-Networks"><a href="#Deformable-Convolutional-Networks" class="headerlink" title="Deformable Convolutional Networks"></a>Deformable Convolutional Networks</h1><p>Deformable Convolutional Networks</p>
+<p>收录：ICCV2017(IEEE International Conference on Computer Vision) </p>
+<p>原文地址：<a href="https://arxiv.org/pdf/1703.06211.pdf" target="_blank" rel="external">Deformable-ConvNets</a></p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/msracver/Deformable-ConvNets" target="_blank" rel="external">官方-MXNet</a></li>
+<li><a href="https://github.com/felixlaumon/deform-conv" target="_blank" rel="external">Keras</a></li>
+</ul>
+<hr>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>CNN因为其固定的几何结构限制了模型几何变换能力。论文引入了可变卷积(Deformable Convolution)和可变ROI pooling(Deformable RoI pooling)两个新模块，提高模型的空间转换能力。这两种模块增加模型空间采样位置和从task上学习偏移能力。新的模块可很容易的替换现有的CNN模型中对应的部分，并支持端对端训练。大量实验验证了可变性卷积模型能够有效的应对复杂的视觉任务。</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><h2 id="视觉任务中存在的问题"><a href="#视觉任务中存在的问题" class="headerlink" title="视觉任务中存在的问题"></a>视觉任务中存在的问题</h2><p>视觉识别中一个关键的挑战是如何适应物体的几何变体或目标尺度、姿态、观察点、部分变形的几何变换。如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/JfGbFd8Fe3.png?imageslim" alt="mark"></p>
+<p>针对这一问题，通常有两个办法：</p>
+<ul>
+<li>一是<strong>构建有足够期望变化的训练数据集</strong>。这个通常是对数据做增强，例如仿射变换，放缩等。希望模型能够在多种变体数据上学习鲁棒性强的表征，但这是以计算消耗和模型复杂度为代价的。</li>
+<li>二是<strong>使用变换不变的特征和算法</strong>。这有许多广泛使用的算法，例如SIFT(尺度不变特征变换)，基于滑窗的目标检测等</li>
+</ul>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/IfkLGALhf5.png?imageslim" alt="mark"></p>
+<p>上述的方法有两个缺点：</p>
+<ul>
+<li><p>首先，<strong>对数据的几何变换是已知固定的</strong>，这样的先验应用于增强数据集上、设计特征和算法，<strong>会对未知几何变换的任务处理造成影响，因为没有正确的去对未知变换建模</strong>。</p>
+</li>
+<li><p>其次，手工设计的特征和算法难以或者不能应对复杂的变换，即使这些变换是已知的。</p>
+</li>
+</ul>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>近期，CNN在多个复杂视觉任务上获得了显著的提升。但是，CNN也存在上述的两个缺点。模型的几何变换能力大多来源于大量的数据增强、模型的表征能力和一个简单的手工特征(例如max-pooling应对小型平移变换)。</p>
+<p>简而言之，CNN受限于模型内部固定的几何结构：卷积单元对输入固定的采样位置；池化层固定的下采样因子；RoI池化层将RoI分成固定数量的bin等，<strong>这缺乏处理几何变换的内部机制。</strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/Kfck33LF0B.png?imageslim" alt="mark"></p>
+<p>这会导致一些明显的问题。例如：CNN中同一层的所有激活单元的接受野是固定的，这不利于high-level层编码空间信息，因为不一样的位置可能会对应不同尺度或形态的目标。<strong>对于精确定位来说，自适应确定尺度和感受野尺度是理想的</strong>。此外，在目标检测上，许多模型依然依赖于基于特征提取的bbox，这对于non-rigid objects物体等是非最优的。</p>
+<h2 id="论文的贡献"><a href="#论文的贡献" class="headerlink" title="论文的贡献"></a>论文的贡献</h2><p>在本文中引入两个新模块极大提高了CNN对于几何变换的建模能力:</p>
+<ul>
+<li>第一个是<code>deformable convolution</code>(可变形卷积)。这在标准卷积的常规采样网络位置上增加了一个2D偏移，这使得采样网格可以自由变形。如下图所示：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/Jb8J948dcg.png?imageslim" alt="mark"></li>
+</ul>
+<p>可通过附加卷积层从之前的feature上学习偏移量，这样变形以局部，密集和自适应的方式适应输入feature。</p>
+<ul>
+<li>第二是<code>deformable RoI pooling</code>(可变性RoI池化)。在先前的RoI池化的每个常规的bin上添加一个偏移。类似的，偏移也是从前面的feature和RoI上学习的，能够对不同形状的目标做自适应定位。</li>
+</ul>
+<p>这两个模块都是轻量级，只增加了少量的计算和参数。并且能够轻易的替换现在CNN中对应的部分，支持端对端训练。<code>deformable convolutional networks</code>和STN(Part2)和可变形模块有同样的精神。都是具有内部转换参数和学习参数，都是纯粹的学习数据。deformable ConvNets相比的来讲，是更简单、有效，深度和端对端的训练。</p>
+<hr>
+<hr>
+<h1 id="Deformable-Convolutional-Networks-1"><a href="#Deformable-Convolutional-Networks-1" class="headerlink" title="Deformable Convolutional Networks"></a>Deformable Convolutional Networks</h1><h2 id="Deformable-Convolution"><a href="#Deformable-Convolution" class="headerlink" title="Deformable Convolution"></a>Deformable Convolution</h2><p>2D的卷积由两部分组成：</p>
+<ul>
+<li>在输入feature map $X$上使用regular grid $R$采样</li>
+<li>对采样值加权$w$求和</li>
+</ul>
+<p>网格$R$定义的是感受野尺寸和扩张率。例如:对于一个扩张率为1的$3×3$卷积核，采样的偏移量为$$R={(-1,-1),(-1,0),..,(0,1),(1,1)}$$</p>
+<p>对于输出feature map $y$上每个位置$p_o$：$$y(p_o)=\sum_{p_n∈R}w(p_n)X(p_o+p_n)\tag{1}$$其中$p_n$在网格$R$上迭代。每个卷积核位置$p_n$对应着核参数$w(p_n)$。</p>
+<p><strong>要想获得可变性卷积，可在regular grid $R$上做手脚，论文是为其增加偏移量${\Delta p_n|n=1,…,N}$</strong>,其中$N=|R|$： </p>
+<p>$$y(p_o)=\sum_{p_n∈R}w(p_n)X(p_o+p_n+\Delta p_n)\tag{2}$$</p>
+<p>此时采样偏移为$p_n+\Delta p_n$，我们想法子学习这个$\Delta p_{n}$就可以了。</p>
+<h3 id="Deformable-ConvNets和STN对比"><a href="#Deformable-ConvNets和STN对比" class="headerlink" title="Deformable ConvNets和STN对比"></a><strong>Deformable ConvNets和STN对比</strong></h3><p>Deformable ConvNets关于可变性卷积示意图如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/a5J4C7DbEh.png?imageslim" alt="mark"></p>
+<p>上图在input feature map上蓝色的虚线表示regular grid。</p>
+<p>STN网络架构中的<code>Spatial Transformer</code>变换：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/af8B0EJ5kk.png?imageslim" alt="mark"></p>
+<p>可以看到这和Deformable Convolution非常相似的，STN使用的是仿射变换，而Deformable ConvNets使用的是更泛化的偏移量。</p>
+<p>在Part2中，我们详细分析过STN中Spatial Transformer的组成部分：</p>
+<ul>
+<li><code>Localisation net</code>，在输入特征映射上应用卷积或FC层，用于获取仿射矩阵，即各个$\theta$值。</li>
+<li><code>Grid generator</code>，用于生成实际的Sampling grid坐标</li>
+<li><code>Sampler</code>，实际对输入特征映射$U$的采样</li>
+</ul>
+<p><strong>同样的Deformable ConvNets中关于deformable convolution的处理可分为以下部分：</strong></p>
+<ul>
+<li>对输入feature map原本使用一个卷积<code>conv</code>得到下一层输入。现在使用另外一个<code>offset conv</code>卷积获取偏移量，<code>offset conv</code>卷积核大小和扩张率和<code>conv</code>相同，<code>offset conv</code>的输出为<code>offset field</code></li>
+<li><code>offset field</code>和输入特征映射相同空间分辨率，并且通道数为$2N$,对应着$N$个2D的偏移量(x,y方向)</li>
+<li>通过双线性采样获取的最终的采样网格，配合<code>conv</code>卷积核得到最终输出结果</li>
+</ul>
+<hr>
+<p><strong><code>对Deformable ConvNets的总结：</code></strong></p>
+<p><strong><em>可以看到Deformable Convolution说白了是一个扩张率可学习的卷积，相比于STN学习一组仿射变换参数，Deformable学习卷积核中各个采样点的偏移量。与此相对的常规的扩张卷积是固定的偏移量。</em></strong></p>
+<hr>
+<h3 id="Deformable-Convolution-的反向传播"><a href="#Deformable-Convolution-的反向传播" class="headerlink" title="Deformable Convolution 的反向传播"></a>Deformable Convolution 的反向传播</h3><p>注意到在Deformable ConvNets中偏移量$\Delta p_n$常常不为整数，而在BP时需要可微求梯度的，故论文采用和Part2：STN(Spatial Transformer Network)一样的方法，使用双线性采样搞定:</p>
+<p>$$X(p)=\sum_{q}G(q,p)·X(q)\tag{3}$$ </p>
+<p>$G(·,·)$ 是双线性插值核函数，$p$表示任意位置 $p=p_o+p_n+\Delta p_n$，$q$是feature map $X$上所有位置的迭代。</p>
+<p>注意$G$是两维的，可以分成两个一维的核：</p>
+<p>$$G(q,p)=g(q_x,p_x)·g(q_y,p_y) \tag{4}$$</p>
+<p>其中$g(a,b)=\max(0,1-|a-b|)$，公式(3)可通过公式(4)做快速计算。</p>
+<p>上述公式(3)(4)可能看的比较抽象，看看STN中使用双线性采样的表达式，再对比一下就很清晰了：</p>
+<p>在STN中使用双线性采样核的表达式总结如下：</p>
+<p>$$V_c^i=\sum^H_n\sum^W_mU^c_{nm}\max(0,1−|x^s_i−m|)\max(0,1−|y^s_i−n|)$$</p>
+<p><strong>这其中的$\max(0,1−|x^s_i−m|)\max(0,1−|y^s_i−n|)$对应的就是$G(q,p)$，$V_c$对应的就是$X(p)$。</strong> 对于反向求梯度的公式，可参考Part2：STN。</p>
+<h2 id="Deformable-RoI"><a href="#Deformable-RoI" class="headerlink" title="Deformable RoI"></a>Deformable RoI</h2><p>所有基于侯选区域的目标检测办法都使用了RoI Pooling，这能够将任意大小的矩形区域转换为固定大小的特征。 给定特征映射$X$和大小为$w×h$的RoI，我们记RoI的左上角为$p_0$，RoI pooling将RoI分为$k×k$个bin，输出大小为$k×k$的特征映射$y$。对于序号为$(i,j)$的bin：<br>$$ y(i,j) = \sum_{p∈bin(i,j)}X(p_0+p)/n_{ij} \tag 5$$ 其中$n_{ij}$是bin中像素的数量。第$(i,j)$个bin的跨度为$\left \lfloor i\frac{w}{k} \right \rfloor≤p_x≤\left \lfloor (i+1)\frac{w}{k} \right \rfloor$和$\left \lfloor j\frac{h}{k} \right \rfloor≤p_y≤\left \lfloor (j+1)\frac{h}{k} \right \rfloor$。($\left \lfloor x\right \rfloor$表示对$x$取整)</p>
+<p>和Deformable Convolution类似，<strong>对于RoI Pooling也是添加一个偏移量$ { \Delta p_{ij}|0≤i，j&lt;k } $添加到空间分bin的坐标上，</strong>故公式(5)变成了:<br>$$ y(i,j) = \sum_{p∈bin(i,j)}X(p_0+p+\Delta p_{ij})/n_{ij} \tag 5$$</p>
+<p>同样的，$\Delta p_{ij}$会是非整数，故依旧是通过双线性采样来实现。</p>
+<p>下图是Deformable RoI Pooling示意图：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/F9eFk8dj1C.png?imageslim" alt="mark"></p>
+<p>大概步骤如下：</p>
+<ul>
+<li>首先，使用公式(5)的RoI Pooling生成池化后的特征映射。</li>
+<li>在上述生成特征映射上，使用FC层生成<code>normalized</code> offset $\Delta\hat{p_{ij}}$。</li>
+<li>$\Delta\hat{p_{ij}}$通过和RoI的宽和长逐元素相乘，即 $ \Delta{p_{ij}}=\gamma·\Delta\hat{p_{ij}}\cdot(w,h)$，变换生成 $\Delta{p_{ij}}$。$\gamma$是预设控制偏移大小的。经验设置为0.1。</li>
+</ul>
+<h3 id="Position-Sensitive-PS-RoI-Pooling"><a href="#Position-Sensitive-PS-RoI-Pooling" class="headerlink" title="Position-Sensitive(PS) RoI Pooling"></a>Position-Sensitive(PS) RoI Pooling</h3><p>如下图所示：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/41Dha1IFi0.png?imageslim" alt="mark"></p>
+<p>大概执行步骤：</p>
+<ul>
+<li>将输入feature map做卷积转为$k^2$个score map，因为有背景，故共有$k^2(C+1)$个特征图。(分类类别$C$)</li>
+<li>将这些特征图表示为${X_{i,j} }$，其中$(i,j)$表示bin的迭代。在这些特征图上做池化，第$(i,j)$个bin是从位置$X_{i,j}$的特征图上通过sum操作获取到的。</li>
+</ul>
+<p><strong>简单的来讲，就是原本普通的特征映射$X$换成了现在现在指定位置敏感的$X_{i,j}$。</strong></p>
+<p>同样的，对于获取偏移量的分支，也是将原本的特征图$X$换成了$X_{i,j}$。对于offset的学习，按照全卷积的思想，使用一个卷积层全空间分辨率的offset fields。对于每个RoI，PS RoI pooling都应用在这样的offset field上获取<code>normalized offset</code> $\hat{\Delta p_{n}}$。</p>
+<h2 id="Deformable-ConvNets"><a href="#Deformable-ConvNets" class="headerlink" title="Deformable ConvNets"></a>Deformable ConvNets</h2><p>Deformable convolution 和RoI pooling和原本的版本具有相同的输入和输出，故能够直接替换CNN中原本对应的部分。在训练中，添加的用于学习offset的FC层或卷积层的权重设置为0。学习率设置为对应层的$\beta$ 倍(默认$\beta=1$，在Faster-RCNN中FC层的$\beta=0.01$)。通过双线性插值的反向传播做训练。</p>
+<p>为了将deformable ConvNets集成到先进的CNN架构中，注意到现有架构分成两个阶段：</p>
+<ul>
+<li>一个深度全卷积网络在整个输入图片上生成特征图(特征提取层)</li>
+<li>在生成特征图上做一个具体的任务</li>
+</ul>
+<p>我们详细的讲解一下这两个阶段。</p>
+<h3 id="Deformable-Convolution-for-Feature-Extraction"><a href="#Deformable-Convolution-for-Feature-Extraction" class="headerlink" title="Deformable Convolution for Feature Extraction"></a>Deformable Convolution for Feature Extraction</h3><p>论文采用了两个先进的特征提取架构：ResNet101和改进的Iception-ResNet，两个都是在ImageNet上跑过。原先的Inception-ResNet是为图片识别设计的，论文改进修复了其alignment 问题，改进后的版本称为<code>Aligned-Inception-ResNet</code>。</p>
+<p><strong>论文使用的改进版本的<code>Aligned Xception</code>：</strong></p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/8bbHJHmchB.png?imageslim" alt="mark"></p>
+<p>论文将两个网络的平均池化和FC层去掉，在最后添加了一个随机初始化的$1×1$卷积层将通道降维到1024。将最后一个卷积块的有效步幅从32pixel降到16pixel(步幅=$\frac{H_{input}}{H_{output}}$)，增加feature map的分辨率。为了补偿，在最后卷积块添加扩张率为2的扩张卷积。</p>
+<h3 id="Segmentation-and-Detection-Networks"><a href="#Segmentation-and-Detection-Networks" class="headerlink" title="Segmentation and Detection Networks"></a>Segmentation and Detection Networks</h3><p>在上述特征层提取的feature map上建立一个网络用于完成具体的任务。我们将$C$定义为任务分类类别数。</p>
+<ul>
+<li><strong>DeepLab：</strong> 用于语义分割。在feature map上添加一个$1×1$卷积生成$C+1$个maps用于表示每个像素分类结果，再接Softmax。</li>
+<li><strong>Category-Aware RPN:</strong> 用于目标检测。将2分类卷积分类器换成了$C+1$卷积分类器。</li>
+<li><strong>Faster R-CNN：</strong> 用于目标检测。RPN分支添加在conv4 block的顶端。论文将RoI pooling直接接在后面，在RoI输出上接两个1024维的FC层，再接bbox回归和分类分支。和之前的网络相比，将10个层的conv5替换为2个FC层，会有轻微的精度下降，但是依旧是足够强大的baseline。</li>
+<li><strong>R-FCN：</strong> R-FCN是先进的检测器。对应的每个RoI计算消耗可忽略不计。安装原先的实现，可将RoI换成PS RoI pooling。</li>
+</ul>
+<p>改进前的目标检测框架：<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/m2LikL66Gc.png?imageslim" alt="mark"></p>
+<p>改进后的目标检测框架：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/515DbLJdDj.png?imageslim" alt="mark"></p>
+<hr>
+<hr>
+<h1 id="Understanding-Deformable-ConvNets"><a href="#Understanding-Deformable-ConvNets" class="headerlink" title="Understanding Deformable ConvNets"></a>Understanding Deformable ConvNets</h1><p>使用可变形卷积堆叠，示例如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/dd64f9GG67.png?imageslim" alt="mark"></p>
+<p>图左的标准卷积，所有采样位置和感受野是固定的。图右的可变形卷积依据目标的大小和形态自适应改变。</p>
+<p>可变形卷积集中案例：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/FhFgmik4jb.png?imageslim" alt="mark"></p>
+<p>使用可变形RoI Pooling：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/miGmFc7Ff9.png?imageslim" alt="mark"></p>
+<h3 id="In-Context-of-Related-Works"><a href="#In-Context-of-Related-Works" class="headerlink" title="In Context of Related Works"></a>In Context of Related Works</h3><p>讨论与其他工作不同之处。</p>
+<p><strong>Spatial Transform Network:</strong> STN工作是在深度网络中从数据上学习空间转换，使用全局参数变换包裹feature map。这样的参数学习起来很困难。STN证明了在小型形变上是有效的。 </p>
+<p>可变形卷积的offset learning 可以被考虑成STN中极其轻量级的空间变换。然而，可变形卷积不采用全局参数变换和特征变形，采样的是以局部和密集的方式管理特征映射。为了生成新的特征映射，再做加权求和操作。并且Deformable Convolution比STN更容易集成到现有的CNN架构中。</p>
+<p><strong>Active Convolution：</strong> 这项工作也是通过增强卷积中采样位置和学习偏移量，通过反向传播实现端对端。这个工作和deformable convolution有两处不同。一是：对于不同的空间位置共享同一偏移量。二是：offset在每个任务和每个训练中是静态模型参数。相对的deformable convolution中的offset是动态变换的。</p>
+<p><strong>Effective Receptive Field：</strong> 并不是所有的像素对于目标响应是相同的。在目标中间的像素贡献大点，有效感受野只占据理论感受野的一部分。理论上感受野大小随着卷积层的数量线性增加，但实际上是平方根线性增加，速度比预料要慢得多。这一发现说明了CNN顶层还是没有足够的接受野。侧面证明了扩张卷积为什么能够广泛应用于视觉任务。 </p>
+<p>可变形卷积可以自适应的接收野。</p>
+<p><strong>Atrous convolution：</strong>  扩张卷积能够在保持计算量和参数量的条件下扩展特征的感受野。<em>Deformable Convolution可以看成是泛化的扩张卷积，我个人将Deformable convolution理解为学习不同方向上的扩张率。</em></p>
+<p><strong>Deformable Part Models (DPM)：</strong> DPM和Deformable RoI类似，两者都是目标部件的空间变形。DPM是一个浅层模型，变形能力受限。可通过距离转换认为是特定的池化操作，它的推理算法可使用CNN完成。但它的训练不支持端对端，是启发的。相比之下，Deformable ConvNet支持端对端，并且当堆叠的更多，建模能力变的更强。</p>
+<p><strong>DeepID-Net：</strong> 引入了变形约束池化层，可认为是对目标检测变形的考虑。这项工作可实现起来很复杂。</p>
+<p><strong>Spatial manipulation in RoI pooling：</strong> 空间金字塔池化使用手工池化区域。<br><strong>Transformation invariant features and their learning：</strong> 设计特征不变变换是具有极大影响的。例如SIFT、ORB。同样在CNN背景下，有工作学习CNN内在不变的表示。有工作专门制定特征的变换。但这些变换都是先验的，在许多现实场景下，变换是未知的。而deformable convolution可以在任务中学习到各种变换。</p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><h2 id="Task"><a href="#Task" class="headerlink" title="Task"></a>Task</h2><p><strong>Semantic Segmentation：</strong> 在PASCAL VOC和CityScapes上做了测试。使用mIoU度量。训练期间，VOC的短边大小调整到360，CityScapes短边调整到1024。使用SGD优化器，8GPU每个batch为1。VOC和CityScapes上各跑30k和45k次迭代，在初始的$\frac{2}{3}$迭代使用学习率为$10^{-3}$，后$\frac{1}{3}$迭代使用学习率为$10^{-4}$。</p>
+<p><strong>Object Detection：</strong> 使用PASCAL VOC和COCO数据集。 使用标准的mAP度量。在训练和推理期间，将短边调整到600，使用SGD优化器，<code>class-aware RPN</code>每张图片上使用256个RoI，<code>Faster R-CNN</code>和<code>R-FCN</code>使用256和128个。RoI Pooling使用$7×7$bins。在VOC和COCO上训练迭代了30K和240K次，学习率依旧是在初始的$\frac{2}{3}$迭代使用学习率为$10^{-3}$，后$\frac{1}{3}$迭代使用学习率为$10^{-4}$。</p>
+<h2 id="Evaluation-of-Deformable-Convolution"><a href="#Evaluation-of-Deformable-Convolution" class="headerlink" title="Evaluation of Deformable Convolution"></a>Evaluation of Deformable Convolution</h2><p>Table 1评估了deformable convolution的影响，使用ResNet101做特征提取层。使用deformable convolution越多，精度稳步上升。对于DeepLab和<code>class-ware RPN</code>使用3个deformable convolution改进达到了饱和。</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/dBdc9hE15I.png?imageslim" alt="mark"></p>
+<p>为了更好明白deformable convolution的工作机理，论文定义了<code>effective dilation</code>度量有效滤波器。这是滤波器中所有相邻采样位置之间距离的平均值，用于测量滤波器的感受野。</p>
+<p>论文依据GT bbox和滤波器中心位置，将可变形卷积分为4类：small, medium, large, and background。下表显示了有效扩张值的统计数据：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/I7hjAljh36.png?imageslim" alt="mark"></p>
+<ul>
+<li>可变形卷积的接受野和目标大小相关，这表明形变是从内容上学习到的</li>
+<li>background目标的大小在medium和large之间，表明需要较大接收野来识别背景区域。</li>
+</ul>
+<p>模型的ResNet在后三个卷积使用扩张率为2的扩张卷积，论文进一步尝试了4,6,8，结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/7I5Gja8b6A.png?imageslim" alt="mark"></p>
+<p>这表明：</p>
+<ul>
+<li>精度随着扩张率提升而提升，这表明了接收野小的问题。</li>
+<li>不同任务的最佳扩张率不同，例如DeepLab为6， Faster R-CNN为4</li>
+<li>deformable convolution具有最佳的精度</li>
+</ul>
+<h2 id="Evaluation-of-Deformable-RoI-Pooling"><a href="#Evaluation-of-Deformable-RoI-Pooling" class="headerlink" title="Evaluation of Deformable RoI Pooling"></a>Evaluation of Deformable RoI Pooling</h2><p>在COCO上的结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/lDfkgl3kdC.png?imageslim" alt="mark"></p>
+<p>可以看到加入deformable的效果都有所提升。</p>
+<h2 id="Model-Complexity-and-Runtime"><a href="#Model-Complexity-and-Runtime" class="headerlink" title="Model Complexity and Runtime"></a>Model Complexity and Runtime</h2><p>模型加入deformable convolution的模型复杂度和运行时间：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180326/k39C4511d6.png?imageslim" alt="mark"></p>
+<p>在参数和计算上增加的开销较小，这表明性能改进来自对几何变换建模的能力。</p>
+<hr>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://presentations.cocodataset.org/COCO17-Detect-MSRA.pdf" target="_blank" rel="external">Jifeng Dai-Deformable Convolutional Networks-MSRA COCO Detection &amp; Segmentation Challenge 2017 Entry</a></p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deformable-ConvNets/" rel="tag"># Deformable ConvNets</a>
+          
+            <a href="/tags/Spatial-Transfomer/" rel="tag"># Spatial Transfomer</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/24/论文解读-Deformable-ConvNets-Part3-TenosorFlow实现STN/" rel="next" title="Part3:TenosorFlow实现STN">
+                <i class="fa fa-chevron-left"></i> Part3:TenosorFlow实现STN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/24/论文解读-Deformable-ConvNets-Part5-TensorFlow实现Deformable-ConvNets/" rel="prev" title="Part5:TensorFlow实现Deformable ConvNets">
+                Part5:TensorFlow实现Deformable ConvNets <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Deformable-Convolutional-Networks"><span class="nav-text">Deformable Convolutional Networks</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#视觉任务中存在的问题"><span class="nav-text">视觉任务中存在的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Motivation"><span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#论文的贡献"><span class="nav-text">论文的贡献</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Deformable-Convolutional-Networks-1"><span class="nav-text">Deformable Convolutional Networks</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Deformable-Convolution"><span class="nav-text">Deformable Convolution</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Deformable-ConvNets和STN对比"><span class="nav-text">Deformable ConvNets和STN对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deformable-Convolution-的反向传播"><span class="nav-text">Deformable Convolution 的反向传播</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deformable-RoI"><span class="nav-text">Deformable RoI</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Position-Sensitive-PS-RoI-Pooling"><span class="nav-text">Position-Sensitive(PS) RoI Pooling</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deformable-ConvNets"><span class="nav-text">Deformable ConvNets</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Deformable-Convolution-for-Feature-Extraction"><span class="nav-text">Deformable Convolution for Feature Extraction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Segmentation-and-Detection-Networks"><span class="nav-text">Segmentation and Detection Networks</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Understanding-Deformable-ConvNets"><span class="nav-text">Understanding Deformable ConvNets</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#In-Context-of-Related-Works"><span class="nav-text">In Context of Related Works</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Task"><span class="nav-text">Task</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Evaluation-of-Deformable-Convolution"><span class="nav-text">Evaluation of Deformable Convolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Evaluation-of-Deformable-RoI-Pooling"><span class="nav-text">Evaluation of Deformable RoI Pooling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Model-Complexity-and-Runtime"><span class="nav-text">Model Complexity and Runtime</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
