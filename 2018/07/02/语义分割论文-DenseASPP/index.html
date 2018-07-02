@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="论文将DeepLab系列中的ASPP和DenseNet中的Dense连接相结合，构成了DenseASPP,这具有更大的接收野和更密集的采样点。新的方法在CityScapes上获得了state-of-the-art的表现。">
+<meta name="keywords" content="Deep Convolutional NetWork,Semantic Segmentation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割论文-DenseASPP">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/07/02/语义分割论文-DenseASPP/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="论文将DeepLab系列中的ASPP和DenseNet中的Dense连接相结合，构成了DenseASPP,这具有更大的接收野和更密集的采样点。新的方法在CityScapes上获得了state-of-the-art的表现。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/jH2fLh1Dl8.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/DC8lji7B2I.jpg?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/hK2aIh9BEf.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/hK2aIh9BEf.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/0Jk580a0j7.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/hg91g0kj4m.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/EAc81cAcgb.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/gD0gb26HKD.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/II9aL0j4d8.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/41j1bFcf1j.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/LCfLDIikH8.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/gf1ldBhDJl.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/9c9IH2AeFC.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/8j01BLA4b9.png?imageslim">
+<meta property="og:updated_time" content="2018-07-02T10:58:40.410Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割论文-DenseASPP">
+<meta name="twitter:description" content="论文将DeepLab系列中的ASPP和DenseNet中的Dense连接相结合，构成了DenseASPP,这具有更大的接收野和更密集的采样点。新的方法在CityScapes上获得了state-of-the-art的表现。">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180702/jH2fLh1Dl8.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/07/02/语义分割论文-DenseASPP/"/>
+
+
+
+
+
+  <title>语义分割论文-DenseASPP | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/07/02/语义分割论文-DenseASPP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割论文-DenseASPP</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-02T18:29:43+08:00">
+                2018-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Paper-Reading/" itemprop="url" rel="index">
+                    <span itemprop="name">Paper Reading</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文将DeepLab系列中的ASPP和DenseNet中的Dense连接相结合，构成了DenseASPP,这具有更大的接收野和更密集的采样点。新的方法在CityScapes上获得了state-of-the-art的表现。</p>
+<a id="more"></a>
+<h1 id="DenseASPP"><a href="#DenseASPP" class="headerlink" title="DenseASPP"></a>DenseASPP</h1><p>DenseASPP for Semantic Segmentation in Street Scenes</p>
+<p>原文地址：<a href="http://openaccess.thecvf.com/content_cvpr_2018/papers/Yang_DenseASPP_for_Semantic_CVPR_2018_paper.pdf" target="_blank" rel="external">DenseASPP</a></p>
+<p>收录：CVPR2018(IEEE Conference on Computer Vision and Pattern Recognition)</p>
+<p>代码:</p>
+<ul>
+<li><a href="https://github.com/DeepMotionAIResearch/DenseASPP" target="_blank" rel="external">PyTorch</a></li>
+</ul>
+<p>关于扩张卷积和DenseNet的相关文章解读：</p>
+<ul>
+<li><a href="http://hellodfan.com/2018/03/07/%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2%E8%AE%BA%E6%96%87-Dilated-Residual-Networks/" target="_blank" rel="external">DRN</a></li>
+<li><a href="http://hellodfan.com/2018/03/06/%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2%E8%AE%BA%E6%96%87-Understand-Convolution-for-Semantic-Segmentation/" target="_blank" rel="external">HDC</a></li>
+<li><a href="http://hellodfan.com/2018/01/22/%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2%E8%AE%BA%E6%96%87-DeepLab%E7%B3%BB%E5%88%97/" target="_blank" rel="external">DeepLab系列</a></li>
+<li><a href="http://hellodfan.com/2017/10/19/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87-DenseNet/" target="_blank" rel="external"> DenseNet</a></li>
+</ul>
+<hr>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>使用扩张卷积(Atrous Convolution)能够在不牺牲特征图空间分辨率的同时扩大特征图的接收野，DeepLab系列工作结合多尺度信息和扩张卷积提出了ASPP模块，将不同扩张率的扩张卷积特征结合到一起。但论文认为ASPP模块在尺度轴上特征分辨率还不够密集，获取的接收野还不够大，为此提出了DenseASPP(Densely connected ASPP)，以更密集的方式连接一组扩张卷积，获得了更大的范围的扩张率和更密集的采样点。在没有显著增加模型大小的情况下，DenseASPP在CityScapes上达到了State-of-the-art的表现。</p>
+<hr>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><h2 id="ASPP模块"><a href="#ASPP模块" class="headerlink" title="ASPP模块"></a>ASPP模块</h2><p>扩张卷积用于解决特征图分辨率和接收野之间的矛盾，ASPP利用了多尺度信息进一步强化了分割效果。<a href="https://blog.csdn.net/u011974639/article/details/79138653" target="_blank" rel="external">DeepLabv2</a>中的ASPP模块如下：</p>
+<p>(<img src="http://owv7la1di.bkt.clouddn.com/blog/180702/jH2fLh1Dl8.png?imageslim" alt="mark">)</p>
+<p>但是在自动驾驶等领域有高分辨率的输入，为了获取足够大的感受野需要足够大的扩张率，但随着扩张率增加(d&gt;24)，扩张卷积的卷积核会衰退，进而无效了(<a href="https://blog.csdn.net/u011974639/article/details/79144773#t7" target="_blank" rel="external">DeepLabv3中分析过这个问题</a>)。</p>
+<h2 id="DenseNet"><a href="#DenseNet" class="headerlink" title="DenseNet"></a>DenseNet</h2><p>DenseNet中用密集连接获得更加的性能：</p>
+<p>(<img src="http://owv7la1di.bkt.clouddn.com/blog/180702/DC8lji7B2I.jpg?imageslim" alt="mark">)</p>
+<p>因为密集连接，特征的通道数会急速上升，<strong>DenseNet中使用$1×1$的卷积用于降低通道数，限制了模型大小和计算量，同样的，在本文中也使用了多个$1×1$卷积用于降低参数，限制计算量</strong>。</p>
+<h2 id="DenseASPP-1"><a href="#DenseASPP-1" class="headerlink" title="DenseASPP"></a>DenseASPP</h2><p>论文提出的DenseASPP用于解决街道场景的尺度挑战，DenseASPP包含了一个基础网络，后面接了一个多级的扩张卷积层，如下图所示：</p>
+<p>(<img src="http://owv7la1di.bkt.clouddn.com/blog/180702/hK2aIh9BEf.png?imageslim" alt="mark">)</p>
+<p>使用密集连接的方式将每个扩张卷积输出结合到一起，<strong>论文使用了较合理的扩张率(d&lt;24)，通过一系列的扩张卷积组合级联，后面的神经元会获得越来越大的感受野，同步也避免了过大扩张率的卷积导致的卷积退化</strong>。</p>
+<p>并且通过一系列的扩张卷积组合，特征图上的神经元对多个尺度的语义信息做编码，不同的中间特征图对来自不同尺度的信息做编码，DenseASPP的最终输出特征不仅覆盖了大范围的语义信息，并且还以非常密集的方式覆盖了做了信息编码。</p>
+<p>总结，论文的主要贡献在于：</p>
+<ul>
+<li>DenseASPP能够生成覆盖非常大的范围的接收野特征</li>
+<li>DenseASPP能够以非常密集的方式生成的特征</li>
+</ul>
+<p>需要注意的是，上述两个特性不能通过简单的并行或级联堆叠扩张卷积实现。</p>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>深度卷积神经网络为了获取更大感受野的特征会使用下采样(或池化)，但这会降低特征的分辨率，虽然获得特征的内部不变性但丢失了很多细节。DeepLab系列使用了扩张卷积获取更大感受野的同时保持图像的分辨率，并进一步提出了ASPP模块结合了多尺度信息，与此类似有PSPNet结合了不同尺度的池化信息。论文提出的DenseASPP结合了平行和级联的扩张卷积优点，在更大范围内生成更多尺度的特征。</p>
+<p>DenseASPP是DenseNet的特例，可以看做是所有扩张率设置为1，这分享了DenseNet的优点，包括缓解了梯度消失的问题和大幅度减少参数。</p>
+<hr>
+<h1 id="Dense-Atrous-Spatial-Pyramid-Pooling"><a href="#Dense-Atrous-Spatial-Pyramid-Pooling" class="headerlink" title="Dense Atrous Spatial Pyramid Pooling"></a>Dense Atrous Spatial Pyramid Pooling</h1><p>在道路环境中，存在不同尺度的目标物，这需要捕获不同尺度的特征，DeepLabv3给出了两个策略：</p>
+<ul>
+<li>backbone:级联的扩张卷积（这和DRN，HDC是一个思想），逐渐获取到大的感受野特征</li>
+<li>ASPP：同一输入上并行的扩张卷积组合，将输出级联到一起</li>
+</ul>
+<p>论文使用$H_{K,d}(x)$表示一个扩张卷积，ASPP表示如下：<br>$$y=H_{3,6}(x)+H_{3,12}(x)+H_{3,18}(x)+H_{3,24}(x)$$</p>
+<h2 id="Denser-feature-pyramid-and-larger-receptive-field"><a href="#Denser-feature-pyramid-and-larger-receptive-field" class="headerlink" title="Denser feature pyramid and larger receptive field"></a>Denser feature pyramid and larger receptive field</h2><p>DenseASPP的结构如下：</p>
+<p>(<img src="http://owv7la1di.bkt.clouddn.com/blog/180702/hK2aIh9BEf.png?imageslim" alt="mark">)</p>
+<p>可以看到扩张卷积级联起来，并且扩张率逐渐的增加，前面的层扩张率较低，后面的层扩张率较大。这和DenseNet的连接非常相似，DenseASPP的最终输出是由多扩张率、多尺度的扩张卷积生成的特征组成。可以将DenseASPP用如下公式表示：<br>$$ y_{l}=H_{K,,d_{l}}([y_{l-1},y_{l-2},…,y_{0}])$$<br>其中$d_{l}$表示$l$层的扩张率，$[…]$表示级联concat操作。$[y_{l-1},y_{l-2},…,y_{0}]$表示连接来自前面所有层的输出。与原先的ASPP模块相比，DenseASPP堆叠了所有扩张卷积并做了密集连接。这主要能带来2个收益：</p>
+<ul>
+<li>密集的特征金字塔(<code>denser feature pyramid</code>)</li>
+<li>更大的接收野(<code>larger receptive field.</code>)</li>
+</ul>
+<h3 id="Denser-feature-pyramid"><a href="#Denser-feature-pyramid" class="headerlink" title="Denser feature pyramid"></a>Denser feature pyramid</h3><p>扩张卷积能够增加卷积核的接收野，对于一个扩张率$d$，卷积核大小为$K$,接收野为：<br>$$R=(d-1)×(K-1)+K$$ 例如一个$3×3$的卷积扩张卷积，扩张率为$d=3$，则对应的接收野为7。</p>
+<p>堆叠两个扩张卷积能够得到更大的接收野，假设我们有两个卷积大小为$K_{1},K_{2}$，则感受野为：<br>$$K=K_{1}+K_{2}-1$$ 例如，一个尺寸为7和尺寸为13的卷积堆叠到一起，构成为接收野为19.</p>
+<p>DenseASPP由包含扩张率为$3,6,12,18$的扩张卷积，每组数字的表示扩张率的组合，长度表示等效的卷积核大小，$k$表示实际的接收野，如下所示：</p>
+<p>(<img src="http://owv7la1di.bkt.clouddn.com/blog/180702/0Jk580a0j7.png?imageslim" alt="mark">)</p>
+<ul>
+<li><code>K=3,d=3</code>: $(3-1)×(3-1)+3=7$</li>
+<li><code>K=3,d=6</code>: $(6-1)×(3-1)+3=13$</li>
+<li><code>K=3,d=3,d=6</code>: <ul>
+<li>第一个扩张卷积：$(3-1)×(3-1)+3=7 $</li>
+<li>第二个扩张卷积：$(6-1)×(3-1)+3=13$</li>
+<li>组合：$7+13-1=19$</li>
+</ul>
+</li>
+<li><code>K=3,d=12</code>: $(12-1)×(3-1)+3=25$</li>
+<li><code>K=3,d=3,12</code>: $7+25-1=31$</li>
+<li><code>K=3,d=3,6,12</code>: $7+13+25-2=43$</li>
+<li><code>K=3,d=3,6,12,18</code>: $7+13+25+37-3=79$</li>
+</ul>
+<p>显然，堆叠的扩张卷积下的DenseASPP的接收野是ASPP的一个超集(super set)。</p>
+<h3 id="更密集的采样"><a href="#更密集的采样" class="headerlink" title="更密集的采样"></a>更密集的采样</h3><p>下图(a)显示了一个传统的一维扩张卷积，扩张率为6,接收野为13：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/hg91g0kj4m.png?imageslim" alt="mark"></p>
+<p>这么大的接收野条件下，只有3个像素被采样了用于计算，这样的情况下二维的情况下会更严重，虽然得到了更大的接收野，但是在计算的过程中丢弃了大量的信息。</p>
+<p>上图(b)是扩张率3和扩张率为6的组合，和原先的扩张率为6的卷积(a)相比，(b)有7个像素参与了计算，计算更加密集。这在二维的情况下(c)有49个像素有助于计算。较大扩张率的卷积可从较小扩张率卷积中获得帮助，使得采样更为密集。</p>
+<h3 id="Larger-receptive-field"><a href="#Larger-receptive-field" class="headerlink" title="Larger receptive field"></a>Larger receptive field</h3><p>原先的ASPP是四个分支并行处理前馈，而DenseASPP模块通过了跳层共享了连接信息，大和小扩张率的卷积相互依赖，不仅构成了密集的特征金字塔，同时也获得了更大的接收野。</p>
+<p>我们用$R_{max}$表示特征金字塔的最大接收野，函数$R_{K,d}$表示卷积核大小为$K$的扩张率为$d$，则ASPP(6,12,18,24)的最大接收野为:<br>$$R_{max}=\max[R_{3,6},R_{3,12},R_{3,18},R_{3,24}]$=R_{3,24}=51$$</p>
+<p>而相对的DenseASPP(6,12,18,24)的最大接收野为：<br>$$R_{max}=R_{3,6}+R_{3,12}+R_{3,18}+R_{3,24}-3=122$$<br>这样大的感受野能够为大型目标提供全局信息。</p>
+<h2 id="Model-size-control"><a href="#Model-size-control" class="headerlink" title="Model size control"></a>Model size control</h2><p>和DenseNet类似，DenseASPP也在扩张卷积之前使用了$1×1$卷积用于减少特征图数，假设每个扩张卷积输出$n$的特征图，DenseASPP有$c_{0}$个特征图作为输入，在第$l$的$1×1$的卷积之前的第$l$个扩张卷积有$c_{l}$个输入特征图，则：<br>$$c_{l}=c_{0}+n×(l-1)$$<br>在扩张卷积之前的$1×1$卷积将通道数降低为$c_{0}/2$个通道，论文对DenseASPP中所有的扩张卷积层设置了$n=c_{0}/8$。DenseASPP中所有参数可计算为：</p>
+<p>$$\begin{align}<br>S &amp;=  \sum_{l=1}^{L}[c_{l}×1^{2}×\frac{c_{0}}{2}+\frac{c_{0}}{2}×K^{2}×n]  \\<br>&amp;= \sum_{l=1}^{L}[\frac{c_{0}}{2}(c_{0}+(l-1)×\frac{c_{0}}{8})+\frac{c_{0}}{2}×K^{2}×\frac{c_{0}}{8}] \\<br>&amp;= \frac{c_{0}^{2}}{8}(15+L+2K^{2})L \\<br>\end{align}$$</p>
+<p>其中$L$表示扩张卷积的层数，$K$表示卷积核大小。例如DenseNet121有512个通道，则$n$设置为64。又因为每个扩张卷积之前都会有一个$1×1$的卷积层用于减少通道数到256。因此，DenseASPP输出具有832个通道，参数比相应的DenseNet121要小很多。</p>
+<hr>
+<h1 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h1><p>论文在CityScapes上测试，评价标准为mIoU.</p>
+<h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><p>论文在PyTorch上实现，基本主干是在ImageNet上预训练，论文移除了后面两个池化层和分类层，对后面的层使用可扩张率为2和4的扩张卷积(这和DRN的处理方式一样)。修改后的ConvNet的输出是原输入的$\frac{1}{8}$,后面接DenseASPP然后上采样与ground truth做cross entropy。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>平台</td>
+<td>PyTorch</td>
+</tr>
+<tr>
+<td>优化器</td>
+<td>Adam</td>
+</tr>
+<tr>
+<td>权重衰减</td>
+<td>0.00001</td>
+</tr>
+<tr>
+<td>学习率</td>
+<td>初始是0.0003，采用的时poly策略，$1-\frac{epoch}{max_{epoch}}^{0.9}$</td>
+</tr>
+<tr>
+<td>数据增强</td>
+<td>随机翻转，随机放缩$[0.5,2]，随机亮度抖动$[-10,10]，以及随机的$512×512$的随机裁剪</td>
+</tr>
+</tbody>
+</table>
+<p>所有的模型使用batch=8,跑了80个epoch，每轮的BN参数是统一更新的。</p>
+<h2 id="DenseASPP-2"><a href="#DenseASPP-2" class="headerlink" title="DenseASPP"></a>DenseASPP</h2><p>论文使用了ResNet101为主干，配合DenseASPP(6,12,18,24)模块，在验证集上的结果如下，可以看到DenseASPP显著的提升了结果：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/EAc81cAcgb.png?imageslim" alt="mark"></p>
+<p>部分的可视化结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/gD0gb26HKD.png?imageslim" alt="mark"></p>
+<h2 id="Detailed-study-on-DenseASPP-components"><a href="#Detailed-study-on-DenseASPP-components" class="headerlink" title="Detailed study on DenseASPP components"></a>Detailed study on DenseASPP components</h2><p>不同的DenseASPP设置得到的结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/II9aL0j4d8.png?imageslim" alt="mark"></p>
+<p>可以看到大概的趋势是随着接收野的增大，性能也提升。直到接收野到128后逐渐下降。</p>
+<h2 id="Comparing-with-state-of-the-art"><a href="#Comparing-with-state-of-the-art" class="headerlink" title="Comparing with state-of-the-art"></a>Comparing with state-of-the-art</h2><p>论文在DenseNet161的基础上在精标签的数据上做训练，使用了多尺度${0.5, 0.8, 1.0, 1.2, 1.5, 2.0}$，与现有的先进模型对比，最终的结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/41j1bFcf1j.png?imageslim" alt="mark"></p>
+<p>各个分类结果如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/LCfLDIikH8.png?imageslim" alt="mark"></p>
+<h2 id="Ablation-Studies"><a href="#Ablation-Studies" class="headerlink" title="Ablation Studies"></a>Ablation Studies</h2><p>论文研究了接收野大小和尺度/像素的采样率。</p>
+<h3 id="Feature-similarities"><a href="#Feature-similarities" class="headerlink" title="Feature similarities"></a>Feature similarities</h3><p>可以看到下面两个例子，有足够的上下问才能够准确分类：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/gf1ldBhDJl.png?imageslim" alt="mark"></p>
+<h3 id="Visualization-of-receptive-field"><a href="#Visualization-of-receptive-field" class="headerlink" title="Visualization of receptive field"></a>Visualization of receptive field</h3><p>配合的移除后续池化层的可视化结果：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/9c9IH2AeFC.png?imageslim" alt="mark"></p>
+<p>DenseASPP和ASPP对比的接收野如下：</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180702/8j01BLA4b9.png?imageslim" alt="mark"></p>
+<hr>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>DenseASPP能够以更密集的方式连接一组扩张卷积，可以在很大范围内有效的生成密集的空间采样和特征，在CityScapes上测试得到了state-of-the-art的结果。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/08/语义分割论文-Deep-TEN-Texture-Encoding-Network/" rel="next" title="语义分割论文-Deep TEN: Texture Encoding Network">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-Deep TEN: Texture Encoding Network
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DenseASPP"><span class="nav-text">DenseASPP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ASPP模块"><span class="nav-text">ASPP模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DenseNet"><span class="nav-text">DenseNet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DenseASPP-1"><span class="nav-text">DenseASPP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-Work"><span class="nav-text">Related Work</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dense-Atrous-Spatial-Pyramid-Pooling"><span class="nav-text">Dense Atrous Spatial Pyramid Pooling</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Denser-feature-pyramid-and-larger-receptive-field"><span class="nav-text">Denser feature pyramid and larger receptive field</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Denser-feature-pyramid"><span class="nav-text">Denser feature pyramid</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更密集的采样"><span class="nav-text">更密集的采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Larger-receptive-field"><span class="nav-text">Larger receptive field</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Model-size-control"><span class="nav-text">Model size control</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiment"><span class="nav-text">Experiment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现细节"><span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DenseASPP-2"><span class="nav-text">DenseASPP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Detailed-study-on-DenseASPP-components"><span class="nav-text">Detailed study on DenseASPP components</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Comparing-with-state-of-the-art"><span class="nav-text">Comparing with state-of-the-art</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ablation-Studies"><span class="nav-text">Ablation Studies</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Feature-similarities"><span class="nav-text">Feature similarities</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-of-receptive-field"><span class="nav-text">Visualization of receptive field</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      m
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
