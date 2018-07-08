@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="TensorFlow,Semantic Segmentation,Deep Convolutional NetWork,DeepLab," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="This is my first attempt to note blog using English. If you find some grammar mistakes or be confused in some details, please forgive and correct me. 中文可参见blog.">
+<meta name="keywords" content="TensorFlow,Semantic Segmentation,Deep Convolutional NetWork,DeepLab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DeepLabv3+ on your own dataset">
+<meta property="og:url" content="http://hfut-fan.github.io/2018/07/06/DeepLabv3-with-own-dataset/index.html">
+<meta property="og:site_name" content="DelphiFan&#39;s Blog">
+<meta property="og:description" content="This is my first attempt to note blog using English. If you find some grammar mistakes or be confused in some details, please forgive and correct me. 中文可参见blog.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/0ddBImDi00.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/I7l1CL8gGB.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/dI8b1m6aFa.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/9C7Gc5aich.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/AH4blifJde.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/cce1EHAhFm.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/eb6CKI8Hcj.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/KBbK0A14LF.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/8BEAEm64DJ.png?imageslim">
+<meta property="og:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/6L961CHk65.png?imageslim">
+<meta property="og:updated_time" content="2018-07-08T09:50:32.426Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DeepLabv3+ on your own dataset">
+<meta name="twitter:description" content="This is my first attempt to note blog using English. If you find some grammar mistakes or be confused in some details, please forgive and correct me. 中文可参见blog.">
+<meta name="twitter:image" content="http://owv7la1di.bkt.clouddn.com/blog/180707/0ddBImDi00.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hfut-fan.github.io/2018/07/06/DeepLabv3-with-own-dataset/"/>
+
+
+
+
+
+  <title>DeepLabv3+ on your own dataset | DelphiFan's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DelphiFan's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Man proposes , God disposes.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hfut-fan.github.io/2018/07/06/DeepLabv3-with-own-dataset/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DFan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DelphiFan's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">DeepLabv3+ on your own dataset</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-06T16:44:38+08:00">
+                2018-07-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programm/" itemprop="url" rel="index">
+                    <span itemprop="name">Programm</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>This is my first attempt to note blog using English. If you find some grammar mistakes or be confused in some details, please forgive and correct me.</p>
+<p>中文可参见<a href="https://blog.csdn.net/u011974639/article/details/80948990" target="_blank" rel="external">blog</a>.</p>
+<a id="more"></a>
+<h1 id="Installation-amp-Setting"><a href="#Installation-amp-Setting" class="headerlink" title="Installation &amp; Setting"></a>Installation &amp; Setting</h1><ul>
+<li><p><a href="https://github.com/tensorflow/models/tree/master/research/deeplab" target="_blank" rel="external">Project-DeepLab</a>: git this repo.</p>
+</li>
+<li><p><a href="https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/installation.md" target="_blank" rel="external">installation and demo</a>: finish installation and run testing the Installion.</p>
+</li>
+<li><p><a href="https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/cityscapes.md" target="_blank" rel="external">DeepLab on Cityscapes</a>: finish running deeplab on Cityscapes.</p>
+</li>
+</ul>
+<hr>
+<h1 id="Dataset-Preprocessing"><a href="#Dataset-Preprocessing" class="headerlink" title="Dataset Preprocessing"></a>Dataset Preprocessing</h1><p>Our task is triple classes problem. due to the limitation of the confidentiality agreement, i do not put any original image in this blog. For the convenience of presentation, then i use another dataset which name is CamVid<strong>(<a href="https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid" target="_blank" rel="external">download here</a>)</strong> to prove that training processing is correct.</p>
+<p>Main steps of dataset preprocessing are as follows:</p>
+<ul>
+<li>Data annotation</li>
+<li>Index Creation</li>
+<li>TFRecord data Generation</li>
+</ul>
+<h2 id="Data-annotation"><a href="#Data-annotation" class="headerlink" title="Data annotation"></a>Data annotation</h2><p>First i want to explain a basic concept which is <code>ignore_label</code>, beacuse i have been wasting a lot of time here.</p>
+<h3 id="ignore-label"><a href="#ignore-label" class="headerlink" title="ignore_label"></a><strong>ignore_label</strong></h3><p>Be careful do not confuse <code>ignore_label</code> with <code>background</code>. <code>ignore_label</code> is some pixels in image that we do not care about it. You would typically ignore labels for areas that mark delineations between classes, or areas where the class is undefined. As a general comment, note that background should not generally be ignored, and  <code>ignore_label</code>  is not involved in the calculation of loss.</p>
+<h3 id="grey-value-of-annotation-mask"><a href="#grey-value-of-annotation-mask" class="headerlink" title="grey value of annotation mask "></a><strong>grey value of annotation mask </strong></h3><p>The<strong> groundtruth label should contain only 1 channel(Grayscale Image)</strong> , and it is recommended to be <code>.png</code> format. </p>
+<p>if your dataset have <code>n</code> classes including background, you should label all pixels from <code>0</code> to <code>n-1</code>. Note that do not label the grey value of pixels into 10,20,100,etc…(because if you do this and the tensorflow code would match the grey value directly with the object class, and it will interfere with calculation of loss.)</p>
+<p>Finally,there is some details about generating mask:</p>
+<ul>
+<li>set all <code>background</code> mask = 0</li>
+<li>set <code>object1~n-1</code> to <code>1~1-n</code></li>
+<li>if your dataset include <code>ignore_label</code>,please set = 255</li>
+</ul>
+<p>CamVid dataset have 11 classes(no <code>ignore_label</code>), and my dataset hava 3 classes(including <code>background</code>, no <code>ignore_label</code>).</p>
+<p>Here is an example:</p>
+<p>original image:<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/0ddBImDi00.png?imageslim" alt="mark"></p>
+<p>mask image(due to camvid have not <code>ignore_label</code>, so it have not any white pixel):<br><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/I7l1CL8gGB.png?imageslim" alt="mark"></p>
+<h2 id="Index-Creation"><a href="#Index-Creation" class="headerlink" title="Index Creation"></a>Index Creation</h2><p>Index Creation means spliting dataset to three parts(train/validate/test dataset). We need create three <code>.txt</code> files to indicate how to split dataset.</p>
+<p>First, you would put original images and masks into specified folder, here is my setting:</p>
+<ul>
+<li><code>/root/dataset/CamVid/image</code>: saving all original images(701 images)</li>
+<li><code>/root/dataset/CamVid/mask</code>: saving all masks(701 masks, corresonding to original images)</li>
+</ul>
+<p>Then, we create three index files in <code>/root/dataset/CamVid/index</code> folder:</p>
+<ul>
+<li><code>train.txt</code>: index of train dataset</li>
+<li><code>trainval.txt</code>: index of validate dataset</li>
+<li><code>val.txt</code>: index of test dataset</li>
+</ul>
+<p>all <code>.txt</code> files should only include name of original images. For CamVid dataset, the blueprint for the <code>.txt</code> file can be download form <a href="https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid" target="_blank" rel="external">here</a>, then you can use <code>sublime Text</code> or other text tools to modify <code>,txt</code> files.</p>
+<p>Here is the screenshot of <strong>train/val.txt</strong>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"># train.txt</div><div class="line">0001TP_006690</div><div class="line">0001TP_006720</div><div class="line">...</div><div class="line">0016E5_08640</div><div class="line"># 367 lines</div><div class="line"></div><div class="line"># val.txt</div><div class="line">0016E5_07959</div><div class="line">...</div><div class="line">0016E5_08157</div><div class="line">0016E5_08159</div><div class="line"># 101 lines</div></pre></td></tr></table></figure>
+<h2 id="TFRecord-data-Generation"><a href="#TFRecord-data-Generation" class="headerlink" title="TFRecord data Generation"></a>TFRecord data Generation</h2><p>so we uses <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/datasets/build_voc2012_data.py" target="_blank" rel="external">build_voc2012_data.py</a> and the above generated files to make TFRecord files, refer some commends in <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/datasets/download_and_convert_voc2012.sh" target="_blank" rel="external">download_and_convert_voc2012.sh</a>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">python ./build_voc2012_data.py \</div><div class="line">  --image_folder=&quot;$&#123;IMAGE_FOLDER&#125;&quot; \</div><div class="line">  --semantic_segmentation_folder=&quot;$&#123;SEMANTIC_SEG_FOLDER&#125;&quot; \</div><div class="line">  --list_folder=&quot;$&#123;LIST_FOLDER&#125;&quot; \</div><div class="line">  --image_format=&quot;jpg&quot; \</div><div class="line">  --output_dir=&quot;$&#123;OUTPUT_DIR&#125;&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>${IMAGE_FOLDER}</code></strong> : the path of saving original images</li>
+<li><strong><code>${SEMANTIC_SEG_FOLDER}</code></strong>: the path of saving masks</li>
+<li><strong><code>${LIST_FOLDER}</code></strong>: the path of three index files</li>
+<li><strong><code>image_format</code></strong>: the format of original images, and it is <code>png</code> format in CamVid</li>
+<li><strong><code>output_dir</code></strong>: the path for saving generated TFRecord files (mkdir by yourself)</li>
+</ul>
+<p>For CamVid dataset, using commends like this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># from /research/deeplab/dataset</div><div class="line">python ./build_voc2012_data.py \</div><div class="line">  --image_folder=&quot;/root/dataset/CamVid/image&quot; \</div><div class="line">  --semantic_segmentation_folder=&quot;/root/dataset/CamVid/mask&quot; \</div><div class="line">  --list_folder=&quot;/root/dataset/CamVid/index&quot; \</div><div class="line">  --image_format=&quot;png&quot; \</div><div class="line">  --output_dir=&quot;/root/dataset/CamVid/tfrecord&quot;</div></pre></td></tr></table></figure>
+<p>Here is the screenshot of running <code>build_voc2012_data.py</code> script:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">#trainval.txt</div><div class="line">&gt;&gt; Converting image 59/233 shard 0</div><div class="line">&gt;&gt; Converting image 118/233 shard 1</div><div class="line">&gt;&gt; Converting image 177/233 shard 2</div><div class="line">&gt;&gt; Converting image 233/233 shard 3</div><div class="line">#train.txt</div><div class="line">&gt;&gt; Converting image 92/367 shard 0</div><div class="line">&gt;&gt; Converting image 184/367 shard 1</div><div class="line">&gt;&gt; Converting image 276/367 shard 2</div><div class="line">&gt;&gt; Converting image 367/367 shard 3</div><div class="line">#val.txt</div><div class="line">&gt;&gt; Converting image 26/101 shard 0</div><div class="line">&gt;&gt; Converting image 52/101 shard 1</div><div class="line">&gt;&gt; Converting image 78/101 shard 2</div><div class="line">&gt;&gt; Converting image 101/101 shard 3</div></pre></td></tr></table></figure>
+<p>and all generated TFRecord files can be find in <code>/root/dataset/CamVid/tfrecord</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$: ls</div><div class="line">train-00000-of-00004.tfrecord     trainval-00002-of-00004.tfrecord</div><div class="line">train-00001-of-00004.tfrecord     trainval-00003-of-00004.tfrecord</div><div class="line">train-00002-of-00004.tfrecord     val-00000-of-00004.tfrecord</div><div class="line">train-00003-of-00004.tfrecord     val-00001-of-00004.tfrecord</div><div class="line">trainval-00000-of-00004.tfrecord  val-00002-of-00004.tfrecord</div><div class="line">trainval-00001-of-00004.tfrecord  val-00003-of-00004.tfrecord</div></pre></td></tr></table></figure>
+<p>by the way, also you can download all the complete files in <a href="https://github.com/hfut-fan/ML-Python-examples/tree/master/%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81/index%20of%20Spliting%20CamVid" target="_blank" rel="external">index.zip</a>。</p>
+<hr>
+<h1 id="Modify-training-script"><a href="#Modify-training-script" class="headerlink" title="Modify training script"></a>Modify training script</h1><p>Base on the DeepLab repo, we mainly need modify the following documents:</p>
+<ul>
+<li><code>segmentation_dataset.py</code> file</li>
+<li><code>train_utils.py</code> file</li>
+</ul>
+<h2 id="segmentation-dataset-py"><a href="#segmentation-dataset-py" class="headerlink" title="segmentation_dataset.py"></a>segmentation_dataset.py</h2><p>For <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/datasets/segmentation_dataset.py#L110" target="_blank" rel="external"><code>segmentation_dataset.py</code></a> file L110, we need add the corresponding description about dataset.</p>
+<p>For example, the description of <code>_CAMVID</code> dataset:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># segmentation_dataset.py line 110</span></div><div class="line"></div><div class="line">_CAMVID_INFORMATION = DatasetDescriptor(</div><div class="line">    splits_to_sizes=&#123;</div><div class="line">        <span class="string">'train'</span>: <span class="number">367</span>,  <span class="comment"># num of samples in images/training</span></div><div class="line">        <span class="string">'val'</span>: <span class="number">101</span>,  <span class="comment"># num of samples in images/validation</span></div><div class="line">    &#125;,</div><div class="line">    num_classes=<span class="number">12</span>, <span class="comment"># classes(11) + ingore_label(1)</span></div><div class="line">    ignore_label=<span class="number">255</span>,</div><div class="line">)</div></pre></td></tr></table></figure>
+<p>For my own dataset, we have three ojects inclding object1,object2,background,  adding <code>ignore_label</code>, so num_classes=4:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">_MYDATA_INFORMATION = DatasetDescriptor(</div><div class="line">    splits_to_sizes=&#123;</div><div class="line">        &apos;train&apos;: 444,  # num of samples in images/training</div><div class="line">        &apos;val&apos;: 46,  # num of samples in images/validation</div><div class="line">    &#125;,</div><div class="line">    num_classes=4,</div><div class="line">    ignore_label=255,</div><div class="line">)</div></pre></td></tr></table></figure>
+<p><strong>Register dataset</strong>:</p>
+<p>Furthermore, for <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/datasets/segmentation_dataset.py#L112" target="_blank" rel="external"><code>segmentation_dataset.py</code></a> file L112, also should add the name of dataset description:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">_DATASETS_INFORMATION = &#123;</div><div class="line">    &apos;cityscapes&apos;: _CITYSCAPES_INFORMATION,</div><div class="line">    &apos;pascal_voc_seg&apos;: _PASCAL_VOC_SEG_INFORMATION,</div><div class="line">    &apos;ade20k&apos;: _ADE20K_INFORMATION,</div><div class="line">    &apos;mydata&apos;:_MYDATA_INFORMATION, # my own dataset</div><div class="line">    &apos;camvid&apos;:_CAMVID_INFORMATION, # CamVid dataset</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="train-utils-py"><a href="#train-utils-py" class="headerlink" title="train_utils.py"></a>train_utils.py</h2><p>Since the num_classes may be different, we need modify the setting of restore weight about <code>logits</code> layer in <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/utils/train_utils.py#L109" target="_blank" rel="external"><code>train_utils.py</code></a> file L109:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># Variables that will not be restored.</div><div class="line">exclude_list = [&apos;global_step&apos;,&apos;logits&apos;]</div><div class="line">if not initialize_last_layer:</div><div class="line">exclude_list.extend(last_layers)</div></pre></td></tr></table></figure>
+<h3 id="sampling-imbance"><a href="#sampling-imbance" class="headerlink" title="sampling imbance"></a>sampling imbance</h3><p>Refer the explanation of DeepLabv3+’s first author <a href="https://github.com/tensorflow/models/issues/3730#issuecomment-387100419" target="_blank" rel="external">aquariusjay</a>. If the data samples may be strongly biased to one of the classes, we call this imblance.</p>
+<p>Because the problem on the <code>CamVid</code> dataset can be ignored, here we take my dataset as example, my task is three classification tasks(<code>background</code>,<code>object1</code>,<code>object2</code>) and has serious imblance problem. </p>
+<p>To handle that, we suggest you using <code>loss_weight</code> for the undersampled class in<a href="https://github.com/tensorflow/models/blob/master/research/deeplab/utils/train_utils.py#L70" target="_blank" rel="external">train_utils.py</a> file L70. In my task, the <code>background</code> pixels account for a large proportion, and <code>object1</code> more than <code>object2</code>, so the weight ratio is <code>1:10:15</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">irgore_weight = 0</div><div class="line">label0_weight =1</div><div class="line">label1_weight = 10</div><div class="line">label2_weight = 15</div><div class="line"></div><div class="line">not_ignore_mask = </div><div class="line">tf.to_float(tf.equal(scaled_labels, 0)) * label0_weight +</div><div class="line">tf.to_float(tf.equal(scaled_labels, 1)) * label1_weight +</div><div class="line">tf.to_float(tf.equal(scaled_labels, 2)) * label2_weight +</div><div class="line">tf.to_float(tf.equal(scaled_labels, ignore_label)) * irgore_weight </div><div class="line"></div><div class="line">tf.losses.softmax_cross_entropy(</div><div class="line">    one_hot_labels,</div><div class="line">    tf.reshape(logits, shape=[-1, num_classes]),</div><div class="line">    weights=not_ignore_mask,</div><div class="line">    scope=loss_scope)</div></pre></td></tr></table></figure>
+<p>In this step, i used to confuse <code>ignore_label</code> and <code>background</code>. Finally i label <code>background=0</code> and correspending weight <code>label0_weight=1</code>, and <code>object1=1</code> and <code>label1_weight = 10</code>, etc..</p>
+<hr>
+<h1 id="Training-and-Visualization"><a href="#Training-and-Visualization" class="headerlink" title="Training and Visualization"></a>Training and Visualization</h1><p>Refer the explanation in <a href="https://github.com/tensorflow/models/issues/3730#issuecomment-380168917" target="_blank" rel="external">github- aquariusjay</a>.</p>
+<p>if you want to fine-tune DeepLab on your own dataset, then you can modify some parameters in <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/train.py" target="_blank" rel="external">train.py</a>, here has some options:</p>
+<ul>
+<li>you want to re-use all the trained wieghts, set <code>initialize_last_layer=True</code></li>
+<li>you want to re-use only the network backbone, set <code>initialize_last_layer=False</code> and <code>last_layers_contain_logits_only=False</code></li>
+<li>you want to re-use all the trained weights except the <code>logits</code>(since the num_classes may be different), set <code>initialize_last_layer=False</code> and <code>last_layers_contain_logits_only=True</code></li>
+</ul>
+<p>Finally, my setting is as follows:</p>
+<ul>
+<li><code>initialize_last_layer=False</code></li>
+<li><code>last_layers_contain_logits_only=True</code></li>
+</ul>
+<h2 id="Preliminary-training"><a href="#Preliminary-training" class="headerlink" title="Preliminary training"></a>Preliminary training</h2><p>when we training on<code>CamVid</code>,there is no consideration of the imablance problem, if your task has imblance problem, please refer to the problems in Troubleshot chapter.</p>
+<p>follow the demo in deeplab repo, there are some parameters we need modfiy:</p>
+<ul>
+<li><p><code>tf_initial_checkpoint</code>: the path of pretrained weights. Because <code>CamVid</code> are similar to <code>CityScapes</code>, so we use <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/model_zoo.md" target="_blank" rel="external"><strong>pretrain weight on CityScapes </strong></a></p>
+</li>
+<li><p><code>train_logdir</code>: the path of training checkpoint files</p>
+</li>
+<li><code>dataset_dir</code>: the path of dataset TFRecord files</li>
+<li><code>dataset</code>: the name of dataset description in <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/datasets/segmentation_dataset.py#L112" target="_blank" rel="external"><code>segmentation_dataset.py</code></a></li>
+</ul>
+<p>training commend on <code>CamVid</code> are as follows:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">python deeplab/train.py \</div><div class="line">    --logtostderr \</div><div class="line">    --training_number_of_steps=300 \</div><div class="line">    --train_split=&quot;train&quot; \</div><div class="line">    --model_variant=&quot;xception_65&quot; \</div><div class="line">    --atrous_rates=6 \</div><div class="line">    --atrous_rates=12 \</div><div class="line">    --atrous_rates=18 \</div><div class="line">    --output_stride=16 \</div><div class="line">    --decoder_output_stride=4 \</div><div class="line">    --train_crop_size=513 \</div><div class="line">    --train_crop_size=513 \</div><div class="line">    --train_batch_size=2 \</div><div class="line">    --dataset=&quot;camvid&quot; \</div><div class="line">    --tf_initial_checkpoint=&apos;/root/newP/official_tf/models-master/research/deeplab/backbone/deeplabv3_cityscapes_train/model.ckpt&apos; \</div><div class="line">    --train_logdir=&apos;/root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train&apos; \</div><div class="line">    --dataset_dir=&apos;/root/dataset/CamVid/tfrecord&apos;</div></pre></td></tr></table></figure>
+<p>Here training step only set 300, crop_size = 513 and batchsize=2, just test whether the training commend can be executed right.</p>
+<p>there are screenshot of outputs:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">INFO:tensorflow:Starting Session.</div><div class="line">INFO:tensorflow:Saving checkpoint to path /root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train/model.ckpt</div><div class="line">INFO:tensorflow:Starting Queues.</div><div class="line">INFO:tensorflow:global_step/sec: 0</div><div class="line">INFO:tensorflow:Recording summary at step 0.</div><div class="line">INFO:tensorflow:global step 10: loss = 2.7773 (0.550 sec/step)</div><div class="line">INFO:tensorflow:global step 20: loss = 2.6438 (0.531 sec/step)</div><div class="line">INFO:tensorflow:global step 30: loss = 2.4824 (0.555 sec/step)</div><div class="line">INFO:tensorflow:global step 40: loss = 2.4652 (0.564 sec/step)</div><div class="line">#...</div><div class="line">INFO:tensorflow:global step 300: loss = 1.9276 (0.534 sec/step)</div><div class="line">INFO:tensorflow:Stopping Training.</div><div class="line">INFO:tensorflow:Finished training! Saving model to disk.</div></pre></td></tr></table></figure>
+<h3 id="Visualization"><a href="#Visualization" class="headerlink" title="Visualization"></a>Visualization</h3><p>deepLab repo also provide evaluation and visualization tools, here we test the setting about <code>CamVid</code> dataset. Because the image size of <code>CamVid</code> is different from <code>CityScapes</code>, here has some parameters as follows:</p>
+<ul>
+<li><code>vis_split</code>: the category of tfrecord file                           </li>
+<li><code>vis_crop_size</code>: the size of input image (360,480)</li>
+<li><code>dataset</code>: the name of dataset description in <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/datasets/segmentation_dataset.py#L112" target="_blank" rel="external"><code>segmentation_dataset.py</code></a></li>
+<li><code>dataset_dir</code>: the path of dataset TFRecord files</li>
+<li><code>colormap_type</code>: the colormap of annotation</li>
+</ul>
+<p>Finally, vis commend on <code>CamVid</code> are as follows:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"># From tensorflow/models/research/</div><div class="line">python deeplab/vis.py \</div><div class="line">    --logtostderr \</div><div class="line">    --vis_split=&quot;val&quot; \</div><div class="line">    --model_variant=&quot;xception_65&quot; \</div><div class="line">    --atrous_rates=6 \</div><div class="line">    --atrous_rates=12 \</div><div class="line">    --atrous_rates=18 \</div><div class="line">    --output_stride=16 \</div><div class="line">    --decoder_output_stride=4 \</div><div class="line">    --vis_crop_size=360 \</div><div class="line">    --vis_crop_size=480 \</div><div class="line">    --dataset=&quot;camvid&quot; \</div><div class="line">    --colormap_type=&quot;pascal&quot; \</div><div class="line">    --checkpoint_dir=&apos;/root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train&apos; \</div><div class="line">    --vis_logdir=&apos;/root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/vis&apos; \</div><div class="line">    --dataset_dir=&apos;/root/dataset/CamVid/tfrecord&apos;</div></pre></td></tr></table></figure>
+<p>there are screenshot of outputs:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">INFO:tensorflow:Restoring parameters from /root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train/model.ckpt-300</div><div class="line">INFO:tensorflow:Visualizing batch 1 / 101</div><div class="line">INFO:tensorflow:Visualizing batch 2 / 101</div><div class="line">INFO:tensorflow:Visualizing batch 3 / 101</div><div class="line">...</div><div class="line">INFO:tensorflow:Visualizing batch 100 / 101</div><div class="line">INFO:tensorflow:Visualizing batch 101 / 101</div></pre></td></tr></table></figure>
+<p>and i select some prediction as follows:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/dI8b1m6aFa.png?imageslim" alt="mark"></p>
+<p>and we can see that the model can  run correctly, although the results are not good.</p>
+<h3 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h3><p>There are some parameters in eval commend should be modify:</p>
+<ul>
+<li><code>eval_split</code>: the category of tfrecord file    </li>
+<li><code>crop_size</code>: the size of input image (360,480)</li>
+<li><code>dataset</code>: the name of dataset description in <a href="https://github.com/tensorflow/models/blob/master/research/deeplab/datasets/segmentation_dataset.py#L112" target="_blank" rel="external"><code>segmentation_dataset.py</code></a></li>
+<li><code>dataset_dir</code>: the path of dataset TFRecord files</li>
+</ul>
+<p>Finally, eval commend on <code>CamVid</code> are as follows:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">python deeplab/eval.py \</div><div class="line">    --logtostderr \</div><div class="line">    --eval_split=&quot;val&quot; \</div><div class="line">    --model_variant=&quot;xception_65&quot; \</div><div class="line">    --atrous_rates=6 \</div><div class="line">    --atrous_rates=12 \</div><div class="line">    --atrous_rates=18 \</div><div class="line">    --output_stride=16 \</div><div class="line">    --decoder_output_stride=4 \</div><div class="line">    --eval_crop_size=360 \</div><div class="line">    --eval_crop_size=480 \</div><div class="line">    --dataset=&quot;camvid&quot; \</div><div class="line">    --checkpoint_dir=&apos;/root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train&apos; \</div><div class="line">    --eval_logdir=&apos;/root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/eval&apos; \</div><div class="line">    --dataset_dir=&apos;/root/dataset/CamVid/tfrecord&apos;</div></pre></td></tr></table></figure>
+<p>there are screenshot of outputs:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">INFO:tensorflow:Restoring parameters from /root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train/model.ckpt-300</div><div class="line">INFO:tensorflow:Running local_init_op.</div><div class="line">INFO:tensorflow:Done running local_init_op.</div><div class="line">INFO:tensorflow:Starting evaluation at 2018-07-06-06:34:28</div><div class="line">INFO:tensorflow:Evaluation [10/101]</div><div class="line">INFO:tensorflow:Evaluation [20/101]</div><div class="line">#...</div><div class="line">INFO:tensorflow:Evaluation [101/101]</div><div class="line">INFO:tensorflow:Finished evaluation at 2018-07-06-06:34:34</div><div class="line">miou_1.0[0.149601415]</div></pre></td></tr></table></figure>
+<p>The result is not cool(mIoU=0.149), but it proves that there is no big problem in our training commend.</p>
+<h2 id="Advanced-training"><a href="#Advanced-training" class="headerlink" title="Advanced training"></a>Advanced training</h2><p>After the preliminary training, we have made a further modify on training commend. I delete the trained weights saving in <code>train_logdir</code>, and modify some parameters as follows:</p>
+<ul>
+<li><code>training_number_of_steps</code>: set to 3000</li>
+<li><code>crop_size</code>: set to 321</li>
+<li><code>batch_size</code>: imporve to 4</li>
+</ul>
+<p>and new training commend on <code>CamVid</code> are as follows:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">python deeplab/train.py \</div><div class="line">    --logtostderr \</div><div class="line">    --training_number_of_steps=3000 \</div><div class="line">    --train_split=&quot;train&quot; \</div><div class="line">    --model_variant=&quot;xception_65&quot; \</div><div class="line">    --atrous_rates=6 \</div><div class="line">    --atrous_rates=12 \</div><div class="line">    --atrous_rates=18 \</div><div class="line">    --output_stride=16 \</div><div class="line">    --decoder_output_stride=4 \</div><div class="line">    --train_crop_size=321 \</div><div class="line">    --train_crop_size=321 \</div><div class="line">    --train_batch_size=4 \</div><div class="line">    --dataset=&quot;camvid&quot; \</div><div class="line">    --tf_initial_checkpoint=&apos;/root/newP/official_tf/models-master/research/deeplab/backbone/deeplabv3_cityscapes_train/model.ckpt&apos; \</div><div class="line">    --train_logdir=&apos;/root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train&apos; \</div><div class="line">    --dataset_dir=&apos;/root/dataset/CamVid/tfrecord&apos;</div></pre></td></tr></table></figure>
+<p>There are screenshot of outputs:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">INFO:tensorflow:global step 2960: loss = 0.6281 (0.407 sec/step)</div><div class="line">INFO:tensorflow:Saving checkpoint to path /root/newP/official_tf/models-master/research/deeplab/exp/camvid_train/train/model.ckpt</div><div class="line">INFO:tensorflow:global_step/sec: 2.45499</div><div class="line">INFO:tensorflow:Recording summary at step 2962.</div><div class="line">INFO:tensorflow:global step 2970: loss = 0.8240 (0.439 sec/step)</div><div class="line">INFO:tensorflow:global step 2980: loss = 0.9588 (0.385 sec/step)</div><div class="line">INFO:tensorflow:global step 2990: loss = 0.8880 (0.412 sec/step)</div><div class="line">INFO:tensorflow:global step 3000: loss = 0.8292 (0.392 sec/step)</div></pre></td></tr></table></figure>
+<h3 id="Visualization-and-Evaluation"><a href="#Visualization-and-Evaluation" class="headerlink" title="Visualization and Evaluation"></a>Visualization and Evaluation</h3><p>Reusing <code>eval.py</code> for testing:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">INFO:tensorflow:Evaluation [101/101]</div><div class="line">INFO:tensorflow:Finished evaluation at 2018-07-06-07:03:30</div><div class="line">miou_1.0[0.4015598]</div></pre></td></tr></table></figure></p>
+<p>as we can see, the new result(mIoU:0.401) has been significantly improved.</p>
+<p>and reusing <code>vis.py</code> for visualization:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/9C7Gc5aich.png?imageslim" alt="mark"></p>
+<p>and the new prediction has been pretty face.</p>
+<hr>
+<h1 id="Troubleshot"><a href="#Troubleshot" class="headerlink" title="Troubleshot"></a>Troubleshot</h1><p>the main mistake on my own dataset as follows:</p>
+<ul>
+<li>1: generating mask</li>
+<li>2: confusion between <code>ignore_label</code> and <code>background</code></li>
+<li>3: problem in setting weight</li>
+</ul>
+<p>This is very important step about how to generate mask in the front chapter. i make a mistake to set piexl of different objects(including background) to 0,100,150,etc… , and it leads to false prediction and could hardly solve imblance problem.</p>
+<h2 id="Confusion-between-ignore-label-and-background"><a href="#Confusion-between-ignore-label-and-background" class="headerlink" title="Confusion between ignore_label and background"></a>Confusion between <code>ignore_label</code> and <code>background</code></h2><p>For <code>ignore_label</code> i used to mistakenly set 0 in <code>segmentation_dataset.py</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># segmentation_dataset.py</span></div><div class="line"></div><div class="line">_CAMVID_INFORMATION = DatasetDescriptor(</div><div class="line">    splits_to_sizes=&#123;</div><div class="line">        <span class="string">'train'</span>: <span class="number">367</span>,  <span class="comment"># num of samples in images/training</span></div><div class="line">        <span class="string">'val'</span>: <span class="number">101</span>,  <span class="comment"># num of samples in images/validation</span></div><div class="line">    &#125;,</div><div class="line">    num_classes=<span class="number">3</span>,</div><div class="line">    ignore_label=<span class="number">0</span>,</div><div class="line">)</div></pre></td></tr></table></figure>
+<p>and also mistakenly set <code>num_classes</code> to 3.</p>
+<p>there are screenshot of <code>train_utils.py</code> :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">ignore_weight = 0</div><div class="line">label0_weight =20</div><div class="line">label1_weight = 20</div><div class="line"></div><div class="line">not_ignore_mask = </div><div class="line">tf.to_float(tf.equal(scaled_labels, 1)) * label0_weight </div><div class="line">+ tf.to_float(tf.equal(scaled_labels, 2)) * label1_weight </div><div class="line">+ tf.to_float(tf.equal(scaled_labels, ignore_label)) * ignore_weight</div></pre></td></tr></table></figure>
+<p>Because <code>ignore_label</code> is set to 0, and that will cuase <code>background</code> not being involved in calculation of loss.</p>
+<p>As we can see following image (Only 200 taining step) and it proves model has learn some information but there are some problems:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/AH4blifJde.png?imageslim" alt="mark"></p>
+<h2 id="Problem-in-setting-weight"><a href="#Problem-in-setting-weight" class="headerlink" title="Problem in setting weight"></a>Problem in setting weight</h2><h3 id="Prediction-always-same-color"><a href="#Prediction-always-same-color" class="headerlink" title="Prediction always same color"></a>Prediction always same color</h3><p>Because we have some mistakes on calculation of loss, there is a problem between the weights of the corresponding classes:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">## all blue</div><div class="line">irgore_weight = 0</div><div class="line">label0_weight =10</div><div class="line">label1_weight = 20</div><div class="line"></div><div class="line"></div><div class="line">## all black</div><div class="line">irgore_weight = 10</div><div class="line">label0_weight =10</div><div class="line">label1_weight = 10</div><div class="line"></div><div class="line">## all green</div><div class="line">irgore_weight = 0</div><div class="line">label0_weight =20</div><div class="line">label1_weight = 10</div></pre></td></tr></table></figure>
+<p><strong>The prediction is all blue/black/green</strong>, due to corresponding object2/background/object1 weight are too large and do not consider background. that would make model do not calcuate loss of object2/background/object1, so model can get a pretty loss by simply predicting blue/black/green.</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/cce1EHAhFm.png?imageslim" alt="mark"></p>
+<h2 id="Successful-training"><a href="#Successful-training" class="headerlink" title="Successful training"></a>Successful training</h2><p>we set weight ratio is <code>1:10:15</code>, we can get accurate weight ratio via object statistic:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">irgore_weight = 0</div><div class="line">label0_weight =1  # background</div><div class="line">label1_weight = 10 # object1</div><div class="line">label2_weight = 15 #object2</div><div class="line"></div><div class="line">not_ignore_mask = </div><div class="line">tf.to_float(tf.equal(scaled_labels, 0)) * label0_weight +</div><div class="line">tf.to_float(tf.equal(scaled_labels, 1)) * label1_weight +</div><div class="line">tf.to_float(tf.equal(scaled_labels, 2)) * label2_weight +</div><div class="line">tf.to_float(tf.equal(scaled_labels, ignore_label)) * irgore_weight</div></pre></td></tr></table></figure>
+<p>This is test result between 4000 step and 200 step:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/eb6CKI8Hcj.png?imageslim" alt="mark"></p>
+<hr>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p>Refer <a href="https://github.com/tensorflow/models/issues/3730#issuecomment-380168917" target="_blank" rel="external">aquariusjay</a> explanation about training parameters:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/KBbK0A14LF.png?imageslim" alt="mark"></p>
+<p>Refer <a href="https://github.com/tensorflow/models/issues/3730#issuecomment-387100419" target="_blank" rel="external">aquariusjay</a> explanation about imblance problem:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/8BEAEm64DJ.png?imageslim" alt="mark"></p>
+<p>Refer <a href="https://github.com/tensorflow/models/issues/3739#issuecomment-402583877" target="_blank" rel="external">github-@zhaolewen</a> explanation about annotation mask:</p>
+<p><img src="http://owv7la1di.bkt.clouddn.com/blog/180707/6L961CHk65.png?imageslim" alt="mark"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Thanks for your support!</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatqc.jpg" alt="DFan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+            <a href="/tags/Semantic-Segmentation/" rel="tag"># Semantic Segmentation</a>
+          
+            <a href="/tags/Deep-Convolutional-NetWork/" rel="tag"># Deep Convolutional NetWork</a>
+          
+            <a href="/tags/DeepLab/" rel="tag"># DeepLab</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/02/语义分割论文-DenseASPP/" rel="next" title="语义分割论文-DenseASPP">
+                <i class="fa fa-chevron-left"></i> 语义分割论文-DenseASPP
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTA1OC83NjA2"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="DFan" />
+          <p class="site-author-name" itemprop="name">DFan</p>
+           
+              <p class="site-description motion-element" itemprop="description">合肥工业大学在读</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hfut-fan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011974639" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-id-card"></i>
+                  
+                    
+                      CSDN
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Installation-amp-Setting"><span class="nav-text">Installation & Setting</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dataset-Preprocessing"><span class="nav-text">Dataset Preprocessing</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-annotation"><span class="nav-text">Data annotation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ignore-label"><span class="nav-text">ignore_label</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#grey-value-of-annotation-mask"><span class="nav-text">grey value of annotation mask </span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Index-Creation"><span class="nav-text">Index Creation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TFRecord-data-Generation"><span class="nav-text">TFRecord data Generation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Modify-training-script"><span class="nav-text">Modify training script</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#segmentation-dataset-py"><span class="nav-text">segmentation_dataset.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#train-utils-py"><span class="nav-text">train_utils.py</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#sampling-imbance"><span class="nav-text">sampling imbance</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Training-and-Visualization"><span class="nav-text">Training and Visualization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Preliminary-training"><span class="nav-text">Preliminary training</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization"><span class="nav-text">Visualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Evaluation"><span class="nav-text">Evaluation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Advanced-training"><span class="nav-text">Advanced training</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-and-Evaluation"><span class="nav-text">Visualization and Evaluation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Troubleshot"><span class="nav-text">Troubleshot</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Confusion-between-ignore-label-and-background"><span class="nav-text">Confusion between ignore_label and background</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Problem-in-setting-weight"><span class="nav-text">Problem in setting weight</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Prediction-always-same-color"><span class="nav-text">Prediction always same color</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Successful-training"><span class="nav-text">Successful training</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DFan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      m
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
